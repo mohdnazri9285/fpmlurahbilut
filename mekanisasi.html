@@ -6,11 +6,12 @@
     <title>FPMSB Lurah Bilut - Mekanisasi</title>
 
     <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="dashboard-bilut/image/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="dashboard-bilut/image/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="dashboard-bilut/image/favicon/favicon-16x16.png">
-    <link rel="manifest" href="dashboard-bilut/image/favicon/site.webmanifest">
-    <link rel="shortcut icon" href="dashboard-bilut/image/favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/image/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/image/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/image/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/image/favicon/site.webmanifest">
+    <link rel="shortcut icon" href="/image/favicon/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/image/favicon/favicon.ico">
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -18,7 +19,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        /* Copy semua CSS dari hasil.html - konsisten */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Roboto', 'Inter', sans-serif; background-color: #f0f2f5; color: #1a2c3e; overflow-x: hidden; }
         :root { --primary: #2c6e2f; --primary-dark: #1e4a1f; --primary-light: #e8f0e8; --secondary: #d4a13e; --gray-bg: #f8f9fc; --gray-border: #e2e6ea; --text-dark: #1e2a3a; --text-muted: #5a6874; --shadow-sm: 0 1px 3px rgba(0,0,0,0.05); --shadow-md: 0 4px 8px rgba(0,0,0,0.05); --transition: all 0.2s ease; }
@@ -46,11 +46,6 @@
         .card { background: white; border-radius: 20px; box-shadow: var(--shadow-md); padding: 20px 24px; margin-bottom: 28px; border: 1px solid var(--gray-border); }
         .card h3 { font-size: 1.3rem; font-weight: 600; color: var(--primary-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .card h3 i { color: var(--primary); }
-        .chart-container { margin-top: 10px; height: 400px; }
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .info-item { background: var(--gray-bg); border-radius: 16px; padding: 16px 20px; }
-        .info-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
-        .info-value { font-size: 1.2rem; font-weight: 600; color: var(--text-dark); }
         .placeholder { text-align: center; padding: 60px 20px; color: var(--text-muted); }
         .placeholder i { font-size: 4rem; color: var(--primary-light); margin-bottom: 16px; display: block; }
         footer { text-align: center; font-size: 0.7rem; padding: 20px; color: #8e9eae; }
@@ -64,7 +59,7 @@
         <ul class="nav-links">
             <li><a href="info.html"><i class="fas fa-info-circle"></i> Info Ladang</a></li>
             <li><a href="hasil.html"><i class="fas fa-chart-line"></i> Hasil</a></li>
-            <li><a href="#" class="active"><i class="fas fa-tractor"></i> Mekanisasi</a></li>
+            <li><a href="mekanisasi.html" class="active"><i class="fas fa-tractor"></i> Mekanisasi</a></li>
             <li><a href="pembajaan.html"><i class="fas fa-seedling"></i> Pembajaan</a></li>
             <li><a href="merumput.html"><i class="fas fa-cut"></i> Merumput</a></li>
             <li><a href="bap.html"><i class="fas fa-leaf"></i> BAP</a></li>
@@ -84,16 +79,4 @@
     toggleBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('expanded'); toggleBtn.classList.toggle('shifted'); });
 </script>
 </body>
-</html><!DOCTYPE HTML>
-
-<html>
-
-<head>
-  <title>Untitled</title>
-</head>
-
-<body>
-
-</body>
-
 </html>
