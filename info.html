@@ -4,11 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>FPMSB Lurah Bilut - Dashboard Ladang Interaktif</title>
+    
+    <!-- PWA / Add to Desktop Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/image/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/image/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/image/favicon/favicon-16x16.png">
     <link rel="manifest" href="/image/favicon/site.webmanifest">
     <link rel="shortcut icon" href="/image/favicon/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/image/favicon/favicon.ico">
+    <meta name="theme-color" content="#2d6a4f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FPMSB Lurah Bilut">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -26,9 +34,9 @@
         ::-webkit-scrollbar-track { background: #d4e2d0; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        .app { display: flex; min-height: 100vh; }
+        .app { display: flex; min-height: 100vh; position: relative; }
         .sidebar {
-            width: 280px; background: rgba(45, 106, 79, 0.94); backdrop-filter: blur(12px);
+            width: 280px; background: rgba(45, 106, 79, 0.96); backdrop-filter: blur(12px);
             border-right: 1px solid rgba(255,255,255,0.2); box-shadow: var(--shadow-md);
             transition: transform 0.3s ease; position: fixed; top: 0; left: 0; bottom: 0;
             z-index: 100; overflow-y: auto; transform: translateX(0);
@@ -36,15 +44,17 @@
         .sidebar.collapsed { transform: translateX(-100%); }
         .main-content { flex: 1; margin-left: 280px; transition: margin-left 0.3s ease; min-height: 100vh; }
         .main-content.expanded { margin-left: 0; }
+        
+        /* Toggle button - sentiasa nampak, styling jelas */
         .toggle-sidebar {
-            position: fixed; left: 290px; top: 24px; background: white; border: none;
-            border-radius: 50px; width: 46px; height: 46px; display: flex; align-items: center;
+            position: fixed; left: 290px; top: 20px; background: var(--primary); border: none;
+            border-radius: 50px; width: 48px; height: 48px; display: flex; align-items: center;
             justify-content: center; cursor: pointer; z-index: 102; box-shadow: var(--shadow-md);
-            transition: all 0.3s; color: var(--primary); font-size: 1.3rem;
-            background: #ffffffdd; backdrop-filter: blur(8px);
+            transition: all 0.3s; color: white; font-size: 1.3rem;
         }
-        .toggle-sidebar.shifted { left: 24px; }
-        .toggle-sidebar:hover { background: var(--primary); color: white; transform: scale(1.05) rotate(90deg); }
+        .toggle-sidebar.shifted { left: 20px; background: var(--primary); }
+        .toggle-sidebar:hover { transform: scale(1.05); background: var(--primary-dark); }
+        
         .sidebar-header { padding: 32px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px; }
         .sidebar-header h3 { font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: -0.5px; }
         .sidebar-header p { font-size: 0.75rem; color: rgba(255,255,255,0.8); margin-top: 6px; }
@@ -59,7 +69,7 @@
         .nav-links a.active { background: rgba(255,255,255,0.25); color: white; font-weight: 600; backdrop-filter: blur(4px); }
         .nav-links a:hover:not(.active) { background: rgba(255,255,255,0.15); transform: translateX(6px); }
         .container { padding: 28px 36px; }
-        .page-title { margin-bottom: 32px; margin-top: 8px; animation: fadeInUp 0.6s ease; }
+        .page-title { margin-bottom: 32px; margin-top: 10px; animation: fadeInUp 0.6s ease; }
         .page-title h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-dark), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .page-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 8px; }
         .card {
@@ -96,8 +106,11 @@
         .stat-card { text-align: center; padding: 20px 24px; background: white; border-radius: 28px; min-width: 130px; transition: var(--transition); cursor: pointer; border: 1px solid var(--gray-border); }
         .stat-card:hover { transform: scale(1.05); background: var(--primary-soft); }
         .stat-number { font-size: 2.3rem; font-weight: 800; color: var(--primary); }
-        .chart-container { position: relative; height: auto; min-height: 400px; width: 100%; margin: 15px 0; }
+        
+        /* Chart container - ditinggikan */
+        .chart-container { position: relative; height: 550px; width: 100%; margin: 15px 0; }
         canvas { max-width: 100%; height: auto; }
+        
         .summary-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         .summary-table th, .summary-table td { border: 1px solid var(--gray-border); padding: 10px 8px; text-align: center; }
         .summary-table th { background: #f1f5f9; font-weight: 600; }
@@ -112,7 +125,7 @@
         .stat-box { flex: 1; min-width: 120px; }
         .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
         .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--primary-dark); }
-        .mini-chart { margin: 20px 0; height: auto; min-height: 240px; }
+        .mini-chart { margin: 20px 0; height: auto; min-height: 260px; }
         .bap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
         .bap-card { background: var(--gray-bg); border-radius: 20px; padding: 20px; text-align: center; transition: var(--transition); }
         .bap-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
@@ -129,6 +142,7 @@
             .org-card { min-width: 160px; padding: 12px 16px; }
             .stat-number { font-size: 1.8rem; }
             .modal-body { padding: 12px; }
+            .chart-container { height: 400px; }
         }
     </style>
 </head>
@@ -156,8 +170,7 @@
 
 <script>
     Chart.register(ChartDataLabels);
-
-    // ======================= DATA PERINGKAT UNTUK HASIL (MAKLUMAT ASAL) =======================
+    
     const peringkatList = [
         { id: "001G", name: "001G", currentTHa: 3.64, targetYearTHa: 18.03, targetToMac: 4.51, luas: 512.51, avgTandanPerPkk: 0.58, monthlyTHa2026: [1.06,1.15,0.94,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.83,0.58,0.85,1.20,1.32,1.50,1.42,1.58,1.92,2.08,1.90,1.77], tandanPerPkkData: [0.70,0.46,0.58,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [17.0,17.0,20.37,null,null,null,null,null,null,null,null,null] },
         { id: "001A", name: "001A", currentTHa: 2.46, targetYearTHa: 14.04, targetToMac: 3.51, luas: 284.61, avgTandanPerPkk: 0.50, monthlyTHa2026: [0.77,0.80,1.03,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.80,0.59,0.58,1.24,1.39,1.29,1.32,1.44,1.79,1.94,1.93,1.65], tandanPerPkkData: [0.53,0.47,0.50,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [14.85,15.71,null,null,null,null,null,null,null,null,null,null] },
@@ -172,8 +185,8 @@
     ];
 
     let yieldChart;
+    let resizeTimer;
 
-    // ======================= PAGE DATA (MAKLUMAT ASAL KEKAL) =======================
     const pagesData = {
         info: { title: "🌾 Info Ladang L. Bilut", subtitle: "Maklumat Asas Rancangan FELDA Lurah Bilut — Dashboard Dinamik & Interaktif", content: `
             <div class="card"><h3><i class="fas fa-landmark"></i> Sejarah & Latar Belakang</h3><div class="info-grid"><div class="info-item"><div class="info-label">Nama Rancangan</div><div class="info-value">🏷️ FELDA Lurah Bilut</div></div><div class="info-item"><div class="info-label">Lokasi</div><div class="info-value">📍 Bentong, Pahang</div></div><div class="info-item"><div class="info-label">Tahun Dibuka</div><div class="info-value">📅 1958</div></div><div class="info-item"><div class="info-label">Status</div><div class="info-value">🏆 Rancangan Pembangunan Tanah Berkelompok Pertama Malaysia & Dunia</div></div></div><div style="margin-top:20px; padding:20px; background:linear-gradient(120deg,var(--primary-soft),white); border-radius:24px;"><p>🌱 <strong>Lurah Bilut</strong> ialah sebuah kawasan penempatan FELDA yang terletak di Bentong, Pahang. Ia mula dibuka pada tahun 1958 dan merupakan rancangan pembangunan tanah secara berkelompok untuk pertanian yang pertama ditubuhkan seumpamanya di Malaysia dan dunia. Sejak itu, ia menjadi pelopor industri sawit negara.</p></div></div>
@@ -183,7 +196,7 @@
             <div class="card"><h3><i class="fas fa-chalkboard-user"></i> Kedudukan Tenaga Kerja</h3><div class="stats-row"><div class="stat-card"><div class="stat-number">7</div><div>👨‍🌾 MANDOR</div></div><div class="stat-card"><div class="stat-number">73</div><div>🌴 PENUAI</div></div><div class="stat-card"><div class="stat-number">7</div><div>🧪 PEMBAJAAN</div></div><div class="stat-card"><div class="stat-number">16</div><div>✂️ MERUMPUT</div></div></div></div>
         `},
         hasil: { title: "📈 Laporan Hasil Ladang", subtitle: "Pencapaian mengikut Peringkat · Target vs Capai (hingga Mac 2026)", content: `
-            <div class="card"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;"><h3><i class="fas fa-chart-bar"></i> Prestasi Hasil per Peringkat (Tan/Ha)</h3><span class="badge">Klik pada bar untuk detail</span></div><div class="chart-container"><canvas id="hasilChart" style="width:100%; height:auto; max-height:450px;"></canvas></div></div>
+            <div class="card"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;"><h3><i class="fas fa-chart-bar"></i> Prestasi Hasil per Peringkat (Tan/Ha)</h3><span class="badge">Klik pada bar untuk detail</span></div><div class="chart-container"><canvas id="hasilChart" style="width:100%; height:500px;"></canvas></div></div>
             <div class="card"><h3><i class="fas fa-table"></i> Ringkasan Pencapaian Mengikut Peringkat</h3><div style="overflow-x:auto;"><table class="summary-table" id="summaryTable"><thead><tr><th>Peringkat</th><th>Luas (Ha)</th><th>Target Tahunan (T/Ha)</th><th>Pencapaian Semasa (T/Ha)</th><th>% Capai Target</th></tr></thead><tbody id="summaryTableBody"></tbody></table></div></div>
         `},
         mekanisasi: { title: "🚜 Laporan Mekanisasi", subtitle: "Penggunaan jentera & peralatan ladang", content: `<div class="card"><div class="placeholder"><i class="fas fa-tractor"></i><h3>Data Mekanisasi Akan Dikemaskini</h3><p>Maklumat penggunaan jentera, kos operasi, dan jadual penyelenggaraan akan dipaparkan di sini.</p></div></div>` },
@@ -198,7 +211,7 @@
         tbody.innerHTML = '';
         peringkatList.forEach(p => {
             const percent = ((p.currentTHa / p.targetYearTHa) * 100).toFixed(1);
-            tbody.innerHTML += `<tr style="cursor:pointer" onclick="showDetailModalByCode('${p.id}')"><td><strong>${p.name}</strong></td><td>${p.luas.toFixed(2)}</td><td>${p.targetYearTHa.toFixed(2)}</td><td>${p.currentTHa.toFixed(2)}</td><td style="color:${percent>=20?'#2c6e2f':'#d4a13e'}; font-weight:600;">${percent}%</td></tr>`;
+            tbody.innerHTML += `<tr style="cursor:pointer" onclick="showDetailModalByCode('${p.id}')"><td><strong>${p.name}</strong></td><td>${p.luas.toFixed(2)}</td><td>${p.targetYearTHa.toFixed(2)} T/Ha</td><td>${p.currentTHa.toFixed(2)} T/Ha</td><td style="color:${percent>=20?'#2c6e2f':'#d4a13e'}; font-weight:600;">${percent}%</td></tr>`;
         });
     }
 
@@ -211,50 +224,47 @@
         const targetData = peringkatList.map(p => p.targetYearTHa);
         if(yieldChart) yieldChart.destroy();
         yieldChart = new Chart(ctx, {
-            type: 'bar', data: { labels, datasets: [{ label: 'Target Tahunan (T/Ha)', data: targetData, backgroundColor: '#e8f0e8', borderColor: '#d4a13e', borderWidth: 2, borderDash: [6,6], borderRadius: 6, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', color: '#d4a13e', font: { size: 10, weight: 'bold' }, formatter: v => v.toFixed(1) } }, { label: 'Hasil Semasa (T/Ha) - Mac 2026', data: currentData, backgroundColor: '#2c6e2f', borderRadius: 6, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', color: '#1e4a1f', font: { size: 11, weight: 'bold' }, formatter: v => v.toFixed(2) } }] },
-            options: { responsive: true, maintainAspectRatio: true, layout: { padding: { top: 35 } }, plugins: { tooltip: { mode: 'index' }, legend: { position: 'top' }, datalabels: { display: true } }, scales: { y: { title: { display: true, text: 'Tan/Ha' }, beginAtZero: true, max: Math.max(...targetData, ...currentData) * 1.15 }, x: { ticks: { maxRotation: 45, minRotation: 45 } } }, onClick: (e, active) => { if(active.length) showDetailModal(peringkatList[active[0].index]); } }
+            type: 'bar', data: { labels, datasets: [{ label: 'Target Tahunan (T/Ha)', data: targetData, backgroundColor: '#e8f0e8', borderColor: '#d4a13e', borderWidth: 2, borderDash: [6,6], borderRadius: 6, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', color: '#d4a13e', font: { size: 11, weight: 'bold' }, formatter: v => v.toFixed(1) + ' T/Ha' } }, { label: 'Hasil Semasa (T/Ha) - Mac 2026', data: currentData, backgroundColor: '#2c6e2f', borderRadius: 6, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', color: '#1e4a1f', font: { size: 12, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' } }] },
+            options: { responsive: true, maintainAspectRatio: true, layout: { padding: { top: 45, bottom: 10 } }, plugins: { tooltip: { mode: 'index', callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)} T/Ha` } }, legend: { position: 'top', labels: { font: { size: 12 } } }, datalabels: { display: true } }, scales: { y: { title: { display: true, text: 'Tan/Ha', font: { size: 13, weight: 'bold' } }, beginAtZero: true, max: Math.max(...targetData, ...currentData) * 1.2, ticks: { callback: (v) => v.toFixed(1) + ' T/Ha' } }, x: { title: { display: true, text: 'Peringkat', font: { size: 13, weight: 'bold' } }, ticks: { maxRotation: 45, minRotation: 45, font: { size: 11 } } } }, onClick: (e, active) => { if(active.length) showDetailModal(peringkatList[active[0].index]); } }
         });
     }
 
     window.showDetailModalByCode = function(code) { showDetailModal(peringkatList.find(p => p.id === code)); };
-
+    
     function showDetailModal(p) {
         if(!p) return;
         const modal = document.getElementById('detailModal'), modalTitle = document.getElementById('modalTitle'), modalBody = document.getElementById('modalBody');
         modalTitle.innerText = `Peringkat ${p.name} - Analisis Terperinci`;
         const months = ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
         const activeMonths = months.slice(0,3);
-        let tableRows = "", total2025 = 0, total2026 = 0, valid2025 = 0;
+        let tableRows = "", total2025 = 0, total2026 = 0;
         for(let i=0; i<3; i++) {
             let v25 = p.monthlyTHa2025[i], v26 = p.monthlyTHa2026[i];
-            if(v25 !== null && v25 !== undefined) { total2025 += v25; valid2025++; }
+            if(v25 !== null && v25 !== undefined) total2025 += v25;
             total2026 += v26;
             let diff = (v25 && v25>0) ? ((v26 - v25)/v25*100).toFixed(1) : (v26>0?'Baru':'-');
-            tableRows += `<tr><td><strong>${activeMonths[i]}</strong></td><td>${v25!==null? v25.toFixed(2):'-'}</td><td>${v26.toFixed(2)}</td><td style="color:${diff!=='-' && parseFloat(diff)>=0?'green':'red'}">${diff}</td></tr>`;
+            tableRows += `<tr><td><strong>${activeMonths[i]}</strong></td><td>${v25!==null? v25.toFixed(2):'-'} T/Ha</td><td>${v26.toFixed(2)} T/Ha</td><td style="color:${diff!=='-' && parseFloat(diff)>=0?'green':'red'}">${diff}</td></tr>`;
         }
         const sum2025 = total2025.toFixed(2), sum2026 = total2026.toFixed(2);
         const totalDiff = (total2025>0) ? ((total2026 - total2025)/total2025*100).toFixed(1) : (total2026>0?100:0);
-
+        
         modalBody.innerHTML = `
             <div class="detail-stats">
                 <div class="stat-box"><div class="stat-label">Luas (Ha)</div><div class="stat-value">${p.luas.toFixed(2)}</div></div>
                 <div class="stat-box"><div class="stat-label">Target Tahunan (T/Ha)</div><div class="stat-value">${p.targetYearTHa.toFixed(2)}</div></div>
-                <div class="stat-box"><div class="stat-label">Target hingga Mac (Tan/Ha)</div><div class="stat-value">${p.targetToMac.toFixed(2)}</div></div>
-                <div class="stat-box"><div class="stat-label">Capai hingga Mac (Tan/Ha)</div><div class="stat-value">${p.currentTHa.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Target hingga Mac (T/Ha)</div><div class="stat-value">${p.targetToMac.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Capai hingga Mac (T/Ha)</div><div class="stat-value">${p.currentTHa.toFixed(2)}</div></div>
                 <div class="stat-box"><div class="stat-label">% Capai</div><div class="stat-value">${((p.currentTHa/p.targetToMac)*100).toFixed(1)}%</div></div>
             </div>
             <h4>📈 Trend Tandan/Pokok/Bulan (Jan - Dis 2026)</h4>
-            <div class="mini-chart"><canvas id="trendTandanChart" style="width:100%; height:240px;"></canvas></div>
+            <div class="mini-chart"><canvas id="trendTandanChart" style="width:100%; height:260px;"></canvas></div>
             <h4>⚖️ Purata Berat Tandan (kg) - Bulanan</h4>
-            <div class="mini-chart"><canvas id="trendBeratChart" style="width:100%; height:240px;"></canvas></div>
+            <div class="mini-chart"><canvas id="trendBeratChart" style="width:100%; height:260px;"></canvas></div>
             <h4>📊 Perbandingan Hasil Bulanan (T/Ha) - 2025 vs 2026</h4>
-            <div class="mini-chart"><canvas id="comparisonChart" style="width:100%; height:240px;"></canvas></div>
+            <div class="mini-chart"><canvas id="comparisonChart" style="width:100%; height:260px;"></canvas></div>
             <div style="overflow-x:auto;">
-                <table style="width:100%">
-                    <thead><tr><th>Bulan</th><th>2025 (T/Ha)</th><th>2026 (T/Ha)</th><th>Beza</th></tr></thead>
-                    <tbody>${tableRows}</tbody>
-                    <tfoot><tr style="background:#f1f5f9; font-weight:600;"><td>JUMLAH (Jan-Mac)</td><td>${sum2025}</td><td>${sum2026}</td><td style="color:${totalDiff>=0?'green':'red'}">${totalDiff}%</td></tr></tfoot>
-                </table>
+                <table style="width:100%"><thead><tr><th>Bulan</th><th>2025 (T/Ha)</th><th>2026 (T/Ha)</th><th>Beza</th></tr></thead><tbody>${tableRows}</tbody>
+                <tfoot><tr style="background:#f1f5f9; font-weight:600;"><td>JUMLAH (Jan-Mac)</td><td>${sum2025} T/Ha</td><td>${sum2026} T/Ha</td><td style="color:${totalDiff>=0?'green':'red'}">${totalDiff}%</td></tr></tfoot></table>
             </div>
             <h4 style="margin-top:28px;">📋 Analisa Ringkas</h4>
             <div style="background:#f8f9fc; padding:18px; border-radius:16px; margin-top:10px;">
@@ -279,21 +289,46 @@
         document.getElementById('pageContent').innerHTML = `<div class="page-title"><h1>${page.title}</h1><p>${page.subtitle}</p></div>${page.content}`;
         document.querySelectorAll('.nav-links a').forEach(link => { link.classList.remove('active'); if(link.getAttribute('data-page') === pageId) link.classList.add('active'); });
         history.pushState({ page: pageId }, '', `?page=${pageId}`);
-        if(pageId === 'hasil') { renderSummaryTable(); initChart(); }
+        if(pageId === 'hasil') { renderSummaryTable(); setTimeout(() => initChart(), 50); }
+    }
+
+    // Auto-hide untuk mobile & desktop - toggle button sentiasa kelihatan
+    function initSidebarToggle() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('toggleSidebarBtn');
+        
+        // Set initial state - sidebar terbuka
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('expanded');
+        toggleBtn.classList.remove('shifted');
+        
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            toggleBtn.classList.toggle('shifted');
+        });
     }
 
     document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', (e) => { e.preventDefault(); loadPage(link.getAttribute('data-page')); if(window.innerWidth <= 768) { sidebar.classList.add('collapsed'); mainContent.classList.add('expanded'); toggleBtn.classList.add('shifted'); } });
+        link.addEventListener('click', (e) => { e.preventDefault(); loadPage(link.getAttribute('data-page')); });
     });
-
-    const sidebar = document.getElementById('sidebar'), mainContent = document.getElementById('mainContent'), toggleBtn = document.getElementById('toggleSidebarBtn');
-    toggleBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('expanded'); toggleBtn.classList.toggle('shifted'); });
 
     const modal = document.getElementById('detailModal'), closeModal = document.getElementById('closeModalBtn');
     closeModal.onclick = () => modal.style.display = "none";
     window.onclick = (e) => { if(e.target === modal) modal.style.display = "none"; };
     window.addEventListener('popstate', (e) => { const urlParams = new URLSearchParams(window.location.search); loadPage(urlParams.get('page') || 'info'); });
-
+    
+    // Handle resize untuk chart
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if(yieldChart) { yieldChart.resize(); yieldChart.update(); }
+        }, 250);
+    });
+    
+    initSidebarToggle();
     const urlParams = new URLSearchParams(window.location.search);
     loadPage(urlParams.get('page') || 'info');
 </script>
