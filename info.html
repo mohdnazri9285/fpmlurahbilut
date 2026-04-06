@@ -9,338 +9,133 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/image/favicon/favicon-16x16.png">
     <link rel="manifest" href="/image/favicon/site.webmanifest">
     <link rel="shortcut icon" href="/image/favicon/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', 'Inter', 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(145deg, #eef5ea 0%, #dde8da 100%);
-            color: #1a3a2e;
-            overflow-x: hidden;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Roboto', 'Inter', sans-serif; background: linear-gradient(145deg, #eef5ea 0%, #dde8da 100%); color: #1a3a2e; overflow-x: hidden; }
         :root {
-            --primary: #2d6a4f;
-            --primary-dark: #1b4d3e;
-            --primary-light: #a7e0c0;
-            --primary-soft: #d8f3dc;
-            --secondary: #f4a261;
-            --secondary-dark: #e76f51;
-            --accent: #ffb703;
-            --dark: #2b2d42;
-            --gray-bg: #fefae0;
-            --gray-border: #e9edc9;
-            --text-dark: #2c3e2f;
-            --text-muted: #5a6e5a;
-            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
-            --shadow-glow: 0 0 15px rgba(45, 106, 79, 0.3);
-            --transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            --primary: #2d6a4f; --primary-dark: #1b4d3e; --primary-light: #a7e0c0; --primary-soft: #d8f3dc;
+            --secondary: #f4a261; --secondary-dark: #e76f51; --accent: #ffb703;
+            --gray-bg: #fefae0; --gray-border: #e9edc9; --text-dark: #2c3e2f; --text-muted: #5a6e5a;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.05); --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 20px 35px -12px rgba(0,0,0,0.2); --transition: all 0.3s ease;
         }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #d4e2d0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #d4e2d0;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-
-        /* SIDEBAR - AUTO HIDE */
-        .app {
-            display: flex;
-            min-height: 100vh;
-        }
-
+        .app { display: flex; min-height: 100vh; }
         .sidebar {
-            width: 280px;
-            background: rgba(45, 106, 79, 0.94);
-            backdrop-filter: blur(12px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: var(--shadow-md);
-            transition: transform 0.3s ease;
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            z-index: 100;
-            overflow-y: auto;
-            transform: translateX(0);
+            width: 280px; background: rgba(45, 106, 79, 0.94); backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255,255,255,0.2); box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease; position: fixed; top: 0; left: 0; bottom: 0;
+            z-index: 100; overflow-y: auto; transform: translateX(0);
         }
-
-        /* Sidebar auto-hide: bila collapsed, ia keluar dari skrin */
-        .sidebar.collapsed {
-            transform: translateX(-100%);
-        }
-
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            transition: margin-left 0.3s ease;
-            min-height: 100vh;
-        }
-
-        .main-content.expanded {
-            margin-left: 0;
-        }
-
-        /* Toggle button - sentiasa nampak */
+        .sidebar.collapsed { transform: translateX(-100%); }
+        .main-content { flex: 1; margin-left: 280px; transition: margin-left 0.3s ease; min-height: 100vh; }
+        .main-content.expanded { margin-left: 0; }
         .toggle-sidebar {
-            position: fixed;
-            left: 290px;
-            top: 24px;
-            background: white;
-            border: none;
-            border-radius: 50px;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 102;
-            box-shadow: var(--shadow-md);
-            transition: all 0.3s;
-            color: var(--primary);
-            font-size: 1.3rem;
-            background: #ffffffdd;
-            backdrop-filter: blur(8px);
+            position: fixed; left: 290px; top: 24px; background: white; border: none;
+            border-radius: 50px; width: 46px; height: 46px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; z-index: 102; box-shadow: var(--shadow-md);
+            transition: all 0.3s; color: var(--primary); font-size: 1.3rem;
+            background: #ffffffdd; backdrop-filter: blur(8px);
         }
-
-        /* Bila sidebar collapsed, toggle button bergerak ke tepi kiri */
-        .toggle-sidebar.shifted {
-            left: 24px;
-        }
-
-        .toggle-sidebar:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.05) rotate(90deg);
-            box-shadow: var(--shadow-glow);
-        }
-
-        /* Sidebar styling */
-        .sidebar-header {
-            padding: 32px 24px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 20px;
-        }
-        .sidebar-header h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-            letter-spacing: -0.5px;
-        }
-        .sidebar-header p {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 6px;
-        }
-        .nav-links {
-            list-style: none;
-            padding: 0 16px;
-        }
-        .nav-links li {
-            margin-bottom: 8px;
-        }
+        .toggle-sidebar.shifted { left: 24px; }
+        .toggle-sidebar:hover { background: var(--primary); color: white; transform: scale(1.05) rotate(90deg); }
+        .sidebar-header { padding: 32px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px; }
+        .sidebar-header h3 { font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: -0.5px; }
+        .sidebar-header p { font-size: 0.75rem; color: rgba(255,255,255,0.8); margin-top: 6px; }
+        .nav-links { list-style: none; padding: 0 16px; }
+        .nav-links li { margin-bottom: 8px; }
         .nav-links a {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 18px;
-            border-radius: 16px;
-            text-decoration: none;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
-            transition: var(--transition);
-            cursor: pointer;
+            display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-radius: 16px;
+            text-decoration: none; font-weight: 500; color: rgba(255,255,255,0.9);
+            transition: var(--transition); cursor: pointer;
         }
-        .nav-links a i {
-            width: 24px;
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.85);
-        }
-        .nav-links a.active {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            font-weight: 600;
-            backdrop-filter: blur(4px);
-        }
-        .nav-links a:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateX(6px);
-        }
-
-        /* MAIN CONTENT STYLING */
-        .container {
-            padding: 28px 36px;
-        }
-        .page-title {
-            margin-bottom: 32px;
-            margin-top: 8px;
-            animation: fadeInUp 0.6s ease;
-        }
-        .page-title h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.5px;
-        }
-        .page-title p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-top: 8px;
-        }
-
-        /* CARD GLASSMORPHISM */
+        .nav-links a i { width: 24px; font-size: 1.2rem; color: rgba(255,255,255,0.85); }
+        .nav-links a.active { background: rgba(255,255,255,0.25); color: white; font-weight: 600; backdrop-filter: blur(4px); }
+        .nav-links a:hover:not(.active) { background: rgba(255,255,255,0.15); transform: translateX(6px); }
+        .container { padding: 28px 36px; }
+        .page-title { margin-bottom: 32px; margin-top: 8px; animation: fadeInUp 0.6s ease; }
+        .page-title h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-dark), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .page-title p { color: var(--text-muted); font-size: 0.95rem; margin-top: 8px; }
         .card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 32px;
-            box-shadow: var(--shadow-md);
-            padding: 26px 30px;
-            margin-bottom: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            transition: var(--transition);
+            background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border-radius: 28px;
+            box-shadow: var(--shadow-md); padding: 24px 28px; margin-bottom: 28px;
+            border: 1px solid rgba(255,255,255,0.6); transition: var(--transition);
             animation: fadeInUp 0.5s ease backwards;
         }
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-lg);
-            background: rgba(255, 255, 255, 0.95);
-            border-color: var(--primary-light);
-        }
-        .card h3 {
-            font-size: 1.45rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-bottom: 22px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-left: 5px solid var(--secondary);
-            padding-left: 18px;
-        }
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-        }
-        .info-item {
-            background: white;
-            border-radius: 24px;
-            padding: 18px 22px;
-            transition: var(--transition);
-            border: 1px solid var(--gray-border);
-            box-shadow: var(--shadow-sm);
-        }
-        .info-item:hover {
-            border-color: var(--primary);
-            transform: scale(1.02);
-            box-shadow: var(--shadow-md);
-        }
-        .info-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--secondary-dark);
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        .info-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-        .vision-mission {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 28px;
-            margin-bottom: 12px;
-        }
-        .vm-card {
-            background: linear-gradient(145deg, #ffffff, var(--primary-soft));
-            border-radius: 28px;
-            padding: 30px 20px;
-            text-align: center;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .vm-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
-            background: white;
-        }
-        .vm-card i {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 16px;
-            transition: var(--transition);
-        }
-        .values-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            margin-top: 10px;
-        }
-        .value-badge {
-            background: linear-gradient(120deg, var(--primary-soft), #c8e6d9);
-            padding: 8px 22px;
-            border-radius: 60px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--primary-dark);
-            transition: var(--transition);
-            cursor: pointer;
-        }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); background: rgba(255,255,255,0.95); }
+        .card h3 { font-size: 1.4rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; border-left: 5px solid var(--secondary); padding-left: 18px; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .info-item { background: white; border-radius: 20px; padding: 16px 20px; transition: var(--transition); border: 1px solid var(--gray-border); }
+        .info-item:hover { border-color: var(--primary); transform: scale(1.02); }
+        .info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--secondary-dark); margin-bottom: 8px; font-weight: 700; }
+        .info-value { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); }
+        .vision-mission { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+        .vm-card { background: linear-gradient(145deg, #ffffff, var(--primary-soft)); border-radius: 28px; padding: 28px 20px; text-align: center; transition: var(--transition); cursor: pointer; }
+        .vm-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+        .vm-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 16px; }
+        .values-list { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+        .value-badge { background: linear-gradient(120deg, var(--primary-soft), #c8e6d9); padding: 8px 20px; border-radius: 60px; font-size: 0.85rem; font-weight: 600; color: var(--primary-dark); transition: var(--transition); cursor: pointer; }
+        .value-badge:hover { background: var(--primary); color: white; transform: translateY(-2px); }
         .org-chart { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         .org-level { display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; }
-        .org-card {
-            background: white;
-            border-radius: 24px;
-            padding: 18px 28px;
-            min-width: 210px;
-            text-align: center;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition);
-            border: 1px solid var(--gray-border);
-        }
+        .org-card { background: white; border-radius: 24px; padding: 16px 24px; min-width: 200px; text-align: center; box-shadow: var(--shadow-md); transition: var(--transition); border: 1px solid var(--gray-border); cursor: pointer; }
+        .org-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
         .fc-card { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
         .fc-card .org-role, .fc-card .org-name { color: white; }
-        .org-role { font-weight: 800; font-size: 0.85rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .org-role { font-weight: 800; font-size: 0.8rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
         .connector-line { width: 2px; height: 24px; background: linear-gradient(to bottom, var(--primary), var(--secondary)); margin: 4px auto; }
         .fs-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; width: 100%; margin-top: 16px; }
-        .fs-box { background: rgba(255, 248, 225, 0.9); border-radius: 28px; padding: 18px 24px; min-width: 250px; backdrop-filter: blur(4px); }
-        .stats-row { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-around; }
-        .stat-card { text-align: center; padding: 24px 28px; background: white; border-radius: 32px; min-width: 140px; transition: var(--transition); cursor: pointer; border: 1px solid var(--gray-border); }
+        .fs-box { background: rgba(255,248,225,0.9); border-radius: 28px; padding: 16px 20px; min-width: 250px; backdrop-filter: blur(4px); }
+        .stats-row { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-around; }
+        .stat-card { text-align: center; padding: 20px 24px; background: white; border-radius: 28px; min-width: 130px; transition: var(--transition); cursor: pointer; border: 1px solid var(--gray-border); }
         .stat-card:hover { transform: scale(1.05); background: var(--primary-soft); }
-        .stat-number { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
-        footer { text-align: center; font-size: 0.7rem; padding: 24px; color: #7a8e7a; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 20px; }
+        .stat-number { font-size: 2.3rem; font-weight: 800; color: var(--primary); }
+        .chart-container { position: relative; height: auto; min-height: 400px; width: 100%; margin: 15px 0; }
+        canvas { max-width: 100%; height: auto; }
+        .summary-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .summary-table th, .summary-table td { border: 1px solid var(--gray-border); padding: 10px 8px; text-align: center; }
+        .summary-table th { background: #f1f5f9; font-weight: 600; }
+        .badge { background: var(--primary-light); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 95%; max-width: 1300px; max-height: 85vh; border-radius: 28px; overflow-y: auto; }
+        .modal-header { padding: 18px 24px; border-bottom: 1px solid var(--gray-border); display: flex; justify-content: space-between; align-items: center; background: var(--primary-light); border-radius: 28px 28px 0 0; }
+        .modal-header h2 { font-size: 1.3rem; color: var(--primary-dark); }
+        .close-modal { font-size: 28px; cursor: pointer; background: none; border: none; }
+        .modal-body { padding: 20px 24px; }
+        .detail-stats { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 20px; }
+        .stat-box { flex: 1; min-width: 120px; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--primary-dark); }
+        .mini-chart { margin: 20px 0; height: auto; min-height: 240px; }
+        .bap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .bap-card { background: var(--gray-bg); border-radius: 20px; padding: 20px; text-align: center; transition: var(--transition); }
+        .bap-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .bap-card i { font-size: 2.2rem; color: var(--primary); margin-bottom: 12px; }
+        .placeholder { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .placeholder i { font-size: 3rem; color: var(--primary-light); margin-bottom: 12px; display: block; }
+        footer { text-align: center; font-size: 0.7rem; padding: 20px; color: #7a8e7a; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 20px; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 768px) { .container { padding: 16px; } .vision-mission { grid-template-columns: 1fr; } .org-card { min-width: 160px; } }
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            .vision-mission { grid-template-columns: 1fr; }
+            .card { padding: 16px; }
+            .card h3 { font-size: 1.2rem; }
+            .org-card { min-width: 160px; padding: 12px 16px; }
+            .stat-number { font-size: 1.8rem; }
+            .modal-body { padding: 12px; }
+        }
     </style>
 </head>
 <body>
 <div class="app">
-    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h3>🌿 FPMSB<br>Lurah Bilut</h3>
-            <p>Dashboard Operasi Interaktif</p>
-        </div>
+        <div class="sidebar-header"><h3>🌿 FPMSB<br>Lurah Bilut</h3><p>Dashboard Operasi Interaktif</p></div>
         <ul class="nav-links" id="navLinks">
             <li><a data-page="info" class="active"><i class="fas fa-tachometer-alt"></i> Info Ladang</a></li>
             <li><a data-page="hasil"><i class="fas fa-chart-line"></i> Hasil</a></li>
@@ -350,124 +145,157 @@
             <li><a data-page="bap"><i class="fas fa-leaf"></i> BAP</a></li>
         </ul>
     </div>
-
-    <!-- TOGGLE BUTTON -->
     <div class="toggle-sidebar" id="toggleSidebarBtn"><i class="fas fa-bars"></i></div>
-
-    <!-- MAIN CONTENT (dynamic) -->
     <div class="main-content" id="mainContent">
-        <div class="container" id="pageContent">
-            <!-- Content akan diisi oleh JavaScript -->
-        </div>
+        <div class="container" id="pageContent"></div>
         <footer>© 2025 FPMSB Lurah Bilut — Dashboard Ladang Interaktif | Data Operasi Sawit Terkini</footer>
     </div>
 </div>
 
+<div id="detailModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="modalTitle">Detail Peringkat</h2><button class="close-modal" id="closeModalBtn">&times;</button></div><div class="modal-body" id="modalBody"></div></div></div>
+
 <script>
-    // ======================= DATA UNTUK SEMUA HALAMAN =======================
+    Chart.register(ChartDataLabels);
+
+    // ======================= DATA PERINGKAT UNTUK HASIL (MAKLUMAT ASAL) =======================
+    const peringkatList = [
+        { id: "001G", name: "001G", currentTHa: 3.64, targetYearTHa: 18.03, targetToMac: 4.51, luas: 512.51, avgTandanPerPkk: 0.58, monthlyTHa2026: [1.06,1.15,0.94,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.83,0.58,0.85,1.20,1.32,1.50,1.42,1.58,1.92,2.08,1.90,1.77], tandanPerPkkData: [0.70,0.46,0.58,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [17.0,17.0,20.37,null,null,null,null,null,null,null,null,null] },
+        { id: "001A", name: "001A", currentTHa: 2.46, targetYearTHa: 14.04, targetToMac: 3.51, luas: 284.61, avgTandanPerPkk: 0.50, monthlyTHa2026: [0.77,0.80,1.03,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.80,0.59,0.58,1.24,1.39,1.29,1.32,1.44,1.79,1.94,1.93,1.65], tandanPerPkkData: [0.53,0.47,0.50,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [14.85,15.71,null,null,null,null,null,null,null,null,null,null] },
+        { id: "002G", name: "002G", currentTHa: 2.45, targetYearTHa: 14.07, targetToMac: 3.52, luas: 193.74, avgTandanPerPkk: 0.55, monthlyTHa2026: [0.63,0.59,0.97,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.55,0.43,0.64,0.95,1.27,1.22,1.18,1.25,1.35,1.62,1.71,1.43], tandanPerPkkData: [0.71,0.56,0.64,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [11.95,8.57,null,null,null,null,null,null,null,null,null,null] },
+        { id: "001C", name: "001C", currentTHa: 2.06, targetYearTHa: 13.65, targetToMac: 3.41, luas: 4.82, avgTandanPerPkk: 0.42, monthlyTHa2026: [0.81,0.68,0.77,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.50,0.74,0.97,1.58,0.84,1.02,0.92,0.98,1.33,2.15,2.03,1.70], tandanPerPkkData: [0.45,0.38,0.42,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [null,null,null,null,null,null,null,null,null,null,null,null] },
+        { id: "001D", name: "001D", currentTHa: 2.17, targetYearTHa: 16.37, targetToMac: 4.09, luas: 128.15, avgTandanPerPkk: 0.53, monthlyTHa2026: [0.67,0.79,0.85,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.63,0.47,0.55,1.23,1.45,0.99,1.17,1.17,1.57,1.87,1.97,1.31], tandanPerPkkData: [0.64,0.53,0.58,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [12.67,12.31,null,null,null,null,null,null,null,null,null,null] },
+        { id: "003", name: "003", currentTHa: 2.42, targetYearTHa: 15.50, targetToMac: 3.88, luas: 274.54, avgTandanPerPkk: 0.68, monthlyTHa2026: [0.66,0.79,0.85,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.70,0.52,0.50,0.94,1.33,1.29,1.29,1.42,1.92,2.06,1.83,1.65], tandanPerPkkData: [0.82,0.65,0.73,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [10.31,10.69,null,null,null,null,null,null,null,null,null,null] },
+        { id: "004", name: "004", currentTHa: 2.93, targetYearTHa: 15.68, targetToMac: 3.92, luas: 721.96, avgTandanPerPkk: 0.30, monthlyTHa2026: [1.07,1.16,1.21,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.57,0.72,0.71,0.92,0.92,1.08,1.57,1.36,1.39,1.24,1.12,1.00], tandanPerPkkData: [0.33,0.28,0.30,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [28.07,29.00,null,null,null,null,null,null,null,null,null,null] },
+        { id: "001F", name: "001F", currentTHa: 3.40, targetYearTHa: 12.11, targetToMac: 3.03, luas: 1.64, avgTandanPerPkk: 0.52, monthlyTHa2026: [0.38,0.53,0.64,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [1.83,0.88,1.87,3.13,2.45,1.88,2.97,2.82,1.54,1.82,1.44,1.10], tandanPerPkkData: [0.65,0.42,0.52,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [null,null,null,null,null,null,null,null,null,null,null,null] },
+        { id: "002F", name: "002F", currentTHa: 1.90, targetYearTHa: 13.84, targetToMac: 3.46, luas: 4.79, avgTandanPerPkk: 0.55, monthlyTHa2026: [0.82,1.02,1.22,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [1.27,1.12,1.14,2.15,1.79,2.36,1.46,1.33,1.51,0.81,1.38,1.04], tandanPerPkkData: [0.62,0.48,0.55,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [null,null,null,null,null,null,null,null,null,null,null,null] },
+        { id: "003F", name: "003F", currentTHa: 2.31, targetYearTHa: 11.63, targetToMac: 2.91, luas: 22.44, avgTandanPerPkk: 0.58, monthlyTHa2026: [0.40,0.53,0.64,null,null,null,null,null,null,null,null,null], monthlyTHa2025: [0.96,0.39,0.54,0.81,1.08,1.17,1.50,1.41,1.52,1.30,1.02,1.05], tandanPerPkkData: [0.68,0.52,0.58,null,null,null,null,null,null,null,null,null], beratTandanByMonth: [null,null,null,null,null,null,null,null,null,null,null,null] }
+    ];
+
+    let yieldChart;
+
+    // ======================= PAGE DATA (MAKLUMAT ASAL KEKAL) =======================
     const pagesData = {
-        info: {
-            title: "🌾 Info Ladang L. Bilut",
-            subtitle: "Maklumat Asas Rancangan FELDA Lurah Bilut — Dashboard Dinamik & Interaktif",
-            content: `
-                <div class="card">
-                    <h3><i class="fas fa-landmark"></i> Sejarah & Latar Belakang</h3>
-                    <div class="info-grid">
-                        <div class="info-item"><div class="info-label">Nama Rancangan</div><div class="info-value">🏷️ FELDA Lurah Bilut</div></div>
-                        <div class="info-item"><div class="info-label">Lokasi</div><div class="info-value">📍 Bentong, Pahang</div></div>
-                        <div class="info-item"><div class="info-label">Tahun Dibuka</div><div class="info-value">📅 1958</div></div>
-                        <div class="info-item"><div class="info-label">Status</div><div class="info-value">🏆 Rancangan Pembangunan Tanah Berkelompok Pertama Malaysia & Dunia</div></div>
-                    </div>
-                    <div style="margin-top:20px; padding:20px; background: linear-gradient(120deg, var(--primary-soft), white); border-radius: 24px; border-left: 4px solid var(--secondary);">
-                        <p>🌱 <strong>Lurah Bilut</strong> ialah sebuah kawasan penempatan FELDA yang terletak di Bentong, Pahang. Ia mula dibuka pada tahun 1958 dan merupakan rancangan pembangunan tanah secara berkelompok untuk pertanian yang pertama ditubuhkan seumpamanya di Malaysia dan dunia.</p>
-                    </div>
-                </div>
-                <div class="card"><h3><i class="fas fa-bullseye"></i> Visi & Misi</h3><div class="vision-mission"><div class="vm-card"><i class="fas fa-eye"></i><h4>Visi</h4><p>Menjadi pemacu dalam pembangunan progresif penempatan negara</p></div><div class="vm-card"><i class="fas fa-flag-checkered"></i><h4>Misi</h4><p>Menambah nilai kepada kepentingan peneroka & kelestarian ladang</p></div></div></div>
-                <div class="card"><h3><i class="fas fa-chart-line"></i> Tunjang Strategik & Nilai FELDA</h3><ul style="list-style:none; margin-bottom:24px;"><li style="padding:10px 0; display:flex; gap:12px;"><i class="fas fa-chart-simple" style="color:var(--primary);"></i> Mengungguli kecekapan operasi dan keberkesanan kos</li><li style="padding:10px 0; display:flex; gap:12px;"><i class="fas fa-medal" style="color:var(--primary);"></i> Menjadi pilihan utama dalam pengurusan ladang</li></ul><div class="values-list"><span class="value-badge">💰 Financial Sustainability</span><span class="value-badge">📊 Efficient & Cost Control</span><span class="value-badge">🔄 Legacy Reformation</span><span class="value-badge">💻 Digitalization People & Governance</span><span class="value-badge">🤝 Advanced Cooperative</span></div></div>
-                <div class="card"><h3><i class="fas fa-users"></i> Pengurusan Ladang</h3><div class="org-chart"><div class="org-level"><div class="org-card fc-card"><div class="org-role"><i class="fas fa-crown"></i> FIELD CONTROLLER</div><div class="org-name">ZULZAMHURI BIN MOHAMAD NOOR</div></div></div><div class="connector-line"></div><div class="org-level"><div class="org-card"><div class="org-role"><i class="fas fa-user-tie"></i> AFC 1</div><div class="org-name">Mohd Helme bin Ismail</div></div><div class="org-card"><div class="org-role"><i class="fas fa-user-tie"></i> AFC 2</div><div class="org-name">Mohd Fekre Bin Rahman</div></div></div><div class="connector-line"></div><div class="org-level"><div class="org-card"><div class="org-role"><i class="fas fa-file-alt"></i> KERANI 1</div><div class="org-name">Nurul Famiza binti Aminudin</div></div><div class="org-card"><div class="org-role"><i class="fas fa-file-alt"></i> KERANI 2</div><div class="org-name">Nur Aina Shafiqah binti Mohd Zamani</div></div></div><div style="margin:8px 0 12px;"><i class="fas fa-arrow-down" style="color: var(--primary);"></i></div><div class="fs-group"><div class="fs-box"><div class="fs-title" style="font-weight:800; margin-bottom:12px;"><i class="fas fa-hand-holding-heart"></i> FS HARVESTING</div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Harvesting 1</div><div class="org-name">Ahmad Amirul bin Khalid</div></div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Harvesting 2</div><div class="org-name">Mohd Raof bin Mohd Ibrahim</div></div><div class="org-card"><div class="org-role">FS Harvesting 3</div><div class="org-name">Hafizul fikri</div></div></div><div class="fs-box"><div class="fs-title" style="font-weight:800; margin-bottom:12px;"><i class="fas fa-seedling"></i> FS UPKEEP</div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Upkeep 1</div><div class="org-name">Nik Azman Bin Nik Wan</div></div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Upkeep 2</div><div class="org-name">Muhammad Hairul Bin Jamaluddin</div></div><div class="org-card"><div class="org-role">FS Upkeep 3</div><div class="org-name">Muhammad Izzul Muhaimin bin Edy</div></div></div></div></div></div>
-                <div class="card"><h3><i class="fas fa-chalkboard-user"></i> Kedudukan Tenaga Kerja</h3><div class="stats-row"><div class="stat-card"><div class="stat-number">7</div><div>👨‍🌾 MANDOR</div></div><div class="stat-card"><div class="stat-number">73</div><div>🌴 PENUAI</div></div><div class="stat-card"><div class="stat-number">7</div><div>🧪 PEMBAJAAN</div></div><div class="stat-card"><div class="stat-number">16</div><div>✂️ MERUMPUT</div></div></div></div>
-            `
-        },
-        hasil: { title: "📈 Hasil Ladang", subtitle: "Data pengeluaran dan hasil sawit terkini", content: `<div class="card"><h3><i class="fas fa-chart-line"></i> Hasil Pengeluaran</h3><p>Data hasil ladang akan dipaparkan di sini. (Contoh: 245 tan FFB pada bulan ini)</p><div class="stat-card" style="margin-top:20px;"><div class="stat-number">245</div><div>Tan FFB</div></div></div>` },
-        mekanisasi: { title: "🚜 Mekanisasi", subtitle: "Status jentera dan peralatan ladang", content: `<div class="card"><h3><i class="fas fa-tractor"></i> Status Jentera</h3><p>📊 Traktor beroperasi: 12 unit<br>🔧 Peralatan aktif: 85%</p></div>` },
-        pembajaan: { title: "🧪 Pembajaan", subtitle: "Jadual dan rekod pembajaan", content: `<div class="card"><h3><i class="fas fa-seedling"></i> Program Pembajaan</h3><p>Bulan ini: Fasa 2 baja NPK hijau.<br>Kawasan diaplikasi: 320 hektar.</p></div>` },
-        merumput: { title: "✂️ Merumput", subtitle: "Aktiviti kawalan rumpai", content: `<div class="card"><h3><i class="fas fa-cut"></i> Kawalan Rumpai</h3><p>Kemajuan merumput: 78% untuk bulan Mac.<br>Pasukan: 16 pekerja.</p></div>` },
-        bap: { title: "🍃 BAP (Baja & Pemupukan)", subtitle: "Laporan BAP terkini", content: `<div class="card"><h3><i class="fas fa-leaf"></i> Laporan BAP</h3><p>Program BAP Fasa 1 selesai. Seterusnya Fasa 2 akan bermula minggu depan.</p></div>` }
+        info: { title: "🌾 Info Ladang L. Bilut", subtitle: "Maklumat Asas Rancangan FELDA Lurah Bilut — Dashboard Dinamik & Interaktif", content: `
+            <div class="card"><h3><i class="fas fa-landmark"></i> Sejarah & Latar Belakang</h3><div class="info-grid"><div class="info-item"><div class="info-label">Nama Rancangan</div><div class="info-value">🏷️ FELDA Lurah Bilut</div></div><div class="info-item"><div class="info-label">Lokasi</div><div class="info-value">📍 Bentong, Pahang</div></div><div class="info-item"><div class="info-label">Tahun Dibuka</div><div class="info-value">📅 1958</div></div><div class="info-item"><div class="info-label">Status</div><div class="info-value">🏆 Rancangan Pembangunan Tanah Berkelompok Pertama Malaysia & Dunia</div></div></div><div style="margin-top:20px; padding:20px; background:linear-gradient(120deg,var(--primary-soft),white); border-radius:24px;"><p>🌱 <strong>Lurah Bilut</strong> ialah sebuah kawasan penempatan FELDA yang terletak di Bentong, Pahang. Ia mula dibuka pada tahun 1958 dan merupakan rancangan pembangunan tanah secara berkelompok untuk pertanian yang pertama ditubuhkan seumpamanya di Malaysia dan dunia. Sejak itu, ia menjadi pelopor industri sawit negara.</p></div></div>
+            <div class="card"><h3><i class="fas fa-bullseye"></i> Visi & Misi</h3><div class="vision-mission"><div class="vm-card"><i class="fas fa-eye"></i><h4>Visi</h4><p>Menjadi pemacu dalam pembangunan progresif penempatan negara</p></div><div class="vm-card"><i class="fas fa-flag-checkered"></i><h4>Misi</h4><p>Menambah nilai kepada kepentingan peneroka & kelestarian ladang</p></div></div></div>
+            <div class="card"><h3><i class="fas fa-chart-line"></i> Tunjang Strategik & Nilai FELDA</h3><ul style="list-style:none; margin-bottom:24px;"><li style="padding:10px 0; display:flex; gap:12px;"><i class="fas fa-chart-simple" style="color:var(--primary);"></i> Mengungguli kecekapan operasi dan keberkesanan kos</li><li style="padding:10px 0; display:flex; gap:12px;"><i class="fas fa-medal" style="color:var(--primary);"></i> Menjadi pilihan utama dalam pengurusan ladang</li></ul><div class="values-list"><span class="value-badge">💰 Financial Sustainability</span><span class="value-badge">📊 Efficient & Cost Control</span><span class="value-badge">🔄 Legacy Reformation</span><span class="value-badge">💻 Digitalization People & Governance</span><span class="value-badge">🤝 Advanced Cooperative</span></div></div>
+            <div class="card"><h3><i class="fas fa-users"></i> Pengurusan Ladang</h3><div class="org-chart"><div class="org-level"><div class="org-card fc-card"><div class="org-role"><i class="fas fa-crown"></i> FIELD CONTROLLER</div><div class="org-name">ZULZAMHURI BIN MOHAMAD NOOR</div></div></div><div class="connector-line"></div><div class="org-level"><div class="org-card"><div class="org-role"><i class="fas fa-user-tie"></i> AFC 1</div><div class="org-name">Mohd Helme bin Ismail</div></div><div class="org-card"><div class="org-role"><i class="fas fa-user-tie"></i> AFC 2</div><div class="org-name">Mohd Fekre Bin Rahman</div></div></div><div class="connector-line"></div><div class="org-level"><div class="org-card"><div class="org-role"><i class="fas fa-file-alt"></i> KERANI 1</div><div class="org-name">Nurul Famiza binti Aminudin</div></div><div class="org-card"><div class="org-role"><i class="fas fa-file-alt"></i> KERANI 2</div><div class="org-name">Nur Aina Shafiqah binti Mohd Zamani</div></div></div><div style="margin:8px 0 12px;"><i class="fas fa-arrow-down" style="color: var(--primary);"></i></div><div class="fs-group"><div class="fs-box"><div class="fs-title" style="font-weight:800; margin-bottom:12px;"><i class="fas fa-hand-holding-heart"></i> FS HARVESTING</div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Harvesting 1</div><div class="org-name">Ahmad Amirul bin Khalid</div></div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Harvesting 2</div><div class="org-name">Mohd Raof bin Mohd Ibrahim</div></div><div class="org-card"><div class="org-role">FS Harvesting 3</div><div class="org-name">Hafizul fikri</div></div></div><div class="fs-box"><div class="fs-title" style="font-weight:800; margin-bottom:12px;"><i class="fas fa-seedling"></i> FS UPKEEP</div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Upkeep 1</div><div class="org-name">Nik Azman Bin Nik Wan</div></div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Upkeep 2</div><div class="org-name">Muhammad Hairul Bin Jamaluddin</div></div><div class="org-card"><div class="org-role">FS Upkeep 3</div><div class="org-name">Muhammad Izzul Muhaimin bin Edy</div></div></div></div></div></div>
+            <div class="card"><h3><i class="fas fa-chalkboard-user"></i> Kedudukan Tenaga Kerja</h3><div class="stats-row"><div class="stat-card"><div class="stat-number">7</div><div>👨‍🌾 MANDOR</div></div><div class="stat-card"><div class="stat-number">73</div><div>🌴 PENUAI</div></div><div class="stat-card"><div class="stat-number">7</div><div>🧪 PEMBAJAAN</div></div><div class="stat-card"><div class="stat-number">16</div><div>✂️ MERUMPUT</div></div></div></div>
+        `},
+        hasil: { title: "📈 Laporan Hasil Ladang", subtitle: "Pencapaian mengikut Peringkat · Target vs Capai (hingga Mac 2026)", content: `
+            <div class="card"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;"><h3><i class="fas fa-chart-bar"></i> Prestasi Hasil per Peringkat (Tan/Ha)</h3><span class="badge">Klik pada bar untuk detail</span></div><div class="chart-container"><canvas id="hasilChart" style="width:100%; height:auto; max-height:450px;"></canvas></div></div>
+            <div class="card"><h3><i class="fas fa-table"></i> Ringkasan Pencapaian Mengikut Peringkat</h3><div style="overflow-x:auto;"><table class="summary-table" id="summaryTable"><thead><tr><th>Peringkat</th><th>Luas (Ha)</th><th>Target Tahunan (T/Ha)</th><th>Pencapaian Semasa (T/Ha)</th><th>% Capai Target</th></tr></thead><tbody id="summaryTableBody"></tbody></table></div></div>
+        `},
+        mekanisasi: { title: "🚜 Laporan Mekanisasi", subtitle: "Penggunaan jentera & peralatan ladang", content: `<div class="card"><div class="placeholder"><i class="fas fa-tractor"></i><h3>Data Mekanisasi Akan Dikemaskini</h3><p>Maklumat penggunaan jentera, kos operasi, dan jadual penyelenggaraan akan dipaparkan di sini.</p></div></div>` },
+        pembajaan: { title: "🧪 Laporan Pembajaan", subtitle: "Penggunaan baja & jadual pembajaan ladang", content: `<div class="card"><div class="placeholder"><i class="fas fa-seedling"></i><h3>Data Pembajaan Akan Dikemaskini</h3><p>Maklumat jenis baja, kuantiti, jadual aplikasi, dan kos pembajaan akan dipaparkan di sini.</p></div></div>` },
+        merumput: { title: "✂️ Laporan Merumput", subtitle: "Aktiviti kawalan rumpai & pembersihan ladang", content: `<div class="card"><div class="placeholder"><i class="fas fa-cut"></i><h3>Data Merumput Akan Dikemaskini</h3><p>Maklumat kawasan dirumput, kaedah, tenaga kerja, dan jadual kerja akan dipaparkan di sini.</p></div></div>` },
+        bap: { title: "🍃 Best Agriculture Practice (BAP)", subtitle: "Amalan Pertanian Terbaik & Pematuhan Standard", content: `<div class="card"><h3><i class="fas fa-check-circle"></i> Prinsip BAP</h3><div class="bap-grid"><div class="bap-card"><i class="fas fa-leaf"></i><h4>Pengurusan Tanaman</h4><p>Amalan agronomi terbaik untuk produktiviti optimum</p></div><div class="bap-card"><i class="fas fa-tint"></i><h4>Pengurusan Air</h4><p>Sistem saliran & pengairan yang efisien</p></div><div class="bap-card"><i class="fas fa-flask"></i><h4>Pengurusan Baja</h4><p>Penggunaan baja mengikut keperluan tanah & pokok</p></div><div class="bap-card"><i class="fas fa-bug"></i><h4>Kawalan Perosak</h4><p>Integrated Pest Management (IPM)</p></div><div class="bap-card"><i class="fas fa-chalkboard-user"></i><h4>Keselamatan Pekerja</h4><p>Latihan & PPE untuk keselamatan operasi</p></div><div class="bap-card"><i class="fas fa-chart-line"></i><h4>Rekod & Dokumentasi</h4><p>Perekodan aktiviti ladang yang sistematik</p></div></div></div><div class="card"><div class="placeholder"><i class="fas fa-chart-simple"></i><h3>Data Pematuhan BAP Akan Dikemaskini</h3><p>Maklumat audit, pensijilan, dan indikator pematuhan akan dipaparkan di sini.</p></div></div>` }
     };
 
-    // Fungsi untuk menukar halaman
+    function renderSummaryTable() {
+        const tbody = document.getElementById('summaryTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        peringkatList.forEach(p => {
+            const percent = ((p.currentTHa / p.targetYearTHa) * 100).toFixed(1);
+            tbody.innerHTML += `<tr style="cursor:pointer" onclick="showDetailModalByCode('${p.id}')"><td><strong>${p.name}</strong></td><td>${p.luas.toFixed(2)}</td><td>${p.targetYearTHa.toFixed(2)}</td><td>${p.currentTHa.toFixed(2)}</td><td style="color:${percent>=20?'#2c6e2f':'#d4a13e'}; font-weight:600;">${percent}%</td></tr>`;
+        });
+    }
+
+    function initChart() {
+        const canvas = document.getElementById('hasilChart');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const labels = peringkatList.map(p => p.name);
+        const currentData = peringkatList.map(p => p.currentTHa);
+        const targetData = peringkatList.map(p => p.targetYearTHa);
+        if(yieldChart) yieldChart.destroy();
+        yieldChart = new Chart(ctx, {
+            type: 'bar', data: { labels, datasets: [{ label: 'Target Tahunan (T/Ha)', data: targetData, backgroundColor: '#e8f0e8', borderColor: '#d4a13e', borderWidth: 2, borderDash: [6,6], borderRadius: 6, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', color: '#d4a13e', font: { size: 10, weight: 'bold' }, formatter: v => v.toFixed(1) } }, { label: 'Hasil Semasa (T/Ha) - Mac 2026', data: currentData, backgroundColor: '#2c6e2f', borderRadius: 6, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', color: '#1e4a1f', font: { size: 11, weight: 'bold' }, formatter: v => v.toFixed(2) } }] },
+            options: { responsive: true, maintainAspectRatio: true, layout: { padding: { top: 35 } }, plugins: { tooltip: { mode: 'index' }, legend: { position: 'top' }, datalabels: { display: true } }, scales: { y: { title: { display: true, text: 'Tan/Ha' }, beginAtZero: true, max: Math.max(...targetData, ...currentData) * 1.15 }, x: { ticks: { maxRotation: 45, minRotation: 45 } } }, onClick: (e, active) => { if(active.length) showDetailModal(peringkatList[active[0].index]); } }
+        });
+    }
+
+    window.showDetailModalByCode = function(code) { showDetailModal(peringkatList.find(p => p.id === code)); };
+
+    function showDetailModal(p) {
+        if(!p) return;
+        const modal = document.getElementById('detailModal'), modalTitle = document.getElementById('modalTitle'), modalBody = document.getElementById('modalBody');
+        modalTitle.innerText = `Peringkat ${p.name} - Analisis Terperinci`;
+        const months = ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
+        const activeMonths = months.slice(0,3);
+        let tableRows = "", total2025 = 0, total2026 = 0, valid2025 = 0;
+        for(let i=0; i<3; i++) {
+            let v25 = p.monthlyTHa2025[i], v26 = p.monthlyTHa2026[i];
+            if(v25 !== null && v25 !== undefined) { total2025 += v25; valid2025++; }
+            total2026 += v26;
+            let diff = (v25 && v25>0) ? ((v26 - v25)/v25*100).toFixed(1) : (v26>0?'Baru':'-');
+            tableRows += `<tr><td><strong>${activeMonths[i]}</strong></td><td>${v25!==null? v25.toFixed(2):'-'}</td><td>${v26.toFixed(2)}</td><td style="color:${diff!=='-' && parseFloat(diff)>=0?'green':'red'}">${diff}</td></tr>`;
+        }
+        const sum2025 = total2025.toFixed(2), sum2026 = total2026.toFixed(2);
+        const totalDiff = (total2025>0) ? ((total2026 - total2025)/total2025*100).toFixed(1) : (total2026>0?100:0);
+
+        modalBody.innerHTML = `
+            <div class="detail-stats">
+                <div class="stat-box"><div class="stat-label">Luas (Ha)</div><div class="stat-value">${p.luas.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Target Tahunan (T/Ha)</div><div class="stat-value">${p.targetYearTHa.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Target hingga Mac (Tan/Ha)</div><div class="stat-value">${p.targetToMac.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Capai hingga Mac (Tan/Ha)</div><div class="stat-value">${p.currentTHa.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">% Capai</div><div class="stat-value">${((p.currentTHa/p.targetToMac)*100).toFixed(1)}%</div></div>
+            </div>
+            <h4>📈 Trend Tandan/Pokok/Bulan (Jan - Dis 2026)</h4>
+            <div class="mini-chart"><canvas id="trendTandanChart" style="width:100%; height:240px;"></canvas></div>
+            <h4>⚖️ Purata Berat Tandan (kg) - Bulanan</h4>
+            <div class="mini-chart"><canvas id="trendBeratChart" style="width:100%; height:240px;"></canvas></div>
+            <h4>📊 Perbandingan Hasil Bulanan (T/Ha) - 2025 vs 2026</h4>
+            <div class="mini-chart"><canvas id="comparisonChart" style="width:100%; height:240px;"></canvas></div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%">
+                    <thead><tr><th>Bulan</th><th>2025 (T/Ha)</th><th>2026 (T/Ha)</th><th>Beza</th></tr></thead>
+                    <tbody>${tableRows}</tbody>
+                    <tfoot><tr style="background:#f1f5f9; font-weight:600;"><td>JUMLAH (Jan-Mac)</td><td>${sum2025}</td><td>${sum2026}</td><td style="color:${totalDiff>=0?'green':'red'}">${totalDiff}%</td></tr></tfoot>
+                </table>
+            </div>
+            <h4 style="margin-top:28px;">📋 Analisa Ringkas</h4>
+            <div style="background:#f8f9fc; padding:18px; border-radius:16px; margin-top:10px;">
+                <p style="line-height:1.6;">Pencapaian ${((p.currentTHa/p.targetToMac)*100).toFixed(1)}% dari target hingga Mac (${p.targetToMac.toFixed(2)} T/Ha). ${totalDiff>=0?'Berbanding tempoh sama 2025, hasil meningkat '+totalDiff+'%':'Berbanding tempoh sama 2025, hasil menurun '+Math.abs(totalDiff)+'%'}.</p>
+            </div>
+            <div class="subnote" style="margin-top:16px; font-size:0.7rem; color:gray;">*Data Jan–Mac 2026. Target hingga Mac berdasarkan pro-rata target tahunan (3 bulan). Bulan April–Disember 2026 akan dikemas kini selepas bulan berjalan.</div>
+        `;
+        modal.style.display = "flex";
+        setTimeout(() => {
+            const ctxT = document.getElementById('trendTandanChart');
+            const ctxB = document.getElementById('trendBeratChart');
+            const ctxC = document.getElementById('comparisonChart');
+            if(ctxT) new Chart(ctxT, { type:'line', data:{ labels:months, datasets:[{ label:'Tandan/Pokok/Bulan', data:p.tandanPerPkkData, borderColor:'#2c6e2f', backgroundColor:'rgba(44,110,47,0.1)', fill:true, tension:0.3, pointRadius:5, pointBackgroundColor:'#2c6e2f' }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ tooltip:{ callbacks:{ label:(ctx)=>ctx.raw?`${ctx.raw.toFixed(2)} tandan/pokok`:'Tiada data' } } }, scales:{ y:{ title:{ display:true, text:'Tandan/Pokok' }, beginAtZero:true } } } });
+            if(ctxB) new Chart(ctxB, { type:'bar', data:{ labels:months, datasets:[{ label:'Purata Berat Tandan (kg)', data:p.beratTandanByMonth, backgroundColor:'#d4a13e', borderRadius:6, datalabels:{ display:true, align:'top', anchor:'end', color:'#d4a13e', font:{ size:10, weight:'bold' }, formatter:(v)=>v?`${v.toFixed(1)} kg`:'' } }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ tooltip:{ callbacks:{ label:(ctx)=>ctx.raw?`${ctx.raw.toFixed(1)} kg/tandan`:'Tiada data' } } }, scales:{ y:{ title:{ display:true, text:'Berat (kg)' }, beginAtZero:true } } } });
+            if(ctxC) new Chart(ctxC, { type:'bar', data:{ labels:months, datasets:[{ label:'2025', data:p.monthlyTHa2025, backgroundColor:'#9aa9b9', borderRadius:6 },{ label:'2026', data:p.monthlyTHa2026, backgroundColor:'#2c6e2f', borderRadius:6 }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'top' } }, scales:{ y:{ title:{ display:true, text:'Tan/Ha' }, beginAtZero:true } } } });
+        }, 100);
+    }
+
     function loadPage(pageId) {
         const page = pagesData[pageId];
-        if (!page) return;
-        
-        const container = document.getElementById('pageContent');
-        container.innerHTML = `
-            <div class="page-title">
-                <h1>${page.title}</h1>
-                <p>${page.subtitle}</p>
-            </div>
-            ${page.content}
-        `;
-        
-        // Update active class pada navigation
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.classList.remove('active');
-            if(link.getAttribute('data-page') === pageId) {
-                link.classList.add('active');
-            }
-        });
-        
-        // Update URL tanpa reload dan tanpa '#' tambahan
+        if(!page) return;
+        document.getElementById('pageContent').innerHTML = `<div class="page-title"><h1>${page.title}</h1><p>${page.subtitle}</p></div>${page.content}`;
+        document.querySelectorAll('.nav-links a').forEach(link => { link.classList.remove('active'); if(link.getAttribute('data-page') === pageId) link.classList.add('active'); });
         history.pushState({ page: pageId }, '', `?page=${pageId}`);
+        if(pageId === 'hasil') { renderSummaryTable(); initChart(); }
     }
 
-    // Event listener untuk navigation links
     document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const pageId = link.getAttribute('data-page');
-            if(pageId) {
-                loadPage(pageId);
-                // Auto hide sidebar selepas klik pada mobile (optional)
-                if(window.innerWidth <= 768) {
-                    sidebar.classList.add('collapsed');
-                    mainContent.classList.add('expanded');
-                    toggleBtn.classList.add('shifted');
-                }
-            }
-        });
+        link.addEventListener('click', (e) => { e.preventDefault(); loadPage(link.getAttribute('data-page')); if(window.innerWidth <= 768) { sidebar.classList.add('collapsed'); mainContent.classList.add('expanded'); toggleBtn.classList.add('shifted'); } });
     });
 
-    // Sidebar toggle functionality
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleSidebarBtn');
-    
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('expanded');
-        toggleBtn.classList.toggle('shifted');
-    });
+    const sidebar = document.getElementById('sidebar'), mainContent = document.getElementById('mainContent'), toggleBtn = document.getElementById('toggleSidebarBtn');
+    toggleBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('expanded'); toggleBtn.classList.toggle('shifted'); });
 
-    // Handle back/forward browser buttons
-    window.addEventListener('popstate', (event) => {
-        const params = new URLSearchParams(window.location.search);
-        const page = params.get('page');
-        if(page && pagesData[page]) {
-            loadPage(page);
-        } else {
-            loadPage('info');
-        }
-    });
+    const modal = document.getElementById('detailModal'), closeModal = document.getElementById('closeModalBtn');
+    closeModal.onclick = () => modal.style.display = "none";
+    window.onclick = (e) => { if(e.target === modal) modal.style.display = "none"; };
+    window.addEventListener('popstate', (e) => { const urlParams = new URLSearchParams(window.location.search); loadPage(urlParams.get('page') || 'info'); });
 
-    // Load initial page based on URL parameter atau default 'info'
     const urlParams = new URLSearchParams(window.location.search);
-    const initialPage = urlParams.get('page');
-    if(initialPage && pagesData[initialPage]) {
-        loadPage(initialPage);
-    } else {
-        loadPage('info');
-    }
+    loadPage(urlParams.get('page') || 'info');
 </script>
 </body>
 </html>
