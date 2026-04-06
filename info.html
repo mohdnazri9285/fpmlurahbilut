@@ -47,26 +47,24 @@
         ::-webkit-scrollbar {
             width: 8px;
         }
-
         ::-webkit-scrollbar-track {
             background: #d4e2d0;
             border-radius: 10px;
         }
-
         ::-webkit-scrollbar-thumb {
             background: var(--primary);
             border-radius: 10px;
         }
 
+        /* SIDEBAR - AUTO HIDE */
         .app {
             display: flex;
             min-height: 100vh;
         }
 
-        /* SIDEBAR MODERN GLASS */
         .sidebar {
             width: 280px;
-            background: rgba(45, 106, 79, 0.92);
+            background: rgba(45, 106, 79, 0.94);
             backdrop-filter: blur(12px);
             border-right: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: var(--shadow-md);
@@ -80,6 +78,7 @@
             transform: translateX(0);
         }
 
+        /* Sidebar auto-hide: bila collapsed, ia keluar dari skrin */
         .sidebar.collapsed {
             transform: translateX(-100%);
         }
@@ -95,6 +94,7 @@
             margin-left: 0;
         }
 
+        /* Toggle button - sentiasa nampak */
         .toggle-sidebar {
             position: fixed;
             left: 290px;
@@ -102,8 +102,8 @@
             background: white;
             border: none;
             border-radius: 50px;
-            width: 46px;
-            height: 46px;
+            width: 48px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -117,6 +117,7 @@
             backdrop-filter: blur(8px);
         }
 
+        /* Bila sidebar collapsed, toggle button bergerak ke tepi kiri */
         .toggle-sidebar.shifted {
             left: 24px;
         }
@@ -128,34 +129,30 @@
             box-shadow: var(--shadow-glow);
         }
 
+        /* Sidebar styling */
         .sidebar-header {
             padding: 32px 24px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             margin-bottom: 20px;
         }
-
         .sidebar-header h3 {
             font-size: 1.5rem;
             font-weight: 700;
             color: white;
             letter-spacing: -0.5px;
         }
-
         .sidebar-header p {
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.8);
             margin-top: 6px;
         }
-
         .nav-links {
             list-style: none;
             padding: 0 16px;
         }
-
         .nav-links li {
             margin-bottom: 8px;
         }
-
         .nav-links a {
             display: flex;
             align-items: center;
@@ -166,37 +163,33 @@
             font-weight: 500;
             color: rgba(255, 255, 255, 0.9);
             transition: var(--transition);
+            cursor: pointer;
         }
-
         .nav-links a i {
             width: 24px;
             font-size: 1.2rem;
             color: rgba(255, 255, 255, 0.85);
         }
-
         .nav-links a.active {
             background: rgba(255, 255, 255, 0.25);
             color: white;
             font-weight: 600;
             backdrop-filter: blur(4px);
         }
-
         .nav-links a:hover:not(.active) {
             background: rgba(255, 255, 255, 0.15);
             transform: translateX(6px);
         }
 
+        /* MAIN CONTENT STYLING */
         .container {
             padding: 28px 36px;
         }
-
-        /* animated page title */
         .page-title {
             margin-bottom: 32px;
             margin-top: 8px;
             animation: fadeInUp 0.6s ease;
         }
-
         .page-title h1 {
             font-size: 2.2rem;
             font-weight: 800;
@@ -206,14 +199,13 @@
             color: transparent;
             letter-spacing: -0.5px;
         }
-
         .page-title p {
             color: var(--text-muted);
             font-size: 0.95rem;
             margin-top: 8px;
         }
 
-        /* CARD MODERN GLASSMORPHISM */
+        /* CARD GLASSMORPHISM */
         .card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
@@ -225,21 +217,12 @@
             transition: var(--transition);
             animation: fadeInUp 0.5s ease backwards;
         }
-
-        .card:nth-child(1) { animation-delay: 0.05s; }
-        .card:nth-child(2) { animation-delay: 0.1s; }
-        .card:nth-child(3) { animation-delay: 0.15s; }
-        .card:nth-child(4) { animation-delay: 0.2s; }
-        .card:nth-child(5) { animation-delay: 0.25s; }
-        .card:nth-child(6) { animation-delay: 0.3s; }
-
         .card:hover {
             transform: translateY(-6px);
             box-shadow: var(--shadow-lg);
             background: rgba(255, 255, 255, 0.95);
             border-color: var(--primary-light);
         }
-
         .card h3 {
             font-size: 1.45rem;
             font-weight: 700;
@@ -251,13 +234,11 @@
             border-left: 5px solid var(--secondary);
             padding-left: 18px;
         }
-
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 20px;
         }
-
         .info-item {
             background: white;
             border-radius: 24px;
@@ -266,13 +247,11 @@
             border: 1px solid var(--gray-border);
             box-shadow: var(--shadow-sm);
         }
-
         .info-item:hover {
             border-color: var(--primary);
             transform: scale(1.02);
             box-shadow: var(--shadow-md);
         }
-
         .info-label {
             font-size: 0.7rem;
             text-transform: uppercase;
@@ -281,20 +260,17 @@
             margin-bottom: 8px;
             font-weight: 700;
         }
-
         .info-value {
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--text-dark);
         }
-
         .vision-mission {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 28px;
             margin-bottom: 12px;
         }
-
         .vm-card {
             background: linear-gradient(145deg, #ffffff, var(--primary-soft));
             border-radius: 28px;
@@ -303,38 +279,23 @@
             transition: var(--transition);
             cursor: pointer;
         }
-
         .vm-card:hover {
             transform: translateY(-8px);
             box-shadow: var(--shadow-lg);
             background: white;
         }
-
         .vm-card i {
             font-size: 3rem;
             color: var(--primary);
             margin-bottom: 16px;
             transition: var(--transition);
         }
-
-        .vm-card:hover i {
-            transform: scale(1.1);
-            color: var(--secondary);
-        }
-
-        .vm-card h4 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-        }
-
         .values-list {
             display: flex;
             flex-wrap: wrap;
             gap: 14px;
             margin-top: 10px;
         }
-
         .value-badge {
             background: linear-gradient(120deg, var(--primary-soft), #c8e6d9);
             padding: 8px 22px;
@@ -345,29 +306,8 @@
             transition: var(--transition);
             cursor: pointer;
         }
-
-        .value-badge:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* ORGANIZATION CHART */
-        .org-chart {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .org-level {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
-
+        .org-chart { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .org-level { display: flex; justify-content: center; flex-wrap: wrap; gap: 24px; }
         .org-card {
             background: white;
             border-radius: 24px;
@@ -377,289 +317,157 @@
             box-shadow: var(--shadow-md);
             transition: var(--transition);
             border: 1px solid var(--gray-border);
-            cursor: pointer;
         }
-
-        .org-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-
-        .fc-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-        }
-
-        .fc-card .org-role, .fc-card .org-name {
-            color: white;
-        }
-
-        .org-role {
-            font-weight: 800;
-            font-size: 0.85rem;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .org-name {
-            font-weight: 700;
-            font-size: 1rem;
-            color: var(--text-dark);
-        }
-
-        .connector-line {
-            width: 2px;
-            height: 24px;
-            background: linear-gradient(to bottom, var(--primary), var(--secondary));
-            margin: 4px auto;
-        }
-
-        .fs-group {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 24px;
-            width: 100%;
-            margin-top: 16px;
-        }
-
-        .fs-box {
-            background: rgba(255, 248, 225, 0.9);
-            border-radius: 28px;
-            padding: 18px 24px;
-            min-width: 250px;
-            backdrop-filter: blur(4px);
-            transition: var(--transition);
-        }
-
-        .fs-box:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            background: white;
-        }
-
-        .fs-title {
-            text-align: center;
-            font-weight: 800;
-            color: var(--secondary-dark);
-            margin-bottom: 16px;
-            font-size: 1rem;
-        }
-
-        .stats-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-            justify-content: space-around;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 24px 28px;
-            background: white;
-            border-radius: 32px;
-            min-width: 140px;
-            transition: var(--transition);
-            cursor: pointer;
-            border: 1px solid var(--gray-border);
-        }
-
-        .stat-card:hover {
-            transform: scale(1.05);
-            background: var(--primary-soft);
-            border-color: var(--primary);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            transition: var(--transition);
-        }
-
-        .stat-card:hover .stat-number {
-            color: var(--secondary-dark);
-        }
-
-        footer {
-            text-align: center;
-            font-size: 0.7rem;
-            padding: 24px;
-            color: #7a8e7a;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            margin-top: 20px;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 16px;
-            }
-            .vision-mission {
-                grid-template-columns: 1fr;
-            }
-            .org-card {
-                min-width: 160px;
-                padding: 12px 16px;
-            }
-            .card h3 {
-                font-size: 1.2rem;
-            }
-        }
+        .fc-card { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+        .fc-card .org-role, .fc-card .org-name { color: white; }
+        .org-role { font-weight: 800; font-size: 0.85rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .connector-line { width: 2px; height: 24px; background: linear-gradient(to bottom, var(--primary), var(--secondary)); margin: 4px auto; }
+        .fs-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; width: 100%; margin-top: 16px; }
+        .fs-box { background: rgba(255, 248, 225, 0.9); border-radius: 28px; padding: 18px 24px; min-width: 250px; backdrop-filter: blur(4px); }
+        .stats-row { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-around; }
+        .stat-card { text-align: center; padding: 24px 28px; background: white; border-radius: 32px; min-width: 140px; transition: var(--transition); cursor: pointer; border: 1px solid var(--gray-border); }
+        .stat-card:hover { transform: scale(1.05); background: var(--primary-soft); }
+        .stat-number { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+        footer { text-align: center; font-size: 0.7rem; padding: 24px; color: #7a8e7a; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 20px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .container { padding: 16px; } .vision-mission { grid-template-columns: 1fr; } .org-card { min-width: 160px; } }
     </style>
 </head>
 <body>
 <div class="app">
+    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>🌿 FPMSB<br>Lurah Bilut</h3>
             <p>Dashboard Operasi Interaktif</p>
         </div>
-        <ul class="nav-links">
-            <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Info Ladang</a></li>
-            <li><a href="#"><i class="fas fa-chart-line"></i> Hasil</a></li>
-            <li><a href="#"><i class="fas fa-tractor"></i> Mekanisasi</a></li>
-            <li><a href="#"><i class="fas fa-seedling"></i> Pembajaan</a></li>
-            <li><a href="#"><i class="fas fa-cut"></i> Merumput</a></li>
-            <li><a href="#"><i class="fas fa-leaf"></i> BAP</a></li>
+        <ul class="nav-links" id="navLinks">
+            <li><a data-page="info" class="active"><i class="fas fa-tachometer-alt"></i> Info Ladang</a></li>
+            <li><a data-page="hasil"><i class="fas fa-chart-line"></i> Hasil</a></li>
+            <li><a data-page="mekanisasi"><i class="fas fa-tractor"></i> Mekanisasi</a></li>
+            <li><a data-page="pembajaan"><i class="fas fa-seedling"></i> Pembajaan</a></li>
+            <li><a data-page="merumput"><i class="fas fa-cut"></i> Merumput</a></li>
+            <li><a data-page="bap"><i class="fas fa-leaf"></i> BAP</a></li>
         </ul>
     </div>
+
+    <!-- TOGGLE BUTTON -->
     <div class="toggle-sidebar" id="toggleSidebarBtn"><i class="fas fa-bars"></i></div>
+
+    <!-- MAIN CONTENT (dynamic) -->
     <div class="main-content" id="mainContent">
-        <div class="container">
-            <div class="page-title">
-                <h1>🌾 Info Ladang L. Bilut</h1>
-                <p>Maklumat Asas Rancangan FELDA Lurah Bilut — Dashboard Dinamik & Interaktif</p>
-            </div>
-
-            <div class="card">
-                <h3><i class="fas fa-landmark"></i> Sejarah & Latar Belakang</h3>
-                <div class="info-grid">
-                    <div class="info-item"><div class="info-label">Nama Rancangan</div><div class="info-value">🏷️ FELDA Lurah Bilut</div></div>
-                    <div class="info-item"><div class="info-label">Lokasi</div><div class="info-value">📍 Bentong, Pahang</div></div>
-                    <div class="info-item"><div class="info-label">Tahun Dibuka</div><div class="info-value">📅 1958</div></div>
-                    <div class="info-item"><div class="info-label">Status</div><div class="info-value">🏆 Rancangan Pembangunan Tanah Berkelompok Pertama Malaysia & Dunia</div></div>
-                </div>
-                <div style="margin-top:20px; padding:20px; background: linear-gradient(120deg, var(--primary-soft), white); border-radius: 24px; border-left: 4px solid var(--secondary);">
-                    <p>🌱 <strong>Lurah Bilut</strong> ialah sebuah kawasan penempatan FELDA yang terletak di Bentong, Pahang. Ia mula dibuka pada tahun 1958 dan merupakan rancangan pembangunan tanah secara berkelompok untuk pertanian yang pertama ditubuhkan seumpamanya di Malaysia dan dunia. Sejak itu, ia menjadi pelopor industri sawit negara.</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3><i class="fas fa-bullseye"></i> Visi & Misi</h3>
-                <div class="vision-mission">
-                    <div class="vm-card"><i class="fas fa-eye"></i><h4>Visi</h4><p>Menjadi pemacu dalam pembangunan progresif penempatan negara</p></div>
-                    <div class="vm-card"><i class="fas fa-flag-checkered"></i><h4>Misi</h4><p>Menambah nilai kepada kepentingan peneroka & kelestarian ladang</p></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3><i class="fas fa-chart-line"></i> Tunjang Strategik & Nilai FELDA</h3>
-                <ul style="list-style:none; margin-bottom: 24px;">
-                    <li style="padding:10px 0; display: flex; align-items: center; gap: 12px;"><i class="fas fa-chart-simple" style="color:var(--primary); width:28px;"></i> Mengungguli kecekapan operasi dan keberkesanan kos</li>
-                    <li style="padding:10px 0; display: flex; align-items: center; gap: 12px;"><i class="fas fa-medal" style="color:var(--primary); width:28px;"></i> Menjadi pilihan utama dalam pengurusan ladang</li>
-                </ul>
-                <div class="values-list">
-                    <span class="value-badge">💰 Financial Sustainability</span>
-                    <span class="value-badge">📊 Efficient & Cost Control</span>
-                    <span class="value-badge">🔄 Legacy Reformation</span>
-                    <span class="value-badge">💻 Digitalization People & Governance</span>
-                    <span class="value-badge">🤝 Advanced Cooperative</span>
-                </div>
-            </div>
-
-            <!-- PENGURUSAN LADANG - Carta Organisasi -->
-            <div class="card">
-                <h3><i class="fas fa-users"></i> Pengurusan Ladang</h3>
-                <div class="org-chart">
-                    <div class="org-level">
-                        <div class="org-card fc-card">
-                            <div class="org-role"><i class="fas fa-crown"></i> FIELD CONTROLLER</div>
-                            <div class="org-name">ZULZAMHURI BIN MOHAMAD NOOR</div>
-                        </div>
-                    </div>
-                    <div class="connector-line"></div>
-                    <div class="org-level">
-                        <div class="org-card"><div class="org-role"><i class="fas fa-user-tie"></i> AFC 1</div><div class="org-name">Mohd Helme bin Ismail</div></div>
-                        <div class="org-card"><div class="org-role"><i class="fas fa-user-tie"></i> AFC 2</div><div class="org-name">Mohd Fekre Bin Rahman</div></div>
-                    </div>
-                    <div class="connector-line"></div>
-                    <div class="org-level">
-                        <div class="org-card"><div class="org-role"><i class="fas fa-file-alt"></i> KERANI 1</div><div class="org-name">Nurul Famiza binti Aminudin</div></div>
-                        <div class="org-card"><div class="org-role"><i class="fas fa-file-alt"></i> KERANI 2</div><div class="org-name">Nur Aina Shafiqah binti Mohd Zamani</div></div>
-                    </div>
-
-                    <div style="margin: 8px 0 12px;"><i class="fas fa-arrow-down" style="color: var(--primary); font-size: 1.2rem;"></i></div>
-
-                    <div class="fs-group">
-                        <div class="fs-box">
-                            <div class="fs-title"><i class="fas fa-hand-holding-heart"></i> FS HARVESTING</div>
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <div class="org-card" style="background:white; padding:12px;"><div class="org-role">FS Harvesting 1</div><div class="org-name">Ahmad Amirul bin Khalid</div></div>
-                                <div class="org-card" style="background:white; padding:12px;"><div class="org-role">FS Harvesting 2</div><div class="org-name">Mohd Raof bin Mohd Ibrahim</div></div>
-                                <div class="org-card" style="background:white; padding:12px;"><div class="org-role">FS Harvesting 3</div><div class="org-name">Hafizul fikri</div></div>
-                            </div>
-                        </div>
-                        <div class="fs-box">
-                            <div class="fs-title"><i class="fas fa-seedling"></i> FS UPKEEP</div>
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <div class="org-card" style="background:white; padding:12px;"><div class="org-role">FS Upkeep 1</div><div class="org-name">Nik Azman Bin Nik Wan</div></div>
-                                <div class="org-card" style="background:white; padding:12px;"><div class="org-role">FS Upkeep 2</div><div class="org-name">Muhammad Hairul Bin Jamaluddin</div></div>
-                                <div class="org-card" style="background:white; padding:12px;"><div class="org-role">FS Upkeep 3</div><div class="org-name">Muhammad Izzul Muhaimin bin Edy</div></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3><i class="fas fa-chalkboard-user"></i> Kedudukan Tenaga Kerja</h3>
-                <div class="stats-row">
-                    <div class="stat-card"><div class="stat-number">7</div><div>👨‍🌾 MANDOR</div></div>
-                    <div class="stat-card"><div class="stat-number">73</div><div>🌴 PENUAI</div></div>
-                    <div class="stat-card"><div class="stat-number">7</div><div>🧪 PEMBAJAAN</div></div>
-                    <div class="stat-card"><div class="stat-number">16</div><div>✂️ MERUMPUT</div></div>
-                </div>
-            </div>
+        <div class="container" id="pageContent">
+            <!-- Content akan diisi oleh JavaScript -->
         </div>
         <footer>© 2025 FPMSB Lurah Bilut — Dashboard Ladang Interaktif | Data Operasi Sawit Terkini</footer>
     </div>
 </div>
+
 <script>
+    // ======================= DATA UNTUK SEMUA HALAMAN =======================
+    const pagesData = {
+        info: {
+            title: "🌾 Info Ladang L. Bilut",
+            subtitle: "Maklumat Asas Rancangan FELDA Lurah Bilut — Dashboard Dinamik & Interaktif",
+            content: `
+                <div class="card">
+                    <h3><i class="fas fa-landmark"></i> Sejarah & Latar Belakang</h3>
+                    <div class="info-grid">
+                        <div class="info-item"><div class="info-label">Nama Rancangan</div><div class="info-value">🏷️ FELDA Lurah Bilut</div></div>
+                        <div class="info-item"><div class="info-label">Lokasi</div><div class="info-value">📍 Bentong, Pahang</div></div>
+                        <div class="info-item"><div class="info-label">Tahun Dibuka</div><div class="info-value">📅 1958</div></div>
+                        <div class="info-item"><div class="info-label">Status</div><div class="info-value">🏆 Rancangan Pembangunan Tanah Berkelompok Pertama Malaysia & Dunia</div></div>
+                    </div>
+                    <div style="margin-top:20px; padding:20px; background: linear-gradient(120deg, var(--primary-soft), white); border-radius: 24px; border-left: 4px solid var(--secondary);">
+                        <p>🌱 <strong>Lurah Bilut</strong> ialah sebuah kawasan penempatan FELDA yang terletak di Bentong, Pahang. Ia mula dibuka pada tahun 1958 dan merupakan rancangan pembangunan tanah secara berkelompok untuk pertanian yang pertama ditubuhkan seumpamanya di Malaysia dan dunia.</p>
+                    </div>
+                </div>
+                <div class="card"><h3><i class="fas fa-bullseye"></i> Visi & Misi</h3><div class="vision-mission"><div class="vm-card"><i class="fas fa-eye"></i><h4>Visi</h4><p>Menjadi pemacu dalam pembangunan progresif penempatan negara</p></div><div class="vm-card"><i class="fas fa-flag-checkered"></i><h4>Misi</h4><p>Menambah nilai kepada kepentingan peneroka & kelestarian ladang</p></div></div></div>
+                <div class="card"><h3><i class="fas fa-chart-line"></i> Tunjang Strategik & Nilai FELDA</h3><ul style="list-style:none; margin-bottom:24px;"><li style="padding:10px 0; display:flex; gap:12px;"><i class="fas fa-chart-simple" style="color:var(--primary);"></i> Mengungguli kecekapan operasi dan keberkesanan kos</li><li style="padding:10px 0; display:flex; gap:12px;"><i class="fas fa-medal" style="color:var(--primary);"></i> Menjadi pilihan utama dalam pengurusan ladang</li></ul><div class="values-list"><span class="value-badge">💰 Financial Sustainability</span><span class="value-badge">📊 Efficient & Cost Control</span><span class="value-badge">🔄 Legacy Reformation</span><span class="value-badge">💻 Digitalization People & Governance</span><span class="value-badge">🤝 Advanced Cooperative</span></div></div>
+                <div class="card"><h3><i class="fas fa-users"></i> Pengurusan Ladang</h3><div class="org-chart"><div class="org-level"><div class="org-card fc-card"><div class="org-role"><i class="fas fa-crown"></i> FIELD CONTROLLER</div><div class="org-name">ZULZAMHURI BIN MOHAMAD NOOR</div></div></div><div class="connector-line"></div><div class="org-level"><div class="org-card"><div class="org-role"><i class="fas fa-user-tie"></i> AFC 1</div><div class="org-name">Mohd Helme bin Ismail</div></div><div class="org-card"><div class="org-role"><i class="fas fa-user-tie"></i> AFC 2</div><div class="org-name">Mohd Fekre Bin Rahman</div></div></div><div class="connector-line"></div><div class="org-level"><div class="org-card"><div class="org-role"><i class="fas fa-file-alt"></i> KERANI 1</div><div class="org-name">Nurul Famiza binti Aminudin</div></div><div class="org-card"><div class="org-role"><i class="fas fa-file-alt"></i> KERANI 2</div><div class="org-name">Nur Aina Shafiqah binti Mohd Zamani</div></div></div><div style="margin:8px 0 12px;"><i class="fas fa-arrow-down" style="color: var(--primary);"></i></div><div class="fs-group"><div class="fs-box"><div class="fs-title" style="font-weight:800; margin-bottom:12px;"><i class="fas fa-hand-holding-heart"></i> FS HARVESTING</div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Harvesting 1</div><div class="org-name">Ahmad Amirul bin Khalid</div></div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Harvesting 2</div><div class="org-name">Mohd Raof bin Mohd Ibrahim</div></div><div class="org-card"><div class="org-role">FS Harvesting 3</div><div class="org-name">Hafizul fikri</div></div></div><div class="fs-box"><div class="fs-title" style="font-weight:800; margin-bottom:12px;"><i class="fas fa-seedling"></i> FS UPKEEP</div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Upkeep 1</div><div class="org-name">Nik Azman Bin Nik Wan</div></div><div class="org-card" style="margin-bottom:8px;"><div class="org-role">FS Upkeep 2</div><div class="org-name">Muhammad Hairul Bin Jamaluddin</div></div><div class="org-card"><div class="org-role">FS Upkeep 3</div><div class="org-name">Muhammad Izzul Muhaimin bin Edy</div></div></div></div></div></div>
+                <div class="card"><h3><i class="fas fa-chalkboard-user"></i> Kedudukan Tenaga Kerja</h3><div class="stats-row"><div class="stat-card"><div class="stat-number">7</div><div>👨‍🌾 MANDOR</div></div><div class="stat-card"><div class="stat-number">73</div><div>🌴 PENUAI</div></div><div class="stat-card"><div class="stat-number">7</div><div>🧪 PEMBAJAAN</div></div><div class="stat-card"><div class="stat-number">16</div><div>✂️ MERUMPUT</div></div></div></div>
+            `
+        },
+        hasil: { title: "📈 Hasil Ladang", subtitle: "Data pengeluaran dan hasil sawit terkini", content: `<div class="card"><h3><i class="fas fa-chart-line"></i> Hasil Pengeluaran</h3><p>Data hasil ladang akan dipaparkan di sini. (Contoh: 245 tan FFB pada bulan ini)</p><div class="stat-card" style="margin-top:20px;"><div class="stat-number">245</div><div>Tan FFB</div></div></div>` },
+        mekanisasi: { title: "🚜 Mekanisasi", subtitle: "Status jentera dan peralatan ladang", content: `<div class="card"><h3><i class="fas fa-tractor"></i> Status Jentera</h3><p>📊 Traktor beroperasi: 12 unit<br>🔧 Peralatan aktif: 85%</p></div>` },
+        pembajaan: { title: "🧪 Pembajaan", subtitle: "Jadual dan rekod pembajaan", content: `<div class="card"><h3><i class="fas fa-seedling"></i> Program Pembajaan</h3><p>Bulan ini: Fasa 2 baja NPK hijau.<br>Kawasan diaplikasi: 320 hektar.</p></div>` },
+        merumput: { title: "✂️ Merumput", subtitle: "Aktiviti kawalan rumpai", content: `<div class="card"><h3><i class="fas fa-cut"></i> Kawalan Rumpai</h3><p>Kemajuan merumput: 78% untuk bulan Mac.<br>Pasukan: 16 pekerja.</p></div>` },
+        bap: { title: "🍃 BAP (Baja & Pemupukan)", subtitle: "Laporan BAP terkini", content: `<div class="card"><h3><i class="fas fa-leaf"></i> Laporan BAP</h3><p>Program BAP Fasa 1 selesai. Seterusnya Fasa 2 akan bermula minggu depan.</p></div>` }
+    };
+
+    // Fungsi untuk menukar halaman
+    function loadPage(pageId) {
+        const page = pagesData[pageId];
+        if (!page) return;
+        
+        const container = document.getElementById('pageContent');
+        container.innerHTML = `
+            <div class="page-title">
+                <h1>${page.title}</h1>
+                <p>${page.subtitle}</p>
+            </div>
+            ${page.content}
+        `;
+        
+        // Update active class pada navigation
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.classList.remove('active');
+            if(link.getAttribute('data-page') === pageId) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Update URL tanpa reload dan tanpa '#' tambahan
+        history.pushState({ page: pageId }, '', `?page=${pageId}`);
+    }
+
+    // Event listener untuk navigation links
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = link.getAttribute('data-page');
+            if(pageId) {
+                loadPage(pageId);
+                // Auto hide sidebar selepas klik pada mobile (optional)
+                if(window.innerWidth <= 768) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                    toggleBtn.classList.add('shifted');
+                }
+            }
+        });
+    });
+
+    // Sidebar toggle functionality
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleSidebarBtn');
-
+    
     toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
         mainContent.classList.toggle('expanded');
         toggleBtn.classList.toggle('shifted');
     });
 
-    // tambah effect hover untuk stats card animation
-    const statCards = document.querySelectorAll('.stat-card');
-    statCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const numberElem = card.querySelector('.stat-number');
-            if(numberElem) {
-                numberElem.style.transform = 'scale(1.1)';
-                setTimeout(() => { numberElem.style.transform = ''; }, 200);
-            }
-        });
+    // Handle back/forward browser buttons
+    window.addEventListener('popstate', (event) => {
+        const params = new URLSearchParams(window.location.search);
+        const page = params.get('page');
+        if(page && pagesData[page]) {
+            loadPage(page);
+        } else {
+            loadPage('info');
+        }
     });
+
+    // Load initial page based on URL parameter atau default 'info'
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialPage = urlParams.get('page');
+    if(initialPage && pagesData[initialPage]) {
+        loadPage(initialPage);
+    } else {
+        loadPage('info');
+    }
 </script>
 </body>
 </html>
