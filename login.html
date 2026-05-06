@@ -8,7 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-container { max-width: 420px; width: 90%; background: white; border-radius: 28px; box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1); padding: 40px 32px; text-align: center; border: 1px solid #e2e8f0; }
+        .login-container { max-width: 420px; width: 90%; background: white; border-radius: 28px; box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1); padding: 40px 32px; text-align: center; border: 1px solid #e2e8f0; position: relative; }
         .logo-area { margin-bottom: 30px; }
         .logo-icon { width: 70px; height: 70px; background: #2d6a4f; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
         .logo-icon i { font-size: 2rem; color: white; }
@@ -20,6 +20,8 @@
         .input-group input:focus { outline: none; border-color: #2d6a4f; background: white; box-shadow: 0 0 0 3px rgba(45,106,79,0.1); }
         .btn-login { width: 100%; padding: 14px; background: #2d6a4f; color: white; border: none; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
         .btn-login:hover { background: #1b4d3e; transform: translateY(-2px); }
+        .btn-back { width: 100%; padding: 12px; background: transparent; color: #64748b; border: 1px solid #e2e8f0; border-radius: 40px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
+        .btn-back:hover { background: #f1f5f9; color: #2d6a4f; border-color: #2d6a4f; }
         .error-msg { background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 14px; font-size: 0.8rem; margin-bottom: 20px; display: none; }
         .info-text { font-size: 0.7rem; color: #94a3b8; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
         @media (max-width: 480px) { .login-container { padding: 30px 24px; } }
@@ -32,9 +34,9 @@
             <h2>FPMSB Lurah Bilut</h2>
             <div class="subtitle">Dashboard Operasi Ladang</div>
         </div>
-
+        
         <div class="error-msg" id="errorMsg">✗ Kredensial tidak sah. Cuba lagi.</div>
-
+        
         <div class="input-group">
             <label><i class="fas fa-envelope"></i> EMAIL</label>
             <input type="email" id="email" placeholder="admin@fpmsb.com" value="admin@fpmsb.com">
@@ -43,9 +45,12 @@
             <label><i class="fas fa-lock"></i> KATA LALUAN</label>
             <input type="password" id="password" placeholder="••••••" value="admin123">
         </div>
-
+        
         <button class="btn-login" onclick="login()"><i class="fas fa-arrow-right-to-bracket"></i> Log Masuk</button>
-
+        
+        <!-- Button Back to Home -->
+        <button class="btn-back" onclick="goToHome()"><i class="fas fa-home"></i> Kembali ke Laman Utama</button>
+        
         <div class="info-text">
             <i class="fas fa-shield-alt"></i> Akses terhad untuk pentadbir sahaja
         </div>
@@ -56,8 +61,8 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMsg');
-
-            // Simple authentication (ganti dengan API nanti)
+            
+            // Simple authentication
             if (email === 'admin@fpmsb.com' && password === 'admin123') {
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userEmail', email);
@@ -67,7 +72,11 @@
                 setTimeout(() => { errorMsg.style.display = 'none'; }, 3000);
             }
         }
-
+        
+        function goToHome() {
+            window.location.href = 'index.html';
+        }
+        
         // Auto redirect if already logged in
         if (localStorage.getItem('isLoggedIn') === 'true') {
             window.location.href = 'admin/upload.html';
