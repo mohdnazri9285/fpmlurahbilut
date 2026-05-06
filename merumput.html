@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>FPMSB Lurah Bilut - Laporan Merumput</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
+
+        .navbar { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-bottom: 3px solid #2d6a4f; position: sticky; top: 0; z-index: 1000; padding: 0.8rem 2rem; clip-path: polygon(0% 0%, 100% 0%, 98% 100%, 2% 100%); }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-img { height: 48px; width: auto; border-radius: 10px; }
+        .logo-text h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+        .logo-text p { font-size: 0.65rem; color: #64748b; }
+        .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .nav-link { padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.85rem; color: #475569; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .nav-link.active { background: #2d6a4f; color: white; }
+        .nav-link:not(.active):hover { background: #eef2ff; color: #2d6a4f; }
+
+        /* Login Button & Dropdown */
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .login-btn { background: #f8fafc; padding: 8px 18px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.8rem; color: #2d6a4f; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .login-btn:hover { background: #2d6a4f; color: white; border-color: #2d6a4f; }
+        .user-avatar { width: 38px; height: 38px; background: #2d6a4f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+        .logout-dropdown { display: none; position: absolute; right: 20px; top: 70px; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; min-width: 180px; }
+        .logout-dropdown.show { display: block; }
+        .logout-dropdown .dropdown-header { padding: 12px 20px; border-bottom: 1px solid #e2e8f0; }
+        .logout-dropdown .dropdown-header strong { display: block; font-size: 0.8rem; color: #1e293b; }
+        .logout-dropdown .dropdown-header small { font-size: 0.7rem; color: #64748b; }
+        .logout-dropdown button { width: 100%; padding: 12px 20px; text-align: left; background: none; border: none; cursor: pointer; color: #dc2626; font-size: 0.8rem; font-weight: 600; border-radius: 0 0 16px 16px; }
+        .logout-dropdown button:hover { background: #fef2f2; }
+
+        .main { max-width: 1400px; margin: 0 auto; padding: 30px 24px; }
+        .page-title h1 { font-size: 1.8rem; font-weight: 700; color: #0f172a; border-left: 4px solid #2d6a4f; padding-left: 16px; }
+        .page-title p { color: #64748b; margin-top: 8px; margin-left: 20px; }
+        .card { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 24px 28px; margin-bottom: 30px; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        .card h3 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-left: 4px solid #2d6a4f; padding-left: 14px; }
+        .chart-container { position: relative; width: 100%; min-height: 380px; overflow-x: auto; }
+        canvas { max-width: 100%; height: auto; max-height: 380px; }
+        .badge { background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: #166534; }
+        .status-siap { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .status-belum { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .data-table th, .data-table td { border: 1px solid #e2e8f0; padding: 12px 10px; text-align: center; vertical-align: middle; }
+        .data-table th { background: #f8fafc; font-weight: 700; color: #1e293b; }
+        .data-table td:first-child { font-weight: 600; background: #f8fafc; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 95%; max-width: 900px; max-height: 85vh; border-radius: 24px; overflow-y: auto; }
+        .modal-header { padding: 18px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; border-radius: 24px 24px 0 0; }
+        .modal-header h2 { font-size: 1.3rem; color: #0f172a; }
+        .close-modal { font-size: 28px; cursor: pointer; background: none; border: none; color: #64748b; }
+        .modal-body { padding: 24px; }
+        .detail-stats { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
+        .stat-box { flex: 1; min-width: 100px; background: #f8fafc; padding: 12px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; color: #2d6a4f; }
+        .modal-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .modal-table th, .modal-table td { border: 1px solid #e2e8f0; padding: 10px 8px; }
+        .modal-table th { background: #f8fafc; font-weight: 600; text-align: center; }
+        .modal-table td:first-child { text-align: left; font-weight: 600; }
+        .modal-table td { text-align: center; }
+        footer { text-align: center; padding: 25px; border-top: 1px solid #e2e8f0; font-size: 0.7rem; color: #94a3b8; background: white; }
+
+        @media (max-width: 768px) {
+            .navbar { clip-path: none; padding: 0.8rem 1rem; }
+            .nav-container { flex-direction: column; align-items: stretch; }
+            .nav-links { justify-content: center; }
+            .main { padding: 20px 16px; }
+            .card { padding: 16px; }
+            .chart-container { min-height: 300px; }
+            .data-table th, .data-table td { padding: 8px 4px; font-size: 0.7rem; }
+            .nav-right { justify-content: center; }
+            .logout-dropdown { right: 10px; top: 110px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-container">
+        <div class="logo-area">
+            <img class="logo-img" src="https://placehold.co/200x60/2d6a4f/white?text=FPMSB" alt="Logo">
+            <div class="logo-text"><h2>FPMSB Lurah Bilut</h2><p>Dashboard Operasi Ladang</p></div>
+        </div>
+        <div class="nav-links">
+            <a href="info.html" class="nav-link"><i class="fas fa-info-circle"></i> Info</a>
+            <a href="hasil.html" class="nav-link"><i class="fas fa-chart-line"></i> Hasil</a>
+            <a href="pembajaan.html" class="nav-link"><i class="fas fa-seedling"></i> Pembajaan</a>
+            <a href="merumput.html" class="nav-link active"><i class="fas fa-cut"></i> Merumput</a>
+            <a href="mekanisasi.html" class="nav-link"><i class="fas fa-tractor"></i> Mekanisasi</a>
+        </div>
+        <div class="nav-right">
+            <a href="login.html" class="login-btn" id="loginBtn"><i class="fas fa-user-shield"></i> Admin</a>
+            <div class="user-avatar" id="userAvatar" style="display: none;" onclick="toggleDropdown()"><i class="fas fa-user"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="logout-dropdown" id="logoutDropdown">
+    <div class="dropdown-header"><strong id="userEmailDisplay">Admin</strong><small>Pentadbir Sistem</small></div>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Log Keluar</button>
+</div>
+
+<div class="main">
+    <div class="page-title">
+        <h1>✂️ Laporan Merumput</h1>
+        <p>Status Program Merumput Mengikut Peringkat & Pusingan</p>
+    </div>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+            <h3><i class="fas fa-chart-bar"></i> Bilangan Pusingan Siap (0-3)</h3>
+            <span class="badge">Klik pada bar untuk detail</span>
+        </div>
+        <div class="chart-container"><canvas id="merumputChart" style="width:100%; height:380px;"></canvas></div>
+    </div>
+
+    <div class="card">
+        <h3><i class="fas fa-chart-bar"></i> Luas Siap Merumput (Hektar) - Pusingan 1</h3>
+        <div class="chart-container"><canvas id="luasChart" style="width:100%; height:380px;"></canvas></div>
+    </div>
+
+    <div class="card">
+        <h3><i class="fas fa-table"></i> Ringkasan Status Merumput</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table" id="summaryTable">
+                <thead>
+                    <tr><th>Peringkat</th><th>Luas (Ha)</th><th>Pusingan 1</th><th>Pusingan 2</th><th>Pusingan 3</th><th>Luas Siap (Ha)</th></tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<footer>© FPMSB Lurah Bilut — Data Operasi Ladang Sawit</footer>
+
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2 id="modalTitle">Detail Peringkat</h2><button class="close-modal" id="closeModalBtn">&times;</button></div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ======================= DATA MERUMPUT =======================
+const merumputData = [
+    { peringkat: "01G", luas: 515.53, pusingan: 1, penjagaanBulatan: 515.53, kawalanAnakKayu: 515.53, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01G", luas: 515.53, pusingan: 2, penjagaanBulatan: 515.53, kawalanAnakKayu: 515.53, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01G", luas: 515.53, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01A", luas: 284.61, pusingan: 1, penjagaanBulatan: 284.61, kawalanAnakKayu: 284.61, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01A", luas: 284.61, pusingan: 2, penjagaanBulatan: 284.61, kawalanAnakKayu: 284.61, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01A", luas: 284.61, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01C", luas: 4.82, pusingan: 1, penjagaanBulatan: 4.82, kawalanAnakKayu: 4.82, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01C", luas: 4.82, pusingan: 2, penjagaanBulatan: 4.82, kawalanAnakKayu: 4.82, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01C", luas: 4.82, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01D", luas: 128.15, pusingan: 1, penjagaanBulatan: 128.15, kawalanAnakKayu: 128.15, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01D", luas: 128.15, pusingan: 2, penjagaanBulatan: 128.15, kawalanAnakKayu: 128.15, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01D", luas: 128.15, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "02G", luas: 202.4, pusingan: 1, penjagaanBulatan: 202.4, kawalanAnakKayu: 202.4, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "02G", luas: 202.4, pusingan: 2, penjagaanBulatan: 202.4, kawalanAnakKayu: 202.4, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "02G", luas: 202.4, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "003", luas: 283.68, pusingan: 1, penjagaanBulatan: 283.68, kawalanAnakKayu: 283.68, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "003", luas: 283.68, pusingan: 2, penjagaanBulatan: 283.68, kawalanAnakKayu: 283.68, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "003", luas: 283.68, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "004", luas: 719.49, pusingan: 1, penjagaanBulatan: 719.49, kawalanAnakKayu: 719.49, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "004", luas: 719.49, pusingan: 2, penjagaanBulatan: 719.49, kawalanAnakKayu: 719.49, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "004", luas: 719.49, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01F", luas: 1.64, pusingan: 1, penjagaanBulatan: 1.64, kawalanAnakKayu: 1.64, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01F", luas: 1.64, pusingan: 2, penjagaanBulatan: 1.64, kawalanAnakKayu: 1.64, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "01F", luas: 1.64, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "02F", luas: 4.79, pusingan: 1, penjagaanBulatan: 4.79, kawalanAnakKayu: 4.79, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "02F", luas: 4.79, pusingan: 2, penjagaanBulatan: 4.79, kawalanAnakKayu: 4.79, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "02F", luas: 4.79, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "03F", luas: 22.44, pusingan: 1, penjagaanBulatan: 22.44, kawalanAnakKayu: 22.44, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "03F", luas: 22.44, pusingan: 2, penjagaanBulatan: 22.44, kawalanAnakKayu: 22.44, peratusSiap: 100, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 },
+    { peringkat: "03F", luas: 22.44, pusingan: 3, penjagaanBulatan: 0, kawalanAnakKayu: 0, peratusSiap: 0, basmiBuluhLiar: 0, penjagaanLorongTuai: 0, basmiVops: 0 }
+];
+
+const peringkatList = ['01G', '01A', '01C', '01D', '02G', '003', '004', '01F', '02F', '03F'];
+let merumputChart, luasChart;
+
+function renderMerumputChart() {
+    const canvas = document.getElementById('merumputChart');
+    if(!canvas) return;
+    if(merumputChart) merumputChart.destroy();
+
+    const siapCount = peringkatList.map(p => {
+        const data = merumputData.filter(d => d.peringkat === p);
+        return data.filter(d => d.peratusSiap === 100).length;
+    });
+
+    merumputChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: peringkatList,
+            datasets: [{
+                label: 'Bilangan Pusingan Siap',
+                data: siapCount,
+                backgroundColor: '#2d6a4f',
+                borderRadius: 8,
+                datalabels: { display: true, anchor: 'end', align: 'top', color: '#1b4d3e', font: { size: 11, weight: 'bold' }, formatter: (v) => v + '/3' }
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: true, layout: { padding: { top: 35 } },
+            plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (ctx) => `${ctx.raw} pusingan siap` } } },
+            scales: { y: { beginAtZero: true, max: 3, title: { display: true, text: 'Bilangan Pusingan Siap' }, ticks: { stepSize: 1 } }, x: { title: { display: true, text: 'Peringkat' }, ticks: { font: { size: 11 } } } },
+            onClick: (e, active) => { if(active.length) showDetailModal(peringkatList[active[0].index]); }
+        }
+    });
+}
+
+function renderLuasChart() {
+    const canvas = document.getElementById('luasChart');
+    if(!canvas) return;
+    if(luasChart) luasChart.destroy();
+
+    const luasSiap = peringkatList.map(p => {
+        const data = merumputData.find(d => d.peringkat === p && d.pusingan === 1);
+        return data ? data.luas : 0;
+    });
+
+    luasChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: peringkatList,
+            datasets: [{
+                label: 'Luas Siap (Hektar)',
+                data: luasSiap,
+                backgroundColor: '#f4a261',
+                borderRadius: 8,
+                datalabels: { display: true, anchor: 'end', align: 'top', color: '#e76f51', font: { size: 10 }, formatter: (v) => v.toFixed(2) + ' Ha' }
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: true, layout: { padding: { top: 35 } },
+            plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(2)} Hektar` } } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Hektar' } }, x: { title: { display: true, text: 'Peringkat' }, ticks: { font: { size: 11 } } } },
+            onClick: (e, active) => { if(active.length) showDetailModal(peringkatList[active[0].index]); }
+        }
+    });
+}
+
+function renderSummaryTable() {
+    const tbody = document.getElementById('summaryTableBody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+
+    for(let p of peringkatList) {
+        const data = merumputData.filter(d => d.peringkat === p);
+        const luas = data[0].luas;
+        const p1Status = data.find(d => d.pusingan === 1)?.peratusSiap === 100;
+        const p2Status = data.find(d => d.pusingan === 2)?.peratusSiap === 100;
+        const p3Status = data.find(d => d.pusingan === 3)?.peratusSiap === 100;
+        const luasSiapP1 = p1Status ? luas : 0;
+
+        tbody.innerHTML += `<tr style="cursor:pointer" onclick="showDetailModal('${p}')">
+            <td><strong>${p}</strong></td>
+            <td>${luas.toFixed(2)}</td?>
+            <td>${p1Status ? '<span class="status-siap">✓ SIAP</span>' : '<span class="status-belum">✗ BELUM</span>'}</td?>
+            <td>${p2Status ? '<span class="status-siap">✓ SIAP</span>' : '<span class="status-belum">✗ BELUM</span>'}</td?>
+            <td>${p3Status ? '<span class="status-siap">✓ SIAP</span>' : '<span class="status-belum">✗ BELUM</span>'}</td?>
+            <td>${luasSiapP1.toFixed(2)} Ha</td?>
+         `;
+    }
+}
+
+window.showDetailModal = function(peringkatId) {
+    const data = merumputData.filter(d => d.peringkat === peringkatId);
+    if(data.length === 0) return;
+
+    const peringkat = peringkatId;
+    const luasAll = data[0].luas;
+    let tableRows = '';
+    let totalPenjagaanBulatan = 0;
+    let totalKawalanAnakKayu = 0;
+    let totalPeratusSiap = 0;
+
+    for(let i=0; i<3; i++) {
+        const d = data.find(x => x.pusingan === i+1);
+        if(d) {
+            totalPenjagaanBulatan += d.penjagaanBulatan;
+            totalKawalanAnakKayu += d.kawalanAnakKayu;
+            totalPeratusSiap += d.peratusSiap;
+            tableRows += `<tr>
+                <td><strong>Pusingan ${i+1}</strong></td>
+                <td>${d.penjagaanBulatan.toFixed(2)} Ha</td?>
+                <td>${d.kawalanAnakKayu.toFixed(2)} Ha</td?>
+                <td>${d.basmiBuluhLiar} Ha</td?>
+                <td>${d.penjagaanLorongTuai} Ha</td?>
+                <td>${d.basmiVops} Ha</td?>
+                <td class="${d.peratusSiap === 100 ? 'status-siap' : 'status-belum'}">${d.peratusSiap}%</td?>
+             `;
+        }
+    }
+
+    const avgPeratus = totalPeratusSiap / 3;
+
+    document.getElementById('modalTitle').innerHTML = `Peringkat ${peringkat} - Analisis Merumput`;
+    document.getElementById('modalBody').innerHTML = `
+        <div class="detail-stats">
+            <div class="stat-box"><div class="stat-label">Luas (Ha)</div><div class="stat-value">${luasAll.toFixed(2)}</div></div>
+            <div class="stat-box"><div class="stat-label">Penjagaan Bulatan</div><div class="stat-value">${totalPenjagaanBulatan.toFixed(2)} Ha</div></div>
+            <div class="stat-box"><div class="stat-label">Kawalan Anak Kayu</div><div class="stat-value">${totalKawalanAnakKayu.toFixed(2)} Ha</div></div>
+            <div class="stat-box"><div class="stat-label">Purata Siap</div><div class="stat-value">${avgPeratus.toFixed(0)}%</div></div>
+        </div>
+        <h4>📅 Data Mengikut Pusingan</h4>
+        <div style="overflow-x:auto;">
+            <table class="modal-table">
+                <thead><tr><th>Pusingan</th><th>Penjagaan Bulatan</th><th>Kawalan Anak Kayu</th><th>Basmi Buluh Liar</th><th>Penjagaan Lorong Tuai</th><th>Basmi VOPS</th><th>Status</th></tr></thead>
+                <tbody>${tableRows}</tbody>
+                <tfoot><tr style="background:#f1f5f9;"><td><strong>JUMLAH / PURATA</strong></td><td colspan="2">${totalPenjagaanBulatan.toFixed(2)} Ha</td?><td colspan="3">-</td?><td>${avgPeratus.toFixed(0)}%</td?></tr></tfoot>
+            </table>
+        </div>
+        <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
+            <p>📌 ${avgPeratus.toFixed(0)}% purata pencapaian merumput merentasi 3 pusingan.</p>
+        </div>`;
+
+    document.getElementById('detailModal').style.display = 'flex';
+};
+
+// ========== LOGIN FUNCTIONS ==========
+function checkAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loginBtn = document.getElementById('loginBtn');
+    const userAvatar = document.getElementById('userAvatar');
+    const userEmailDisplay = document.getElementById('userEmailDisplay');
+    if (isLoggedIn) {
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userAvatar) userAvatar.style.display = 'flex';
+        if (userEmailDisplay) userEmailDisplay.innerText = localStorage.getItem('userEmail') || 'Admin';
+    } else {
+        if (loginBtn) loginBtn.style.display = 'flex';
+        if (userAvatar) userAvatar.style.display = 'none';
+    }
+}
+function toggleDropdown() { const dropdown = document.getElementById('logoutDropdown'); if (dropdown) dropdown.classList.toggle('show'); }
+function logout() { localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'login.html'; }
+window.onclick = function(event) {
+    const dropdown = document.getElementById('logoutDropdown');
+    const avatar = document.getElementById('userAvatar');
+    if (dropdown && avatar && !avatar.contains(event.target) && !dropdown.contains(event.target)) dropdown.classList.remove('show');
+}
+
+document.getElementById('closeModalBtn').onclick = () => document.getElementById('detailModal').style.display = 'none';
+window.onclick = (e) => { if(e.target === document.getElementById('detailModal')) document.getElementById('detailModal').style.display = 'none'; };
+document.querySelectorAll('.nav-link').forEach(link => { if(link.href === window.location.href) link.classList.add('active'); });
+
+renderMerumputChart();
+renderLuasChart();
+renderSummaryTable();
+checkAuth();
+</script>
+</body>
+</html>

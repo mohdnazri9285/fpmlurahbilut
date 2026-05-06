@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>FPMSB Lurah Bilut - Laporan Pembajaan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
+
+        .navbar { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-bottom: 3px solid #2d6a4f; position: sticky; top: 0; z-index: 1000; padding: 0.8rem 2rem; clip-path: polygon(0% 0%, 100% 0%, 98% 100%, 2% 100%); }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-img { height: 48px; width: auto; border-radius: 10px; }
+        .logo-text h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+        .logo-text p { font-size: 0.65rem; color: #64748b; }
+        .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .nav-link { padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.85rem; color: #475569; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .nav-link.active { background: #2d6a4f; color: white; }
+        .nav-link:not(.active):hover { background: #eef2ff; color: #2d6a4f; }
+
+        /* Login Button & Dropdown */
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .login-btn { background: #f8fafc; padding: 8px 18px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.8rem; color: #2d6a4f; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .login-btn:hover { background: #2d6a4f; color: white; border-color: #2d6a4f; }
+        .user-avatar { width: 38px; height: 38px; background: #2d6a4f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+        .logout-dropdown { display: none; position: absolute; right: 20px; top: 70px; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; min-width: 180px; }
+        .logout-dropdown.show { display: block; }
+        .logout-dropdown .dropdown-header { padding: 12px 20px; border-bottom: 1px solid #e2e8f0; }
+        .logout-dropdown .dropdown-header strong { display: block; font-size: 0.8rem; color: #1e293b; }
+        .logout-dropdown .dropdown-header small { font-size: 0.7rem; color: #64748b; }
+        .logout-dropdown button { width: 100%; padding: 12px 20px; text-align: left; background: none; border: none; cursor: pointer; color: #dc2626; font-size: 0.8rem; font-weight: 600; border-radius: 0 0 16px 16px; }
+        .logout-dropdown button:hover { background: #fef2f2; }
+
+        .main { max-width: 1400px; margin: 0 auto; padding: 30px 24px; }
+        .page-title h1 { font-size: 1.8rem; font-weight: 700; color: #0f172a; border-left: 4px solid #2d6a4f; padding-left: 16px; }
+        .page-title p { color: #64748b; margin-top: 8px; margin-left: 20px; }
+        .card { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 24px 28px; margin-bottom: 30px; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        .card h3 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-left: 4px solid #2d6a4f; padding-left: 14px; }
+        .chart-container { position: relative; width: 100%; min-height: 380px; overflow-x: auto; }
+        canvas { max-width: 100%; height: auto; max-height: 380px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .data-table th, .data-table td { border: 1px solid #e2e8f0; padding: 12px 10px; text-align: center; vertical-align: middle; }
+        .data-table th { background: #f8fafc; font-weight: 700; color: #1e293b; }
+        .data-table td:first-child { font-weight: 600; background: #f8fafc; }
+        .badge { background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: #166534; }
+        .progress-bar { background: #e2e8f0; border-radius: 20px; height: 24px; overflow: hidden; width: 100%; }
+        .progress-fill { background: #2d6a4f; height: 100%; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7rem; font-weight: 600; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 95%; max-width: 900px; max-height: 85vh; border-radius: 24px; overflow-y: auto; }
+        .modal-header { padding: 18px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; border-radius: 24px 24px 0 0; }
+        .modal-header h2 { font-size: 1.3rem; color: #0f172a; }
+        .close-modal { font-size: 28px; cursor: pointer; background: none; border: none; color: #64748b; }
+        .modal-body { padding: 24px; }
+        .detail-stats { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
+        .stat-box { flex: 1; min-width: 100px; background: #f8fafc; padding: 12px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; color: #2d6a4f; }
+        .modal-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .modal-table th, .modal-table td { border: 1px solid #e2e8f0; padding: 10px 8px; }
+        .modal-table th { background: #f8fafc; font-weight: 600; text-align: center; }
+        .modal-table td:first-child { text-align: left; font-weight: 600; }
+        .modal-table td { text-align: center; }
+        footer { text-align: center; padding: 25px; border-top: 1px solid #e2e8f0; font-size: 0.7rem; color: #94a3b8; background: white; }
+
+        @media (max-width: 768px) {
+            .navbar { clip-path: none; padding: 0.8rem 1rem; }
+            .nav-container { flex-direction: column; align-items: stretch; }
+            .nav-links { justify-content: center; }
+            .main { padding: 20px 16px; }
+            .card { padding: 16px; }
+            .chart-container { min-height: 300px; }
+            .data-table th, .data-table td { padding: 8px 4px; font-size: 0.7rem; }
+            .nav-right { justify-content: center; }
+            .logout-dropdown { right: 10px; top: 110px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-container">
+        <div class="logo-area">
+            <img class="logo-img" src="https://placehold.co/200x60/2d6a4f/white?text=FPMSB" alt="Logo">
+            <div class="logo-text"><h2>FPMSB Lurah Bilut</h2><p>Dashboard Operasi Ladang</p></div>
+        </div>
+        <div class="nav-links">
+            <a href="info.html" class="nav-link"><i class="fas fa-info-circle"></i> Info</a>
+            <a href="hasil.html" class="nav-link"><i class="fas fa-chart-line"></i> Hasil</a>
+            <a href="pembajaan.html" class="nav-link active"><i class="fas fa-seedling"></i> Pembajaan</a>
+            <a href="merumput.html" class="nav-link"><i class="fas fa-cut"></i> Merumput</a>
+            <a href="mekanisasi.html" class="nav-link"><i class="fas fa-tractor"></i> Mekanisasi</a>
+        </div>
+        <div class="nav-right">
+            <a href="login.html" class="login-btn" id="loginBtn"><i class="fas fa-user-shield"></i> Admin</a>
+            <div class="user-avatar" id="userAvatar" style="display: none;" onclick="toggleDropdown()"><i class="fas fa-user"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="logout-dropdown" id="logoutDropdown">
+    <div class="dropdown-header"><strong id="userEmailDisplay">Admin</strong><small>Pentadbir Sistem</small></div>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Log Keluar</button>
+</div>
+
+<div class="main">
+    <div class="page-title">
+        <h1>🧪 Laporan Pembajaan</h1>
+        <p>Status Taburan Baja Mengikut Peringkat & Pusingan (setakat Pusingan 1)</p>
+    </div>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+            <h3><i class="fas fa-chart-bar"></i> Pencapaian Pembajaan Pusingan 1 (%)</h3>
+            <span class="badge">Klik pada bar untuk detail</span>
+        </div>
+        <div class="chart-container"><canvas id="bajaChart" style="width:100%; height:380px;"></canvas></div>
+    </div>
+
+    <div class="card">
+        <h3><i class="fas fa-table"></i> Ringkasan Pembajaan Pusingan 1</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table" id="summaryTable">
+                <thead>
+                    <tr><th>Peringkat</th><th>Luas (Ha)</th><th>Kadar (kg/pokok)</th><th>Keperluan (Beg)</th><th>Manual (Beg)</th><th>Spreader (Beg)</th><th>Siap (Beg)</th><th>% Siap</th></tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<footer>© FPMSB Lurah Bilut — Data Operasi Ladang Sawit</footer>
+
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2 id="modalTitle">Detail Peringkat</h2><button class="close-modal" id="closeModalBtn">&times;</button></div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ======================= DATA PEMBAJAAN =======================
+const pembajaanData = [
+    { peringkat: "01G", luas: 515.53, pusingan: 1, kadar: 3, keperluan: 3998, manual: 2384, spreader: 1614, siapBeg: 2027, percent: 51 },
+    { peringkat: "01G", luas: 515.53, pusingan: 2, kadar: 3.2, keperluan: 5263, manual: 3139, spreader: 2124, siapBeg: 0, percent: 0 },
+    { peringkat: "01G", luas: 515.53, pusingan: 3, kadar: 2.5, keperluan: 3331, manual: 1986, spreader: 1345, siapBeg: 0, percent: 0 },
+    { peringkat: "01G", luas: 515.53, pusingan: 4, kadar: 2.5, keperluan: 3331, manual: 1986, spreader: 1345, siapBeg: 0, percent: 0 },
+    { peringkat: "01A", luas: 284.61, pusingan: 1, kadar: 3, keperluan: 1981, manual: 394, spreader: 1587, siapBeg: 416, percent: 21 },
+    { peringkat: "01A", luas: 284.61, pusingan: 2, kadar: 3.2, keperluan: 1651, manual: 328, spreader: 1323, siapBeg: 0, percent: 0 },
+    { peringkat: "01A", luas: 284.61, pusingan: 3, kadar: 2.5, keperluan: 1650, manual: 328, spreader: 1322, siapBeg: 0, percent: 0 },
+    { peringkat: "01A", luas: 284.61, pusingan: 4, kadar: 2.5, keperluan: 1650, manual: 328, spreader: 1322, siapBeg: 0, percent: 0 },
+    { peringkat: "01C", luas: 4.82, pusingan: 1, kadar: 3, keperluan: 32, manual: 0, spreader: 32, siapBeg: 0, percent: 0 },
+    { peringkat: "01C", luas: 4.82, pusingan: 2, kadar: 3.2, keperluan: 41, manual: 0, spreader: 41, siapBeg: 0, percent: 0 },
+    { peringkat: "01C", luas: 4.82, pusingan: 3, kadar: 2.5, keperluan: 27, manual: 0, spreader: 27, siapBeg: 0, percent: 0 },
+    { peringkat: "01C", luas: 4.82, pusingan: 4, kadar: 2.5, keperluan: 27, manual: 0, spreader: 27, siapBeg: 0, percent: 0 },
+    { peringkat: "01D", luas: 128.15, pusingan: 1, kadar: 3, keperluan: 830, manual: 625, spreader: 205, siapBeg: 625, percent: 75 },
+    { peringkat: "01D", luas: 128.15, pusingan: 2, kadar: 3.2, keperluan: 1093, manual: 823, spreader: 270, siapBeg: 0, percent: 0 },
+    { peringkat: "01D", luas: 128.15, pusingan: 3, kadar: 2.5, keperluan: 693, manual: 521, spreader: 172, siapBeg: 0, percent: 0 },
+    { peringkat: "01D", luas: 128.15, pusingan: 4, kadar: 2.5, keperluan: 693, manual: 521, spreader: 172, siapBeg: 0, percent: 0 },
+    { peringkat: "02G", luas: 202.4, pusingan: 1, kadar: 3, keperluan: 1414, manual: 563, spreader: 1351, siapBeg: 315, percent: 22 },
+    { peringkat: "02G", luas: 202.4, pusingan: 2, kadar: 3.2, keperluan: 1162, manual: 292, spreader: 870, siapBeg: 0, percent: 0 },
+    { peringkat: "02G", luas: 202.4, pusingan: 3, kadar: 2.5, keperluan: 943, manual: 210, spreader: 733, siapBeg: 0, percent: 0 },
+    { peringkat: "02G", luas: 202.4, pusingan: 4, kadar: 2.5, keperluan: 943, manual: 210, spreader: 733, siapBeg: 0, percent: 0 },
+    { peringkat: "003", luas: 283.68, pusingan: 1, kadar: 3, keperluan: 1914, manual: 563, spreader: 1351, siapBeg: 585, percent: 31 },
+    { peringkat: "003", luas: 283.68, pusingan: 2, kadar: 3.2, keperluan: 1914, manual: 563, spreader: 1351, siapBeg: 0, percent: 0 },
+    { peringkat: "003", luas: 283.68, pusingan: 3, kadar: 2.5, keperluan: 1275, manual: 376, spreader: 900, siapBeg: 0, percent: 0 },
+    { peringkat: "003", luas: 283.68, pusingan: 4, kadar: 2.5, keperluan: 1275, manual: 376, spreader: 900, siapBeg: 0, percent: 0 },
+    { peringkat: "004", luas: 719.49, pusingan: 1, kadar: 3, keperluan: 1914, manual: 563, spreader: 1351, siapBeg: 0, percent: 0 },
+    { peringkat: "004", luas: 719.49, pusingan: 2, kadar: 3.2, keperluan: 1914, manual: 563, spreader: 1351, siapBeg: 0, percent: 0 },
+    { peringkat: "004", luas: 719.49, pusingan: 3, kadar: 2.5, keperluan: 1275, manual: 376, spreader: 900, siapBeg: 0, percent: 0 },
+    { peringkat: "004", luas: 719.49, pusingan: 4, kadar: 2.5, keperluan: 1275, manual: 376, spreader: 900, siapBeg: 0, percent: 0 },
+    { peringkat: "01F", luas: 1.64, pusingan: 1, kadar: 3, keperluan: 11, manual: 0, spreader: 11, siapBeg: 0, percent: 0 },
+    { peringkat: "01F", luas: 1.64, pusingan: 2, kadar: 3.2, keperluan: 9, manual: 0, spreader: 9, siapBeg: 0, percent: 0 },
+    { peringkat: "01F", luas: 1.64, pusingan: 3, kadar: 2.5, keperluan: 9, manual: 0, spreader: 9, siapBeg: 0, percent: 0 },
+    { peringkat: "01F", luas: 1.64, pusingan: 4, kadar: 2.5, keperluan: 9, manual: 0, spreader: 9, siapBeg: 0, percent: 0 },
+    { peringkat: "02F", luas: 4.79, pusingan: 1, kadar: 3, keperluan: 41, manual: 0, spreader: 41, siapBeg: 0, percent: 0 },
+    { peringkat: "02F", luas: 4.79, pusingan: 2, kadar: 3.2, keperluan: 41, manual: 0, spreader: 41, siapBeg: 0, percent: 0 },
+    { peringkat: "02F", luas: 4.79, pusingan: 3, kadar: 2.5, keperluan: 28, manual: 0, spreader: 28, siapBeg: 0, percent: 0 },
+    { peringkat: "02F", luas: 4.79, pusingan: 4, kadar: 2.5, keperluan: 28, manual: 0, spreader: 28, siapBeg: 0, percent: 0 },
+    { peringkat: "03F", luas: 22.44, pusingan: 1, kadar: 3, keperluan: 171, manual: 0, spreader: 171, siapBeg: 0, percent: 0 },
+    { peringkat: "03F", luas: 22.44, pusingan: 2, kadar: 3.2, keperluan: 171, manual: 0, spreader: 171, siapBeg: 0, percent: 0 },
+    { peringkat: "03F", luas: 22.44, pusingan: 3, kadar: 2.5, keperluan: 114, manual: 0, spreader: 114, siapBeg: 0, percent: 0 },
+    { peringkat: "03F", luas: 22.44, pusingan: 4, kadar: 2.5, keperluan: 114, manual: 0, spreader: 114, siapBeg: 0, percent: 0 }
+];
+
+const peringkatList = ['01G', '01A', '01C', '01D', '02G', '003', '004', '01F', '02F', '03F'];
+const p1Data = pembajaanData.filter(d => d.pusingan === 1);
+let bajaChart;
+
+function renderChart() {
+    const canvas = document.getElementById('bajaChart');
+    if(!canvas) return;
+    if(bajaChart) bajaChart.destroy();
+
+    const labels = p1Data.map(d => d.peringkat);
+    const percentData = p1Data.map(d => d.percent);
+    const colors = percentData.map(p => p >= 75 ? '#2d6a4f' : (p >= 50 ? '#f4a261' : '#e76f51'));
+
+    bajaChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'Sasaran (100%)', data: [100,100,100,100,100,100,100,100,100,100], backgroundColor: 'rgba(200,200,200,0.2)', borderColor: '#94a3b8', borderWidth: 2, borderDash: [6,6], borderRadius: 8, barPercentage: 0.65, datalabels: { display: false } },
+                { label: 'Pencapaian Pusingan 1 (%)', data: percentData, backgroundColor: colors, borderRadius: 8, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', offset: 4, color: '#1b4d3e', font: { size: 11, weight: 'bold' }, formatter: (v) => v + '%' } }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: true, layout: { padding: { top: 35 } },
+            plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}%` } } },
+            scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Peratus Siap (%)' }, ticks: { callback: v => v + '%' } }, x: { title: { display: true, text: 'Peringkat' }, ticks: { font: { size: 11 } } } },
+            onClick: (e, active) => { if(active.length) showDetailModal(p1Data[active[0].index].peringkat); }
+        }
+    });
+}
+
+function renderSummaryTable() {
+    const tbody = document.getElementById('summaryTableBody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    p1Data.forEach(item => {
+        const percentColor = item.percent >= 75 ? '#2d6a4f' : (item.percent >= 50 ? '#f4a261' : '#e76f51');
+        tbody.innerHTML += `<tr style="cursor:pointer" onclick="showDetailModal('${item.peringkat}')">
+            <td><strong>${item.peringkat}</strong></td>
+            <td>${item.luas.toFixed(2)}</td?>
+            <td>${item.kadar} kg/pokok</td?>
+            <td>${item.keperluan.toLocaleString()}</td?>
+            <td>${item.manual.toLocaleString()}</td?>
+            <td>${item.spreader.toLocaleString()}</td?>
+            <td>${item.siapBeg > 0 ? item.siapBeg.toLocaleString() + ' Beg' : '-'}</td?>
+            <td><div class="progress-bar"><div class="progress-fill" style="width: ${item.percent}%; background: ${percentColor}">${item.percent}%</div></div></td?>
+         `;
+    });
+}
+
+window.showDetailModal = function(peringkatId) {
+    const data = pembajaanData.filter(d => d.peringkat === peringkatId);
+    if(data.length === 0) return;
+    const peringkat = peringkatId;
+    const luas = data[0].luas;
+    let tableRows = '';
+    let totalKeperluan = 0, totalManual = 0, totalSpreader = 0, totalSiap = 0;
+
+    for(let i=0; i<4; i++) {
+        const d = data.find(x => x.pusingan === i+1);
+        if(d) {
+            totalKeperluan += d.keperluan;
+            totalManual += d.manual;
+            totalSpreader += d.spreader;
+            totalSiap += d.siapBeg;
+            tableRows += `<tr>
+                <td><strong>Pusingan ${i+1}</strong></td>
+                <td>${d.kadar} kg/pokok</td?>
+                <td>${d.keperluan.toLocaleString()}</td?>
+                <td>${d.manual.toLocaleString()}</td?>
+                <td>${d.spreader.toLocaleString()}</td?>
+                <td>${d.siapBeg > 0 ? d.siapBeg.toLocaleString() + ' Beg' : '-'}</td?>
+                <td>${d.percent}%</td?>
+             `;
+        }
+    }
+
+    document.getElementById('modalTitle').innerHTML = `Peringkat ${peringkat} - Analisis Pembajaan`;
+    document.getElementById('modalBody').innerHTML = `
+        <div class="detail-stats">
+            <div class="stat-box"><div class="stat-label">Luas (Ha)</div><div class="stat-value">${luas.toFixed(2)}</div></div>
+            <div class="stat-box"><div class="stat-label">Jumlah Keperluan</div><div class="stat-value">${totalKeperluan.toLocaleString()} Beg</div></div>
+            <div class="stat-box"><div class="stat-label">Jumlah Manual</div><div class="stat-value">${totalManual.toLocaleString()} Beg</div></div>
+            <div class="stat-box"><div class="stat-label">Jumlah Spreader</div><div class="stat-value">${totalSpreader.toLocaleString()} Beg</div></div>
+            <div class="stat-box"><div class="stat-label">Jumlah Siap</div><div class="stat-value">${totalSiap.toLocaleString()} Beg</div></div>
+        </div>
+        <h4>📅 Data Mengikut Pusingan</h4>
+        <div style="overflow-x:auto;"><table class="modal-table"><thead><tr><th>Pusingan</th><th>Kadar (kg/pokok)</th><th>Keperluan (Beg)</th><th>Manual (Beg)</th><th>Spreader (Beg)</th><th>Siap (Beg)</th><th>% Siap</th></tr></thead><tbody>${tableRows}</tbody><tfoot><tr style="background:#f1f5f9; font-weight:600;"><td><strong>JUMLAH</strong></td><td>-</td?><td>${totalKeperluan.toLocaleString()}</td?><td>${totalManual.toLocaleString()}</td?><td>${totalSpreader.toLocaleString()}</td?><td>${totalSiap.toLocaleString()}</td?><td>-</td?></tr></tfoot></table></div>
+        <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;"><p>📌 Keseluruhan: ${((totalSiap/totalKeperluan)*100).toFixed(1)}% dari jumlah keperluan baja.</p></div>`;
+
+    document.getElementById('detailModal').style.display = 'flex';
+};
+
+// ========== LOGIN FUNCTIONS ==========
+function checkAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loginBtn = document.getElementById('loginBtn');
+    const userAvatar = document.getElementById('userAvatar');
+    const userEmailDisplay = document.getElementById('userEmailDisplay');
+    if (isLoggedIn) {
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userAvatar) userAvatar.style.display = 'flex';
+        if (userEmailDisplay) userEmailDisplay.innerText = localStorage.getItem('userEmail') || 'Admin';
+    } else {
+        if (loginBtn) loginBtn.style.display = 'flex';
+        if (userAvatar) userAvatar.style.display = 'none';
+    }
+}
+function toggleDropdown() { const dropdown = document.getElementById('logoutDropdown'); if (dropdown) dropdown.classList.toggle('show'); }
+function logout() { localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'login.html'; }
+window.onclick = function(event) {
+    const dropdown = document.getElementById('logoutDropdown');
+    const avatar = document.getElementById('userAvatar');
+    if (dropdown && avatar && !avatar.contains(event.target) && !dropdown.contains(event.target)) dropdown.classList.remove('show');
+}
+
+document.getElementById('closeModalBtn').onclick = () => document.getElementById('detailModal').style.display = 'none';
+window.onclick = (e) => { if(e.target === document.getElementById('detailModal')) document.getElementById('detailModal').style.display = 'none'; };
+document.querySelectorAll('.nav-link').forEach(link => { if(link.href === window.location.href) link.classList.add('active'); });
+
+renderChart();
+renderSummaryTable();
+checkAuth();
+</script>
+</body>
+</html>

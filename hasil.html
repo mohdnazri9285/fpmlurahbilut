@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>FPMSB Lurah Bilut - Laporan Hasil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
+
+        .navbar {
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-bottom: 3px solid #2d6a4f;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+            clip-path: polygon(0% 0%, 100% 0%, 98% 100%, 2% 100%);
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-img { height: 48px; width: auto; border-radius: 10px; }
+        .logo-text h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+        .logo-text p { font-size: 0.65rem; color: #64748b; }
+        .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .nav-link {
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-link.active { background: #2d6a4f; color: white; }
+        .nav-link:not(.active):hover { background: #eef2ff; color: #2d6a4f; }
+
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .login-btn { background: #f8fafc; padding: 8px 18px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.8rem; color: #2d6a4f; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .login-btn:hover { background: #2d6a4f; color: white; border-color: #2d6a4f; }
+        .user-avatar { width: 38px; height: 38px; background: #2d6a4f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+        .logout-dropdown { display: none; position: absolute; right: 20px; top: 70px; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; min-width: 180px; }
+        .logout-dropdown.show { display: block; }
+        .logout-dropdown .dropdown-header { padding: 12px 20px; border-bottom: 1px solid #e2e8f0; }
+        .logout-dropdown .dropdown-header strong { display: block; font-size: 0.8rem; color: #1e293b; }
+        .logout-dropdown .dropdown-header small { font-size: 0.7rem; color: #64748b; }
+        .logout-dropdown button { width: 100%; padding: 12px 20px; text-align: left; background: none; border: none; cursor: pointer; color: #dc2626; font-size: 0.8rem; font-weight: 600; border-radius: 0 0 16px 16px; }
+        .logout-dropdown button:hover { background: #fef2f2; }
+
+        .main { max-width: 1400px; margin: 0 auto; padding: 30px 24px; }
+        .page-title h1 { font-size: 1.8rem; font-weight: 700; color: #0f172a; border-left: 4px solid #2d6a4f; padding-left: 16px; }
+        .page-title p { color: #64748b; margin-top: 8px; margin-left: 20px; }
+
+        .filter-buttons {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .filter-btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: none;
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+        .filter-btn:hover { background: #eef2ff; color: #2d6a4f; }
+        .filter-btn.active { background: #2d6a4f; color: white; border-color: #2d6a4f; }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 24px 28px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        .card h3 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-left: 4px solid #2d6a4f; padding-left: 14px; }
+        .chart-container { position: relative; width: 100%; min-height: 380px; overflow-x: auto; }
+        canvas { max-width: 100%; height: auto; max-height: 380px; }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #e2e8f0;
+            padding: 12px 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .data-table td:first-child {
+            font-weight: 600;
+            background: #f8fafc;
+        }
+        .badge {
+            background: #dcfce7;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 95%; max-width: 1100px; max-height: 85vh; border-radius: 24px; overflow-y: auto; }
+        .modal-header { padding: 18px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; border-radius: 24px 24px 0 0; }
+        .modal-header h2 { font-size: 1.3rem; color: #0f172a; }
+        .close-modal { font-size: 28px; cursor: pointer; background: none; border: none; color: #64748b; }
+        .modal-body { padding: 24px; }
+        .detail-stats { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
+        .stat-box { flex: 1; min-width: 100px; background: #f8fafc; padding: 12px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; color: #2d6a4f; }
+        .mini-chart { margin: 20px 0; height: 260px; }
+        .sub-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; }
+        .sub-section h4 { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .modal-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .modal-table th, .modal-table td { border: 1px solid #e2e8f0; padding: 10px 8px; }
+        .modal-table th { background: #f8fafc; font-weight: 600; text-align: center; }
+        .modal-table td:first-child { text-align: left; font-weight: 600; }
+        .modal-table td { text-align: center; }
+
+        footer { text-align: center; padding: 25px; border-top: 1px solid #e2e8f0; font-size: 0.7rem; color: #94a3b8; background: white; }
+
+        @media (max-width: 768px) {
+            .navbar { clip-path: none; padding: 0.8rem 1rem; }
+            .nav-container { flex-direction: column; align-items: stretch; }
+            .nav-links { justify-content: center; }
+            .main { padding: 20px 16px; }
+            .card { padding: 16px; }
+            .chart-container { min-height: 300px; }
+            .data-table th, .data-table td { padding: 8px 4px; font-size: 0.7rem; }
+            .filter-buttons { justify-content: center; }
+            .filter-btn { padding: 6px 16px; font-size: 0.75rem; }
+            .mini-chart { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-container">
+        <div class="logo-area">
+            <img class="logo-img" src="https://placehold.co/200x60/2d6a4f/white?text=FPMSB" alt="Logo">
+            <div class="logo-text"><h2>FPMSB Lurah Bilut</h2><p>Dashboard Operasi Ladang</p></div>
+        </div>
+        <div class="nav-links">
+            <a href="info.html" class="nav-link"><i class="fas fa-info-circle"></i> Info</a>
+            <a href="hasil.html" class="nav-link active"><i class="fas fa-chart-line"></i> Hasil</a>
+            <a href="pembajaan.html" class="nav-link"><i class="fas fa-seedling"></i> Pembajaan</a>
+            <a href="merumput.html" class="nav-link"><i class="fas fa-cut"></i> Merumput</a>
+            <a href="mekanisasi.html" class="nav-link"><i class="fas fa-tractor"></i> Mekanisasi</a>
+        </div>
+        <div class="nav-right">
+            <a href="login.html" class="login-btn" id="loginBtn"><i class="fas fa-user-shield"></i> Admin</a>
+            <div class="user-avatar" id="userAvatar" style="display: none;" onclick="toggleDropdown()"><i class="fas fa-user"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="logout-dropdown" id="logoutDropdown">
+    <div class="dropdown-header"><strong id="userEmailDisplay">Admin</strong><small>Pentadbir Sistem</small></div>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Log Keluar</button>
+</div>
+
+<div class="main">
+    <div class="page-title">
+        <h1>📈 Laporan Hasil Ladang</h1>
+        <p>Pencapaian mengikut Peringkat · Analisa Blok (setakat April 2026)</p>
+    </div>
+
+    <!-- GRAF PERINGKAT (dengan target tahunan) -->
+    <div class="card">
+        <h3><i class="fas fa-chart-bar"></i> Prestasi Hasil per Peringkat (T/Ha) - Jan hingga April 2026</h3>
+        <div class="chart-container"><canvas id="peringkatChart" style="width:100%; height:380px;"></canvas></div>
+        <p style="font-size:0.7rem; color:#64748b; margin-top:10px; text-align:center;">*Klik pada bar untuk detail peringkat (termasuk analisa tandan, ABW, BTB Muda)</p>
+    </div>
+
+    <!-- Button Pilih Peringkat untuk Blok -->
+    <div class="filter-buttons" id="filterButtons">
+        <button class="filter-btn active" data-peringkat="1G">1G</button>
+        <button class="filter-btn" data-peringkat="1A">1A</button>
+        <button class="filter-btn" data-peringkat="1C">1C</button>
+        <button class="filter-btn" data-peringkat="1D">1D</button>
+        <button class="filter-btn" data-peringkat="2G">2G</button>
+        <button class="filter-btn" data-peringkat="PKT3">PKT 3</button>
+        <button class="filter-btn" data-peringkat="PKT4">PKT 4</button>
+    </div>
+
+    <!-- Graf Perbandingan Blok (target hingga April) -->
+    <div class="card">
+        <h3><i class="fas fa-chart-bar"></i> Perbandingan Hasil (TAN/HA) Mengikut Blok - <span id="selectedPeringkat">1G</span></h3>
+        <div class="chart-container"><canvas id="blokChart" style="width:100%; height:380px;"></canvas></div>
+        <p style="font-size:0.7rem; color:#64748b; margin-top:10px; text-align:center;">*Klik pada bar pencapaian untuk detail blok</p>
+    </div>
+
+    <!-- Jadual Ringkasan Blok -->
+    <div class="card">
+        <h3><i class="fas fa-table"></i> Ringkasan Hasil Mengikut Blok - <span id="selectedPeringkatTable">1G</span> (Jan - Apr 2026)</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table" id="summaryTable">
+                <thead><tr><th>Blok</th><th>Luas (Ha)</th><th>M.TAN (MT)</th><th>TAN/HA</th><th>Jumlah Tandan</th><th>ABW (kg)</th><th>Tandan/Pkk</th><th>BTB Muda</th></tr></thead>
+                <tbody id="summaryTableBody"></tbody>
+                <tfoot id="summaryTableFooter"></tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<footer>© FPMSB Lurah Bilut — Data Operasi Ladang Sawit</footer>
+
+<!-- Modal untuk Detail Blok -->
+<div id="detailBlokModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2 id="blokModalTitle">Detail Blok</h2><button class="close-modal" onclick="closeModal('detailBlokModal')">&times;</button></div>
+        <div class="modal-body" id="blokModalBody"></div>
+    </div>
+</div>
+
+<!-- Modal untuk Detail Peringkat -->
+<div id="detailPeringkatModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2 id="peringkatModalTitle">Detail Peringkat</h2><button class="close-modal" onclick="closeModal('detailPeringkatModal')">&times;</button></div>
+        <div class="modal-body" id="peringkatModalBody"></div>
+    </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ======================= DATA LENGKAP PERINGKAT =======================
+const ringkasanPeringkat = [
+    { name: "1G", luas: 512.51, capaiApril: 4.82, targetApril: 4.76, targetTahunan: 18.03, tandan: 145333, abw: 16.99, tpp: 2.18, btbMuda: 809, sph: 130 },
+    { name: "1A", luas: 284.61, capaiApril: 3.20, targetApril: 3.20, targetTahunan: 14.04, tandan: 56491, abw: 16.14, tpp: 1.71, btbMuda: 144, sph: 116 },
+    { name: "1C", luas: 4.82, capaiApril: 2.61, targetApril: 2.26, targetTahunan: 13.65, tandan: 918, abw: 13.69, tpp: 1.73, btbMuda: 10, sph: 110 },
+    { name: "1D", luas: 128.15, capaiApril: 3.02, targetApril: 3.02, targetTahunan: 16.37, tandan: 29918, abw: 12.92, tpp: 2.16, btbMuda: 403, sph: 108 },
+    { name: "2G", luas: 190.91, capaiApril: 3.19, targetApril: 2.19, targetTahunan: 14.07, tandan: 47281, abw: 11.88, tpp: 2.03, btbMuda: 226, sph: 122 },
+    { name: "PKT 3", luas: 274.54, capaiApril: 3.10, targetApril: 3.10, targetTahunan: 15.50, tandan: 72484, abw: 11.63, tpp: 2.30, btbMuda: 256, sph: 115 },
+    { name: "PKT 4", luas: 719.49, capaiApril: 4.21, targetApril: 4.21, targetTahunan: 15.68, tandan: 106553, abw: 28.14, tpp: 1.21, btbMuda: 1565, sph: 122 }
+];
+
+// Data bulanan lengkap (Jan-Dis) - Mei hingga Dis = 0
+const bulananPeringkat = {
+    '1G': [1.51, 1.19, 0.94, 1.12, 0,0,0,0,0,0,0,0],
+    '1A': [0.91, 0.86, 0.69, 0.74, 0,0,0,0,0,0,0,0],
+    '1C': [0.64, 0.66, 0.76, 0.55, 0,0,0,0,0,0,0,0],
+    '1D': [0.87, 0.70, 0.60, 0.85, 0,0,0,0,0,0,0,0],
+    '2G': [1.04, 0.81, 0.62, 0.72, 0,0,0,0,0,0,0,0],
+    'PKT 3': [0.96, 0.78, 0.69, 0.67, 0,0,0,0,0,0,0,0],
+    'PKT 4': [1.11, 0.96, 0.86, 1.28, 0,0,0,0,0,0,0,0]
+};
+
+// Data bulanan untuk Tandan, ABW, TPP, BTB Muda (Jan-Apr sahaja, Mei-Dis = 0)
+const bulananTandan = {
+    '1G': [46506, 36542, 28592, 33693, 0,0,0,0,0,0,0,0],
+    '1A': [17396, 15608, 10703, 12784, 0,0,0,0,0,0,0,0],
+    '1C': [250, 248, 244, 176, 0,0,0,0,0,0,0,0],
+    '1D': [8828, 7306, 5693, 8091, 0,0,0,0,0,0,0,0],
+    '2G': [16780, 13330, 9511, 7660, 0,0,0,0,0,0,0,0],
+    'PKT 3': [25850, 20500, 15034, 11100, 0,0,0,0,0,0,0,0],
+    'PKT 4': [28658, 24211, 22259, 31425, 0,0,0,0,0,0,0,0]
+};
+
+const bulananABW = {
+    '1G': [17.00, 17.00, 16.93, 17.02, 0,0,0,0,0,0,0,0],
+    '1A': [14.85, 15.71, 18.45, 16.50, 0,0,0,0,0,0,0,0],
+    '1C': [12.32, 12.78, 15.08, 15.00, 0,0,0,0,0,0,0,0],
+    '1D': [12.67, 12.31, 13.40, 13.42, 0,0,0,0,0,0,0,0],
+    '2G': [11.95, 8.57, 12.63, 16.57, 0,0,0,0,0,0,0,0],
+    'PKT 3': [10.31, 10.69, 12.61, 15.09, 0,0,0,0,0,0,0,0],
+    'PKT 4': [28.07, 29.00, 27.99, 27.64, 0,0,0,0,0,0,0,0]
+};
+
+const bulananTPP = {
+    '1G': [0.70, 0.55, 0.43, 0.51, 0,0,0,0,0,0,0,0],
+    '1A': [0.53, 0.47, 0.32, 0.39, 0,0,0,0,0,0,0,0],
+    '1C': [0.47, 0.47, 0.46, 0.33, 0,0,0,0,0,0,0,0],
+    '1D': [0.64, 0.53, 0.41, 0.58, 0,0,0,0,0,0,0,0],
+    '2G': [0.72, 0.57, 0.41, 0.33, 0,0,0,0,0,0,0,0],
+    'PKT 3': [0.82, 0.65, 0.48, 0.35, 0,0,0,0,0,0,0,0],
+    'PKT 4': [0.33, 0.28, 0.25, 0.36, 0,0,0,0,0,0,0,0]
+};
+
+const bulananBTB = {
+    '1G': [218, 243, 226, 122, 0,0,0,0,0,0,0,0],
+    '1A': [40, 33, 40, 31, 0,0,0,0,0,0,0,0],
+    '1C': [0, 3, 2, 5, 0,0,0,0,0,0,0,0],
+    '1D': [124, 93, 76, 110, 0,0,0,0,0,0,0,0],
+    '2G': [63, 58, 51, 54, 0,0,0,0,0,0,0,0],
+    'PKT 3': [67, 65, 64, 60, 0,0,0,0,0,0,0,0],
+    'PKT 4': [369, 418, 402, 376, 0,0,0,0,0,0,0,0]
+};
+
+// Target bulanan hingga April
+const targetBulanan = {
+    '1G': [1.06, 1.15, 1.30, 1.37],
+    '1A': [0.77, 0.80, 1.03, 1.21],
+    '1C': [0.81, 0.68, 0.77, 0.92],
+    '1D': [0.67, 0.79, 0.85, 1.22],
+    '2G': [0.63, 0.59, 0.97, 0.99],
+    'PKT 3': [0.66, 0.79, 0.85, 1.22],
+    'PKT 4': [1.07, 1.16, 1.21, 1.27]
+};
+
+// Target hingga April untuk blok (mengikut peringkat masing-masing)
+const targetAprilBlok = {
+    '1G': 4.76, '1A': 3.20, '1C': 2.26, '1D': 3.02, '2G': 2.19, 'PKT3': 3.10, 'PKT4': 4.21
+};
+
+// ======================= DATA BLOK =======================
+const blokData = {
+    "1G": {
+        peringkat: "1G", luasTotal: 512.51, sph: 130, targetApril: 4.76,
+        blok: [
+            { blok: "Blok 1", luas: 60.6, mTan: 240.66, tanHa: 3.97, tandan: 14396, abw: 16.72, tpp: 1.83, btbMuda: 105 },
+            { blok: "Blok 2", luas: 81.8, mTan: 351.20, tanHa: 4.29, tandan: 20492, abw: 17.14, tpp: 1.93, btbMuda: 109 },
+            { blok: "Blok 3", luas: 78.8, mTan: 415.97, tanHa: 5.28, tandan: 24178, abw: 17.20, tpp: 2.36, btbMuda: 112 },
+            { blok: "Blok 4", luas: 68.4, mTan: 355.64, tanHa: 5.20, tandan: 20968, abw: 16.96, tpp: 2.36, btbMuda: 129 },
+            { blok: "Blok 5", luas: 76.2, mTan: 409.07, tanHa: 5.37, tandan: 24000, abw: 17.04, tpp: 2.42, btbMuda: 130 },
+            { blok: "Blok 6", luas: 60.6, mTan: 309.64, tanHa: 5.11, tandan: 18230, abw: 16.99, tpp: 2.31, btbMuda: 83 },
+            { blok: "Blok 7", luas: 86.2, mTan: 387.35, tanHa: 4.50, tandan: 23069, abw: 16.79, tpp: 2.06, btbMuda: 141 }
+        ]
+    },
+    "1A": {
+        peringkat: "1A", luasTotal: 284.61, sph: 116, targetApril: 3.20,
+        blok: [
+            { blok: "Blok 8", luas: 85.5, mTan: 320.35, tanHa: 3.75, tandan: 19537, abw: 16.40, tpp: 1.97, btbMuda: 32 },
+            { blok: "Blok 9", luas: 68.4, mTan: 264.41, tanHa: 3.87, tandan: 16644, abw: 15.89, tpp: 2.10, btbMuda: 42 },
+            { blok: "Blok 12", luas: 73.9, mTan: 178.05, tanHa: 2.41, tandan: 10851, abw: 16.41, tpp: 1.27, btbMuda: 30 },
+            { blok: "Blok 13", luas: 56.8, mTan: 149.10, tanHa: 2.63, tandan: 9459, abw: 15.76, tpp: 1.44, btbMuda: 40 }
+        ]
+    },
+    "1C": {
+        peringkat: "1C", luasTotal: 4.82, sph: 110, targetApril: 2.26,
+        blok: [
+            { blok: "Blok 21", luas: 4.8, mTan: 12.57, tanHa: 2.61, tandan: 918, abw: 13.69, tpp: 1.73, btbMuda: 10 }
+        ]
+    },
+    "1D": {
+        peringkat: "1D", luasTotal: 128.15, sph: 108, targetApril: 3.02,
+        blok: [
+            { blok: "Blok 10", luas: 63.8, mTan: 228.11, tanHa: 3.58, tandan: 17141, abw: 13.31, tpp: 2.49, btbMuda: 241 },
+            { blok: "Blok 11", luas: 64.4, mTan: 158.51, tanHa: 2.46, tandan: 12777, abw: 12.41, tpp: 1.84, btbMuda: 162 }
+        ]
+    },
+    "2G": {
+        peringkat: "2G", luasTotal: 190.91, sph: 122, targetApril: 2.19,
+        blok: [
+            { blok: "Blok 14", luas: 63.4, mTan: 225.22, tanHa: 3.55, tandan: 13109, abw: 17.18, tpp: 1.70, btbMuda: 60 },
+            { blok: "Blok 15", luas: 61.1, mTan: 228.44, tanHa: 3.74, tandan: 20792, abw: 10.99, tpp: 2.79, btbMuda: 89 },
+            { blok: "Blok 16", luas: 66.4, mTan: 151.27, tanHa: 2.28, tandan: 13380, abw: 11.31, tpp: 1.65, btbMuda: 77 }
+        ]
+    },
+    "PKT3": {
+        peringkat: "PKT 3", luasTotal: 274.54, sph: 115, targetApril: 3.10,
+        blok: [
+            { blok: "Blok 17", luas: 58.0, mTan: 209.18, tanHa: 3.61, tandan: 19670, abw: 10.63, tpp: 2.95, btbMuda: 70 },
+            { blok: "Blok 18", luas: 82.5, mTan: 279.33, tanHa: 3.39, tandan: 23050, abw: 12.12, tpp: 2.43, btbMuda: 71 },
+            { blok: "Blok 19", luas: 73.2, mTan: 203.67, tanHa: 2.78, tandan: 18990, abw: 10.73, tpp: 2.26, btbMuda: 56 },
+            { blok: "Blok 20", luas: 60.9, mTan: 150.54, tanHa: 2.47, tandan: 10774, abw: 13.97, tpp: 1.54, btbMuda: 59 }
+        ]
+    },
+    "PKT4": {
+        peringkat: "PKT 4", luasTotal: 719.49, sph: 122, targetApril: 4.21,
+        blok: [
+            { blok: "Chekroll 1", luas: 217.0, mTan: 1025.53, tanHa: 4.73, tandan: 37178, abw: 27.58, tpp: 1.40, btbMuda: 520 },
+            { blok: "Chekroll 2", luas: 210.4, mTan: 783.46, tanHa: 3.72, tandan: 28600, abw: 27.39, tpp: 1.11, btbMuda: 394 },
+            { blok: "Kontrak 1", luas: 148.3, mTan: 541.87, tanHa: 3.65, tandan: 18948, abw: 28.60, tpp: 1.05, btbMuda: 265 },
+            { blok: "Kontrak 2", luas: 143.8, mTan: 647.19, tanHa: 4.50, tandan: 21827, abw: 29.65, tpp: 1.24, btbMuda: 386 }
+        ]
+    }
+};
+
+let peringkatChart = null;
+let blokChart = null;
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// GRAF PERINGKAT (dengan target tahunan)
+function renderPeringkatChart() {
+    const canvas = document.getElementById('peringkatChart');
+    if(!canvas) return;
+    if(peringkatChart) peringkatChart.destroy();
+
+    const labels = ringkasanPeringkat.map(p => p.name);
+    const capaiData = ringkasanPeringkat.map(p => p.capaiApril);
+    const targetTahunanData = ringkasanPeringkat.map(p => p.targetTahunan);
+
+    peringkatChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Target Tahunan (T/Ha)',
+                    data: targetTahunanData,
+                    backgroundColor: '#e2e8f0',
+                    borderColor: '#94a3b8',
+                    borderWidth: 2,
+                    borderDash: [6,6],
+                    borderRadius: 8,
+                    barPercentage: 0.65,
+                    datalabels: {
+                        display: true,
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#475569',
+                        font: { size: 10, weight: 'bold' },
+                        formatter: v => v.toFixed(1) + ' T/Ha'
+                    }
+                },
+                {
+                    label: 'Pencapaian (T/Ha) - April 2026',
+                    data: capaiData,
+                    backgroundColor: '#2d6a4f',
+                    borderRadius: 8,
+                    barPercentage: 0.65,
+                    datalabels: {
+                        display: true,
+                        anchor: 'end',
+                        align: 'top',
+                        offset: 4,
+                        color: '#14532d',
+                        font: { size: 11, weight: 'bold' },
+                        formatter: v => v.toFixed(2) + ' T/Ha'
+                    }
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: true, layout: { padding: { top: 45 } },
+            plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)} T/Ha` } } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Tan/Ha' }, max: 20 }, x: { ticks: { font: { size: 11 } } } },
+            onClick: (e, active) => { if(active.length) showDetailPeringkat(labels[active[0].index]); }
+        }
+    });
+}
+
+// POPUP DETAIL PERINGKAT (dengan data Jan-Dis, Mei-Dis = 0)
+function showDetailPeringkat(peringkatName) {
+    const p = ringkasanPeringkat.find(x => x.name === peringkatName);
+    if(!p) return;
+
+    const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+    const capaiData = bulananPeringkat[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
+    const targetData = targetBulanan[peringkatName] || [0,0,0,0];
+    const tandanData = bulananTandan[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
+    const abwData = bulananABW[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
+    const tppData = bulananTPP[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
+    const btbData = bulananBTB[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
+
+    // Jadual untuk 12 bulan
+    let tableRows = '';
+    let totalCapaiJanApr = 0;
+    for(let i=0; i<12; i++) {
+        const val = capaiData[i];
+        if(i < 4 && val > 0) totalCapaiJanApr += val;
+        tableRows += `<tr>
+            <td><strong>${months[i]}</strong></td>
+            <td>${val > 0 ? val.toFixed(2) : '0.00'} T/Ha</td?>
+            <td>${(i < 4 && targetData[i] > 0) ? targetData[i].toFixed(2) : '-'} T/Ha</td?>
+            <td>${(i < 4 && val > 0 && targetData[i] > 0) ? ((val/targetData[i])*100).toFixed(1) + '%' : '-'}</td?>
+         `;
+    }
+
+    document.getElementById('peringkatModalTitle').innerHTML = `Peringkat ${p.name} - Analisis Terperinci`;
+    document.getElementById('peringkatModalBody').innerHTML = `
+        <div class="detail-stats">
+            <div class="stat-box"><div class="stat-label">Luas (Ha)</div><div class="stat-value">${p.luas.toFixed(2)}</div></div>
+            <div class="stat-box"><div class="stat-label">SPH</div><div class="stat-value">${p.sph}</div></div>
+            <div class="stat-box"><div class="stat-label">Target Tahunan</div><div class="stat-value">${p.targetTahunan.toFixed(2)} T/Ha</div></div>
+            <div class="stat-box"><div class="stat-label">Pencapaian April</div><div class="stat-value">${p.capaiApril.toFixed(2)} T/Ha</div></div>
+            <div class="stat-box"><div class="stat-label">% Capai Target</div><div class="stat-value">${((p.capaiApril/p.targetApril)*100).toFixed(1)}%</div></div>
+        </div>
+
+        <h4>Pencapaian Hasil 2026 (T/Ha) vs Target (Jan - Apr)</h4>
+        <div class="mini-chart"><canvas id="hasilPeringkatChart" style="width:100%; height:240px;"></canvas></div>
+
+        <div class="sub-section">
+            <h4>Analisa Tandan & ABW (Jan - Apr 2026)</h4>
+            <div class="mini-chart"><canvas id="tandanABWPeringkatChart" style="width:100%; height:240px;"></canvas></div>
+        </div>
+
+        <div class="sub-section">
+            <h4>Tandan per Pokok (Jan - Apr 2026)</h4>
+            <div class="mini-chart"><canvas id="tppPeringkatChart" style="width:100%; height:240px;"></canvas></div>
+        </div>
+
+        <div class="sub-section">
+            <h4>BTB Muda (Jan - Apr 2026)</h4>
+            <div class="mini-chart"><canvas id="btbPeringkatChart" style="width:100%; height:240px;"></canvas></div>
+        </div>
+
+        <h4>Data Bulanan Jan - Dis 2026</h4>
+        <div style="overflow-x:auto;">
+            <table class="modal-table">
+                <thead><tr><th>Bulan</th><th>Hasil (T/Ha)</th><th>Target (T/Ha)</th><th>% Capai</th></tr></thead>
+                <tbody>${tableRows}</tbody>
+                <tfoot><tr style="background:#f1f5f9;"><td><strong>JUMLAH (Jan-Apr)</strong></td><td colspan="3"><strong>${totalCapaiJanApr.toFixed(2)} T/Ha</strong></td></tr></tfoot>
+            </table>
+        </div>
+        <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
+            <p>📌 Pencapaian Jan-Apr 2026: <strong>${p.capaiApril.toFixed(2)} T/Ha</strong> (${((p.capaiApril/p.targetApril)*100).toFixed(1)}% dari target)</p>
+            <p style="font-size:0.7rem; margin-top:8px;">*Data Mei hingga Disember 2026 akan dikemaskini selepas bulan berjalan.</p>
+        </div>`;
+
+    document.getElementById('detailPeringkatModal').style.display = 'flex';
+
+    setTimeout(() => {
+        const monthsShort = ['Jan', 'Feb', 'Mac', 'Apr'];
+        const capai4 = capaiData.slice(0,4);
+        const target4 = targetData;
+        const tandan4 = tandanData.slice(0,4);
+        const abw4 = abwData.slice(0,4);
+        const tpp4 = tppData.slice(0,4);
+        const btb4 = btbData.slice(0,4);
+
+        const ctxHasil = document.getElementById('hasilPeringkatChart');
+        const ctxTandan = document.getElementById('tandanABWPeringkatChart');
+        const ctxTpp = document.getElementById('tppPeringkatChart');
+        const ctxBtb = document.getElementById('btbPeringkatChart');
+
+        if(ctxHasil) new Chart(ctxHasil, {
+            type: 'bar',
+            data: { labels: monthsShort, datasets: [
+                { label: 'Pencapaian 2026 (T/Ha)', data: capai4, backgroundColor: '#2d6a4f', borderRadius: 8, datalabels: { display: true, anchor: 'end', align: 'top', color: '#14532d', font: { size: 10 }, formatter: v => v > 0 ? v.toFixed(2) : '0' } },
+                { label: 'Target 2026 (T/Ha)', data: target4, backgroundColor: '#e2e8f0', borderColor: '#94a3b8', borderWidth: 2, borderDash: [6,6], datalabels: { display: true, anchor: 'end', align: 'top', color: '#475569', font: { size: 10 }, formatter: v => v > 0 ? v.toFixed(2) : '' } }
+            ] },
+            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Tan/Ha' } } } }
+        });
+
+        if(ctxTandan) new Chart(ctxTandan, {
+            type: 'line',
+            data: { labels: monthsShort, datasets: [
+                { label: 'Jumlah Tandan', data: tandan4, borderColor: '#f4a261', backgroundColor: 'rgba(244,162,97,0.1)', fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#f4a261', yAxisID: 'y', datalabels: { display: true, anchor: 'end', align: 'top', color: '#e76f51', font: { size: 9 }, formatter: v => v > 0 ? v.toLocaleString() : '0' } },
+                { label: 'Purata Berat Tandan (kg)', data: abw4, borderColor: '#2d6a4f', borderWidth: 2, borderDash: [6,6], tension: 0.3, pointRadius: 5, pointBackgroundColor: '#2d6a4f', yAxisID: 'y1', datalabels: { display: true, anchor: 'end', align: 'top', color: '#1b4d3e', font: { size: 9 }, formatter: v => v > 0 ? v.toFixed(1) + ' kg' : '0' } }
+            ] },
+            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Tandan' } }, y1: { beginAtZero: true, title: { display: true, text: 'Berat (kg)' }, position: 'right' } } }
+        });
+
+        if(ctxTpp) new Chart(ctxTpp, {
+            type: 'line',
+            data: { labels: monthsShort, datasets: [{ label: 'Tandan per Pokok', data: tpp4, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#10b981', datalabels: { display: true, anchor: 'end', align: 'top', color: '#065f46', font: { size: 9 }, formatter: v => v > 0 ? v.toFixed(2) : '0' } }] },
+            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Tandan/Pokok' } } } }
+        });
+
+        if(ctxBtb) new Chart(ctxBtb, {
+            type: 'line',
+            data: { labels: monthsShort, datasets: [{ label: 'BTB Muda', data: btb4, borderColor: '#e76f51', backgroundColor: 'rgba(231,111,81,0.1)', fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#e76f51', datalabels: { display: true, anchor: 'end', align: 'top', color: '#c0392b', font: { size: 9 }, formatter: v => v > 0 ? v.toString() : '0' } }] },
+            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Bilangan BTB Muda' } } } }
+        });
+    }, 100);
+}
+
+// GRAF BLOK (target hingga April)
+function renderBlokChart(peringkatId) {
+    const data = blokData[peringkatId];
+    if(!data) return;
+
+    document.getElementById('selectedPeringkat').innerText = data.peringkat;
+    document.getElementById('selectedPeringkatTable').innerText = data.peringkat;
+
+    const canvas = document.getElementById('blokChart');
+    if(!canvas) return;
+    if(blokChart) blokChart.destroy();
+
+    const labels = data.blok.map(b => b.blok);
+    const tanHaData = data.blok.map(b => b.tanHa);
+    const targetApril = data.targetApril;
+    const targetData = data.blok.map(() => targetApril);
+
+    blokChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: `Target hingga April (${targetApril} T/Ha)`, data: targetData, backgroundColor: '#e2e8f0', borderColor: '#94a3b8', borderWidth: 2, borderDash: [6,6], borderRadius: 8, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', color: '#475569', font: { size: 10, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' } },
+                { label: 'Pencapaian Jan-Apr (T/Ha)', data: tanHaData, backgroundColor: '#2d6a4f', borderRadius: 8, barPercentage: 0.65, datalabels: { display: true, anchor: 'end', align: 'top', offset: 4, color: '#14532d', font: { size: 11, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' } }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: true, layout: { padding: { top: 45 } },
+            plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)} T/Ha` } } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Tan/Ha' }, max: Math.max(...tanHaData, targetApril) * 1.2 }, x: { ticks: { font: { size: 10 } } } },
+            onClick: (e, active) => { if(active.length && active[0].datasetIndex === 1) showDetailBlok(peringkatId, data.blok[active[0].index].blok); }
+        }
+    });
+
+    // Update table
+    const tbody = document.getElementById('summaryTableBody');
+    const tfoot = document.getElementById('summaryTableFooter');
+    tbody.innerHTML = '';
+
+    let totalMTan = 0, totalTandan = 0, totalLuas = 0;
+    data.blok.forEach(blok => {
+        totalMTan += blok.mTan;
+        totalTandan += blok.tandan;
+        totalLuas += blok.luas;
+        tbody.innerHTML += `<tr style="cursor:pointer" onclick="showDetailBlok('${peringkatId}', '${blok.blok}')">
+            <td><strong>${blok.blok}</strong></td>
+            <td>${blok.luas.toFixed(2)}</td?>
+            <td>${blok.mTan.toFixed(2)}</td?>
+            <td>${blok.tanHa.toFixed(2)}</td?>
+            <td>${blok.tandan.toLocaleString()}</td?>
+            <td>${blok.abw.toFixed(2)}</td?>
+            <td>${blok.tpp.toFixed(2)}</td?>
+            <td>${blok.btbMuda}</td?>
+         `;
+    });
+
+    const avgTanHa = totalMTan / totalLuas;
+    tfoot.innerHTML = `<tr style="background:#f1f5f9; font-weight:700;">
+        <td><strong>JUMLAH / PURATA</strong></td>
+        <td>${totalLuas.toFixed(2)} Ha</td?>
+        <td>${totalMTan.toFixed(2)} MT (SUM)</td?>
+        <td>${avgTanHa.toFixed(2)} (AVG)</td?>
+        <td>${totalTandan.toLocaleString()} (SUM)</td?>
+        <td>-</td?>
+        <td>-</td?>
+        <td>-</td?>
+     `;
+}
+
+// POPUP DETAIL BLOK (dengan Jan-Dis, Mei-Dis = 0)
+function showDetailBlok(peringkatId, blokName) {
+    const data = blokData[peringkatId];
+    const blok = data.blok.find(b => b.blok === blokName);
+    if(!blok) return;
+
+    const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
+    const bulanCapai = bulananPeringkat[data.peringkat] || [0,0,0,0,0,0,0,0,0,0,0,0];
+
+    let tableRows = '';
+    let totalCapai = 0;
+    for(let i=0; i<12; i++) {
+        const val = bulanCapai[i];
+        if(i < 4 && val > 0) totalCapai += val;
+        tableRows += `<tr>
+            <td><strong>${months[i]}</strong></td>
+            <td>${val > 0 ? val.toFixed(2) : '0.00'} T/Ha</td?>
+         `;
+    }
+
+    document.getElementById('blokModalTitle').innerHTML = `${data.peringkat} - ${blok.blok}`;
+    document.getElementById('blokModalBody').innerHTML = `
+        <div class="detail-stats">
+            <div class="stat-box"><div class="stat-label">Luas (Ha)</div><div class="stat-value">${blok.luas.toFixed(2)}</div></div>
+            <div class="stat-box"><div class="stat-label">M.TAN (MT)</div><div class="stat-value">${blok.mTan.toFixed(2)}</div></div>
+            <div class="stat-box"><div class="stat-label">TAN/HA</div><div class="stat-value">${blok.tanHa.toFixed(2)}</div></div>
+            <div class="stat-box"><div class="stat-label">Target hingga April</div><div class="stat-value">${data.targetApril.toFixed(2)} T/Ha</div></div>
+            <div class="stat-box"><div class="stat-label">SPH</div><div class="stat-value">${data.sph}</div></div>
+        </div>
+        <div class="detail-stats">
+            <div class="stat-box"><div class="stat-label">Jumlah Tandan</div><div class="stat-value">${blok.tandan.toLocaleString()}</div></div>
+            <div class="stat-box"><div class="stat-label">ABW (kg)</div><div class="stat-value">${blok.abw.toFixed(2)}</div></div>
+            <div class="stat-box"><div class="stat-label">Tandan/Pokok</div><div class="stat-value">${blok.tpp.toFixed(2)}</div></div>
+            <div class="stat-box"><div class="stat-label">BTB Muda</div><div class="stat-value">${blok.btbMuda}</div></div>
+        </div>
+
+        <h4>Pencapaian Hasil 2026 (T/Ha)</h4>
+        <div class="mini-chart"><canvas id="hasilBlokChart" style="width:100%; height:240px;"></canvas></div>
+
+        <h4>Data Bulanan Jan - Dis 2026</h4>
+        <div style="overflow-x:auto;">
+            <table class="modal-table">
+                <thead><tr><th>Bulan</th><th>Hasil (T/Ha)</th></tr></thead>
+                <tbody>${tableRows}</tbody>
+                <tfoot><tr style="background:#f1f5f9;"><td><strong>JUMLAH (Jan-Apr)</strong></td><td><strong>${totalCapai.toFixed(2)} T/Ha</strong></td></tr></tfoot>
+            </table>
+        </div>
+        <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
+            <p>Pencapaian Jan-Apr 2026: <strong>${blok.mTan.toFixed(2)} MT</strong> (${blok.tanHa.toFixed(2)} T/Ha)</p>
+            <p style="font-size:0.7rem; margin-top:8px;">*Data Mei hingga Disember 2026 akan dikemaskini selepas bulan berjalan.</p>
+        </div>`;
+
+    document.getElementById('detailBlokModal').style.display = 'flex';
+
+    setTimeout(() => {
+        const ctxHasil = document.getElementById('hasilBlokChart');
+        if(ctxHasil) new Chart(ctxHasil, {
+            type: 'bar',
+            data: { labels: months, datasets: [{ label: 'Hasil 2026 (T/Ha)', data: bulanCapai, backgroundColor: '#2d6a4f', borderRadius: 8, datalabels: { display: true, anchor: 'end', align: 'top', color: '#14532d', font: { size: 9 }, formatter: v => (v > 0 ? v.toFixed(2) : '0') } }] },
+            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Tan/Ha' } } } }
+        });
+    }, 100);
+}
+
+// ========== LOGIN FUNCTIONS ==========
+function checkAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loginBtn = document.getElementById('loginBtn');
+    const userAvatar = document.getElementById('userAvatar');
+    const userEmailDisplay = document.getElementById('userEmailDisplay');
+    if (isLoggedIn) {
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userAvatar) userAvatar.style.display = 'flex';
+        if (userEmailDisplay) userEmailDisplay.innerText = localStorage.getItem('userEmail') || 'Admin';
+    } else {
+        if (loginBtn) loginBtn.style.display = 'flex';
+        if (userAvatar) userAvatar.style.display = 'none';
+    }
+}
+function toggleDropdown() { const dropdown = document.getElementById('logoutDropdown'); if (dropdown) dropdown.classList.toggle('show'); }
+function logout() { localStorage.removeItem('isLoggedIn'); localStorage.removeItem('userEmail'); window.location.href = 'login.html'; }
+window.onclick = function(event) {
+    const dropdown = document.getElementById('logoutDropdown');
+    const avatar = document.getElementById('userAvatar');
+    if (dropdown && avatar && !avatar.contains(event.target) && !dropdown.contains(event.target)) dropdown.classList.remove('show');
+    if (event.target.classList && event.target.classList.contains('modal')) {
+        document.getElementById('detailBlokModal').style.display = 'none';
+        document.getElementById('detailPeringkatModal').style.display = 'none';
+    }
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderBlokChart(btn.getAttribute('data-peringkat'));
+    });
+});
+document.querySelectorAll('.nav-link').forEach(link => { if(link.href === window.location.href) link.classList.add('active'); });
+
+renderPeringkatChart();
+renderBlokChart('1G');
+checkAuth();
+</script>
+</body>
+</html>
