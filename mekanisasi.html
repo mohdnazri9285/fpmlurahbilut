@@ -20,6 +20,19 @@
         .nav-link.active { background: #2d6a4f; color: white; }
         .nav-link:not(.active):hover { background: #eef2ff; color: #2d6a4f; }
 
+        /* ========== LOGIN BUTTON & DROPDOWN ========== */
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .login-btn { background: #f8fafc; padding: 8px 18px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.8rem; color: #2d6a4f; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .login-btn:hover { background: #2d6a4f; color: white; border-color: #2d6a4f; }
+        .user-avatar { width: 38px; height: 38px; background: #2d6a4f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+        .logout-dropdown { display: none; position: absolute; right: 20px; top: 70px; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; min-width: 180px; }
+        .logout-dropdown.show { display: block; }
+        .logout-dropdown .dropdown-header { padding: 12px 20px; border-bottom: 1px solid #e2e8f0; }
+        .logout-dropdown .dropdown-header strong { display: block; font-size: 0.8rem; color: #1e293b; }
+        .logout-dropdown .dropdown-header small { font-size: 0.7rem; color: #64748b; }
+        .logout-dropdown button { width: 100%; padding: 12px 20px; text-align: left; background: none; border: none; cursor: pointer; color: #dc2626; font-size: 0.8rem; font-weight: 600; border-radius: 0 0 16px 16px; }
+        .logout-dropdown button:hover { background: #fef2f2; }
+
         .main { max-width: 1400px; margin: 0 auto; padding: 30px 24px; }
         .page-title h1 { font-size: 1.8rem; font-weight: 700; color: #0f172a; border-left: 4px solid #2d6a4f; padding-left: 16px; }
         .page-title p { color: #64748b; margin-top: 8px; margin-left: 20px; }
@@ -133,6 +146,8 @@
             .card { padding: 16px; }
             .mekanisasi-grid { grid-template-columns: 1fr; }
             .data-table th, .data-table td { padding: 8px 4px; font-size: 0.7rem; }
+            .nav-right { justify-content: center; }
+            .logout-dropdown { right: 10px; top: 110px; }
         }
     </style>
 </head>
@@ -151,7 +166,27 @@
             <a href="merumput.html" class="nav-link"><i class="fas fa-cut"></i> Merumput</a>
             <a href="mekanisasi.html" class="nav-link active"><i class="fas fa-tractor"></i> Mekanisasi</a>
         </div>
+        <!-- ========== LOGIN BUTTON & USER AVATAR ========== -->
+        <div class="nav-right">
+            <a href="login.html" class="login-btn" id="loginBtn">
+                <i class="fas fa-user-shield"></i> Admin
+            </a>
+            <div class="user-avatar" id="userAvatar" style="display: none;" onclick="toggleDropdown()">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- ========== DROPDOWN LOGOUT ========== -->
+<div class="logout-dropdown" id="logoutDropdown">
+    <div class="dropdown-header">
+        <strong id="userEmailDisplay">Admin</strong>
+        <small>Pentadbir Sistem</small>
+    </div>
+    <button onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Log Keluar
+    </button>
 </div>
 
 <div class="main">
@@ -214,18 +249,17 @@ mekanisasiData.forEach(item => {
     }
 });
 
-// Fungsi render ringkasan kategori
 function renderSummaryGrid() {
     const container = document.getElementById('summaryGrid');
     if(!container) return;
     container.innerHTML = '';
-
+    
     for (const [kategori, data] of Object.entries(kategoriSummary)) {
         let icon = '';
         if (kategori === 'MEKANISASI PENUAIAN') icon = 'fas fa-tractor';
         else if (kategori === 'MEKANISASI PEMBAJAAN') icon = 'fas fa-seedling';
         else if (kategori === 'MEKANISASI MERUMPUT') icon = 'fas fa-cut';
-
+        
         container.innerHTML += `
             <div class="summary-card">
                 <i class="${icon}" style="font-size: 2rem; color: #2d6a4f; margin-bottom: 10px;"></i>
@@ -236,12 +270,11 @@ function renderSummaryGrid() {
     }
 }
 
-// Fungsi render kad mekanisasi
 function renderMekanisasiCards() {
     const container = document.getElementById('mekanisasiGrid');
     if(!container) return;
     container.innerHTML = '';
-
+    
     mekanisasiData.forEach(item => {
         let iconClass = item.icon;
         if(item.nama === "KOMODO") iconClass = "fas fa-tractor";
@@ -252,7 +285,7 @@ function renderMekanisasiCards() {
         else if(item.nama === "SPREADER") iconClass = "fas fa-seedling";
         else if(item.nama === "MISTBLOWER") iconClass = "fas fa-spray-can";
         else if(item.nama === "GRASSCUTTER") iconClass = "fas fa-cut";
-
+        
         container.innerHTML += `
             <div class="mekanisasi-card">
                 <div class="mekanisasi-icon"><i class="${iconClass}"></i></div>
@@ -264,31 +297,66 @@ function renderMekanisasiCards() {
     });
 }
 
-// Fungsi render jadual mekanisasi
 function renderMekanisasiTable() {
     const tbody = document.getElementById('mekanisasiTableBody');
     if(!tbody) return;
     tbody.innerHTML = '';
-
+    
     mekanisasiData.forEach(item => {
         tbody.innerHTML += `<tr>
             <td>${item.kategori}</td>
             <td><strong>${item.nama}</strong></td>
             <td>${item.bilangan}</td>
             <td>${item.unit}</td>
-        </tr>`;
+        <tr>`;
     });
 }
 
-// Active link highlight
-document.querySelectorAll('.nav-link').forEach(link => {
-    if(link.href === window.location.href) link.classList.add('active');
+// ========== LOGIN FUNCTIONS ==========
+function checkAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loginBtn = document.getElementById('loginBtn');
+    const userAvatar = document.getElementById('userAvatar');
+    const userEmailDisplay = document.getElementById('userEmailDisplay');
+    
+    if (isLoggedIn) {
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userAvatar) userAvatar.style.display = 'flex';
+        if (userEmailDisplay) userEmailDisplay.innerText = localStorage.getItem('userEmail') || 'Admin';
+    } else {
+        if (loginBtn) loginBtn.style.display = 'flex';
+        if (userAvatar) userAvatar.style.display = 'none';
+    }
+}
+
+function toggleDropdown() {
+    const dropdown = document.getElementById('logoutDropdown');
+    if (dropdown) dropdown.classList.toggle('show');
+}
+
+function logout() {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userEmail');
+    window.location.href = 'login.html';
+}
+
+// Close dropdown when clicking outside
+window.onclick = function(event) {
+    const dropdown = document.getElementById('logoutDropdown');
+    const avatar = document.getElementById('userAvatar');
+    if (dropdown && avatar && !avatar.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+    }
+}
+
+document.querySelectorAll('.nav-link').forEach(link => { 
+    if (link.href === window.location.href) link.classList.add('active'); 
 });
 
-// Initialize
 renderSummaryGrid();
 renderMekanisasiCards();
 renderMekanisasiTable();
+checkAuth();
 </script>
 </body>
 </html>
