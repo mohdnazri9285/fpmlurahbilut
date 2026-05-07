@@ -4,11 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Admin - Upload Data | FPMSB Lurah Bilut</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+    <link rel="shortcut icon" href="/image/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/image/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/image/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/image/favicon-16x16.png">
+    <link rel="manifest" href="/image/site.webmanifest">
+    <meta name="theme-color" content="#2d6a4f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FPMSB Lurah Bilut">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
-
+        
         .navbar { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-bottom: 3px solid #2d6a4f; padding: 0.8rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .logo-area { display: flex; align-items: center; gap: 12px; }
         .logo-img { height: 45px; width: auto; background: #2d6a4f; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 8px; }
@@ -19,14 +32,14 @@
         .user-info i { color: #2d6a4f; font-size: 1rem; }
         .logout-btn { background: none; border: none; color: #dc2626; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
         .logout-btn:hover { text-decoration: underline; }
-
+        
         .main { max-width: 1200px; margin: 0 auto; padding: 30px 24px; }
         .page-title h1 { font-size: 1.8rem; font-weight: 700; color: #0f172a; border-left: 4px solid #2d6a4f; padding-left: 16px; margin-bottom: 8px; }
         .page-title p { color: #64748b; margin-left: 20px; }
-
+        
         .card { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 24px 28px; margin-bottom: 30px; border: 1px solid #e2e8f0; }
         .card h3 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-left: 4px solid #2d6a4f; padding-left: 14px; }
-
+        
         .upload-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
         .upload-box { background: #f8fafc; border-radius: 16px; padding: 20px; border: 2px dashed #cbd5e1; text-align: center; transition: all 0.2s; }
         .upload-box:hover { border-color: #2d6a4f; background: #f0fdf4; }
@@ -39,13 +52,13 @@
         .status { margin-top: 12px; font-size: 0.75rem; padding: 6px; border-radius: 20px; }
         .status-success { background: #d4edda; color: #155724; }
         .status-error { background: #f8d7da; color: #721c24; }
-
+        
         .result-area { margin-top: 30px; padding: 15px; background: #f8fafc; border-radius: 16px; display: none; }
         .result-area.show { display: block; }
         .btn-back { display: inline-block; margin-top: 20px; color: #2d6a4f; text-decoration: none; }
-
+        
         footer { text-align: center; padding: 20px; border-top: 1px solid #e2e8f0; font-size: 0.7rem; color: #94a3b8; }
-
+        
         @media (max-width: 768px) { .navbar { flex-direction: column; text-align: center; } .upload-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -75,12 +88,12 @@
             <div class="upload-box" id="box-hasil">
                 <i class="fas fa-chart-line"></i>
                 <h4>Hasil Ladang</h4>
-                <p>hasil.csv (peringkat, tahun, bulan, capai2025, capai2026, target, tandan, abw, tpp)</p>
+                <p>hasil_peneroka.csv / hasil_felda.csv</p>
                 <input type="file" id="hasilFile" accept=".csv">
                 <button class="upload-btn" onclick="uploadFile('hasil')">Pilih & Upload</button>
                 <div id="hasilStatus" class="status"></div>
             </div>
-
+            
             <div class="upload-box" id="box-pembajaan">
                 <i class="fas fa-seedling"></i>
                 <h4>Pembajaan</h4>
@@ -89,7 +102,7 @@
                 <button class="upload-btn" onclick="uploadFile('pembajaan')">Pilih & Upload</button>
                 <div id="pembajaanStatus" class="status"></div>
             </div>
-
+            
             <div class="upload-box" id="box-merumput">
                 <i class="fas fa-cut"></i>
                 <h4>Merumput</h4>
@@ -98,7 +111,7 @@
                 <button class="upload-btn" onclick="uploadFile('merumput')">Pilih & Upload</button>
                 <div id="merumputStatus" class="status"></div>
             </div>
-
+            
             <div class="upload-box" id="box-mekanisasi">
                 <i class="fas fa-tractor"></i>
                 <h4>Mekanisasi</h4>
@@ -121,63 +134,58 @@
 <footer>© FPMSB Lurah Bilut — Panel Pentadbir</footer>
 
 <script>
-    // Check authentication
     if (localStorage.getItem('isLoggedIn') !== 'true') {
         window.location.href = '../login.html';
     }
-
+    
     document.getElementById('userEmail').innerText = localStorage.getItem('userEmail') || 'admin@fpmsb.com';
-
+    
     function logout() {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('userEmail');
-        window.location.href = '../login.html';
+        window.location.href = '../index.html';
     }
-
+    
     function uploadFile(type) {
-        let fileInput, statusDiv, apiEndpoint;
-
+        let fileInput, statusDiv;
+        
         switch(type) {
             case 'hasil':
                 fileInput = document.getElementById('hasilFile');
                 statusDiv = document.getElementById('hasilStatus');
-                apiEndpoint = '/api/upload-hasil';
                 break;
             case 'pembajaan':
                 fileInput = document.getElementById('pembajaanFile');
                 statusDiv = document.getElementById('pembajaanStatus');
-                apiEndpoint = '/api/upload-pembajaan';
                 break;
             case 'merumput':
                 fileInput = document.getElementById('merumputFile');
                 statusDiv = document.getElementById('merumputStatus');
-                apiEndpoint = '/api/upload-merumput';
                 break;
             case 'mekanisasi':
                 fileInput = document.getElementById('mekanisasiFile');
                 statusDiv = document.getElementById('mekanisasiStatus');
-                apiEndpoint = '/api/upload-mekanisasi';
                 break;
             default: return;
         }
-
+        
         const file = fileInput.files[0];
         if (!file) {
             statusDiv.innerHTML = '<span class="status-error">❌ Sila pilih fail CSV terlebih dahulu</span>';
             statusDiv.className = 'status status-error';
             return;
         }
-
+        
         statusDiv.innerHTML = '<span>⏳ Sedang memproses...</span>';
         statusDiv.className = 'status';
-
+        
         const reader = new FileReader();
         reader.onload = function(e) {
             const content = e.target.result;
             const rows = content.split('\n');
             const headers = rows[0].split(',');
             const data = [];
-
+            
             for(let i = 1; i < rows.length; i++) {
                 if(rows[i].trim() === '') continue;
                 const cols = rows[i].split(',');
@@ -187,29 +195,28 @@
                 }
                 data.push(rowData);
             }
-
-            // Simpan ke localStorage (simulasi - nanti ganti dengan Supabase)
+            
             localStorage.setItem(`${type}_data`, JSON.stringify(data));
-
+            
             statusDiv.innerHTML = `<span class="status-success">✅ Berjaya! ${data.length} rekod dimuat naik.</span>`;
             statusDiv.className = 'status status-success';
-
+            
             const resultArea = document.getElementById('resultArea');
             const resultMsg = document.getElementById('resultMessage');
             resultArea.classList.add('show');
             resultMsg.innerHTML = `<p>✅ <strong>${type.toUpperCase()}</strong>: ${data.length} rekod berjaya disimpan.</p><p>📊 Data sedia untuk dipaparkan di dashboard.</p>`;
-
+            
             setTimeout(() => {
                 statusDiv.innerHTML = '';
                 statusDiv.className = 'status';
             }, 3000);
         };
-
+        
         reader.onerror = function() {
             statusDiv.innerHTML = '<span class="status-error">❌ Ralat membaca fail</span>';
             statusDiv.className = 'status status-error';
         };
-
+        
         reader.readAsText(file);
     }
 </script>
