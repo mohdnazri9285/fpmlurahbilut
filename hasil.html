@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
-        /* ==================== CSS SAMA SEPERTI ASAL ==================== */
+        /* ==================== CSS SAMA SEPERTI SEBELUM INI ==================== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
 
@@ -233,99 +233,46 @@
 <script>
 Chart.register(ChartDataLabels);
 
-// ======================= DATA LENGKAP PERINGKAT SEHINGGA MEI 2026 =======================
-// Peneroka + FELDA (10 peringkat)
+// ======================= DATA RINGKASAN PERINGKAT (SEHINGGA MEI 2026) =======================
+// Termasuk 1F, 2F, 3F
 const ringkasanPeringkat = [
-    { name: "1G", luas: 512.51, capaiMei: 5.72, targetMei: 4.76, targetTahunan: 18.03, tandan: 170993, abw: 17.30, tpp: 2.57, btbMuda: 809, sph: 130,
-      bulanan: { Jan:{hasil:1.51, target:1.06, capai2025:0.83}, Feb:{hasil:1.19, target:1.15, capai2025:0.58}, Mac:{hasil:0.94, target:1.30, capai2025:0.85}, Apr:{hasil:1.12, target:1.37, capai2025:1.20}, Mei:{hasil:0.95, target:1.45, capai2025:1.32} } },
-    { name: "1A", luas: 284.61, capaiMei: 3.93, targetMei: 3.20, targetTahunan: 14.04, tandan: 70466, abw: 15.89, tpp: 2.13, btbMuda: 144, sph: 116,
+    { name: "1G", capaiMei: 5.77, targetMei: 4.76, targetTahunan: 18.03, tandan: 170993, abw: 17.30, tpp: 2.57, btbMuda: 934, sph: 130,
+      bulanan: { Jan:{hasil:1.54, target:1.06, capai2025:0.83}, Feb:{hasil:1.21, target:1.15, capai2025:0.58}, Mac:{hasil:0.94, target:1.30, capai2025:0.85}, Apr:{hasil:1.12, target:1.37, capai2025:1.20}, Mei:{hasil:0.95, target:1.45, capai2025:1.32} } },
+    { name: "1A", capaiMei: 3.93, targetMei: 3.20, targetTahunan: 14.04, tandan: 70466, abw: 15.89, tpp: 2.13, btbMuda: 166, sph: 116,
       bulanan: { Jan:{hasil:0.91, target:0.77, capai2025:0.80}, Feb:{hasil:0.86, target:0.80, capai2025:0.59}, Mac:{hasil:0.69, target:1.03, capai2025:0.58}, Apr:{hasil:0.74, target:1.21, capai2025:1.24}, Mei:{hasil:0.73, target:1.31, capai2025:1.39} } },
-    { name: "1C", luas: 4.82, capaiMei: 3.69, targetMei: 2.26, targetTahunan: 13.65, tandan: 1266, abw: 14.05, tpp: 2.39, btbMuda: 10, sph: 110,
+    { name: "1C", capaiMei: 3.69, targetMei: 2.26, targetTahunan: 13.65, tandan: 1266, abw: 14.05, tpp: 2.39, btbMuda: 15, sph: 110,
       bulanan: { Jan:{hasil:0.64, target:0.81, capai2025:0.50}, Feb:{hasil:0.66, target:0.68, capai2025:0.74}, Mac:{hasil:0.76, target:0.77, capai2025:0.97}, Apr:{hasil:0.55, target:0.92, capai2025:1.58}, Mei:{hasil:1.08, target:0.74, capai2025:0.84} } },
-    { name: "1D", luas: 128.15, capaiMei: 3.89, targetMei: 3.02, targetTahunan: 16.37, tandan: 29918, abw: 12.92, tpp: 2.16, btbMuda: 403, sph: 108,
-      bulanan: { Jan:{hasil:0.87, target:0.67, capai2025:0.63}, Feb:{hasil:0.70, target:0.79, capai2025:0.47}, Mac:{hasil:0.60, target:0.85, capai2025:0.55}, Apr:{hasil:0.85, target:1.22, capai2025:1.23}, Mei:{hasil:0.88, target:1.24, capai2025:1.45} } },
-    { name: "2G", luas: 190.91, capaiMei: 3.88, targetMei: 2.19, targetTahunan: 14.07, tandan: 47281, abw: 11.88, tpp: 2.03, btbMuda: 226, sph: 122,
-      bulanan: { Jan:{hasil:1.04, target:0.63, capai2025:0.55}, Feb:{hasil:0.81, target:0.59, capai2025:0.43}, Mac:{hasil:0.62, target:0.97, capai2025:0.64}, Apr:{hasil:0.66, target:0.99, capai2025:0.95}, Mei:{hasil:0.75, target:1.14, capai2025:1.27} } },
-    { name: "PKT 3", luas: 274.54, capaiMei: 3.88, targetMei: 3.10, targetTahunan: 15.50, tandan: 72484, abw: 11.63, tpp: 2.30, btbMuda: 256, sph: 115,
-      bulanan: { Jan:{hasil:0.96, target:0.66, capai2025:0.70}, Feb:{hasil:0.78, target:0.79, capai2025:0.52}, Mac:{hasil:0.69, target:0.85, capai2025:0.50}, Apr:{hasil:0.61, target:1.22, capai2025:0.94}, Mei:{hasil:0.84, target:1.24, capai2025:1.33} } },
-    { name: "PKT 4", luas: 719.49, capaiMei: 5.21, targetMei: 4.21, targetTahunan: 15.68, tandan: 106553, abw: 28.14, tpp: 1.21, btbMuda: 1565, sph: 122,
-      bulanan: { Jan:{hasil:1.11, target:1.07, capai2025:0.57}, Feb:{hasil:0.96, target:1.16, capai2025:0.72}, Mac:{hasil:0.86, target:1.21, capai2025:0.71}, Apr:{hasil:1.21, target:1.27, capai2025:0.92}, Mei:{hasil:1.07, target:1.41, capai2025:0.92} } },
-    { name: "1F", luas: 1.64, capaiMei: 4.60, targetMei: 3.03, targetTahunan: 12.11, tandan: 0, abw: 0, tpp: 0, btbMuda: 0, sph: 108,
+    { name: "1D", capaiMei: 3.02, targetMei: 3.02, targetTahunan: 16.37, tandan: 29918, abw: 12.92, tpp: 2.16, btbMuda: 403, sph: 108,
+      bulanan: { Jan:{hasil:0.87, target:0.67, capai2025:0.63}, Feb:{hasil:0.70, target:0.79, capai2025:0.47}, Mac:{hasil:0.60, target:0.85, capai2025:0.55}, Apr:{hasil:0.85, target:1.22, capai2025:1.23}, Mei:{hasil:0, target:1.24, capai2025:1.45} } },
+    { name: "2G", capaiMei: 2.94, targetMei: 2.19, targetTahunan: 14.07, tandan: 47281, abw: 11.88, tpp: 2.03, btbMuda: 226, sph: 122,
+      bulanan: { Jan:{hasil:1.05, target:0.63, capai2025:0.55}, Feb:{hasil:0.81, target:0.59, capai2025:0.43}, Mac:{hasil:0.63, target:0.97, capai2025:0.64}, Apr:{hasil:0.66, target:0.99, capai2025:0.95}, Mei:{hasil:0, target:1.14, capai2025:1.27} } },
+    { name: "PKT 3", capaiMei: 3.07, targetMei: 3.10, targetTahunan: 15.50, tandan: 72484, abw: 11.63, tpp: 2.30, btbMuda: 256, sph: 115,
+      bulanan: { Jan:{hasil:0.97, target:0.66, capai2025:0.70}, Feb:{hasil:0.80, target:0.79, capai2025:0.52}, Mac:{hasil:0.69, target:0.85, capai2025:0.50}, Apr:{hasil:0.61, target:1.22, capai2025:0.94}, Mei:{hasil:0, target:1.24, capai2025:1.33} } },
+    { name: "PKT 4", capaiMei: 4.17, targetMei: 4.21, targetTahunan: 15.68, tandan: 106553, abw: 28.14, tpp: 1.21, btbMuda: 1565, sph: 122,
+      bulanan: { Jan:{hasil:1.12, target:1.07, capai2025:0.57}, Feb:{hasil:0.98, target:1.16, capai2025:0.72}, Mac:{hasil:0.87, target:1.21, capai2025:0.71}, Apr:{hasil:1.21, target:1.27, capai2025:0.92}, Mei:{hasil:0, target:1.41, capai2025:0.92} } },
+    // Tambahan 1F, 2F, 3F
+    { name: "1F", capaiMei: 4.61, targetMei: 3.03, targetTahunan: 12.11, tandan: 0, abw: 0, tpp: 0, btbMuda: 0, sph: 108,
       bulanan: { Jan:{hasil:0.76, target:0.38, capai2025:1.83}, Feb:{hasil:1.32, target:0.53, capai2025:0.88}, Mac:{hasil:1.33, target:0.64, capai2025:1.87}, Apr:{hasil:0.66, target:0.75, capai2025:3.13}, Mei:{hasil:0.54, target:1.07, capai2025:2.45} } },
-    { name: "2F", luas: 4.79, capaiMei: 5.47, targetMei: 3.46, targetTahunan: 13.84, tandan: 0, abw: 0, tpp: 0, btbMuda: 0, sph: 144,
+    { name: "2F", capaiMei: 5.49, targetMei: 3.46, targetTahunan: 13.84, tandan: 0, abw: 0, tpp: 0, btbMuda: 0, sph: 144,
       bulanan: { Jan:{hasil:0.84, target:0.82, capai2025:1.27}, Feb:{hasil:0.84, target:1.02, capai2025:1.12}, Mac:{hasil:1.21, target:1.22, capai2025:1.14}, Apr:{hasil:1.34, target:1.32, capai2025:2.15}, Mei:{hasil:1.26, target:1.42, capai2025:1.79} } },
-    { name: "3F", luas: 22.44, capaiMei: 3.66, targetMei: 2.91, targetTahunan: 11.63, tandan: 0, abw: 0, tpp: 0, btbMuda: 0, sph: 127,
+    { name: "3F", capaiMei: 3.39, targetMei: 2.91, targetTahunan: 11.63, tandan: 0, abw: 0, tpp: 0, btbMuda: 0, sph: 127,
       bulanan: { Jan:{hasil:0.40, target:0.80, capai2025:0.96}, Feb:{hasil:0.53, target:0.88, capai2025:0.39}, Mac:{hasil:0.64, target:0.62, capai2025:0.54}, Apr:{hasil:0.75, target:0.55, capai2025:0.81}, Mei:{hasil:1.07, target:0.81, capai2025:1.08} } }
 ];
 
-// Data bulanan untuk graf dalam popup (12 bulan, Mei-Dis = 0 untuk yang belum)
+// Data bulanan untuk graf dalam popup (12 bulan)
 const bulananPeringkat = {
-    '1G': [1.51, 1.19, 0.94, 1.12, 0.95, 0,0,0,0,0,0,0],
+    '1G': [1.54, 1.21, 0.94, 1.12, 0.95, 0,0,0,0,0,0,0],
     '1A': [0.91, 0.86, 0.69, 0.74, 0.73, 0,0,0,0,0,0,0],
     '1C': [0.64, 0.66, 0.76, 0.55, 1.08, 0,0,0,0,0,0,0],
-    '1D': [0.87, 0.70, 0.60, 0.85, 0.88, 0,0,0,0,0,0,0],
-    '2G': [1.04, 0.81, 0.62, 0.66, 0.75, 0,0,0,0,0,0,0],
-    'PKT 3': [0.96, 0.78, 0.69, 0.61, 0.84, 0,0,0,0,0,0,0],
-    'PKT 4': [1.11, 0.96, 0.86, 1.21, 1.07, 0,0,0,0,0,0,0],
+    '1D': [0.87, 0.70, 0.60, 0.85, 0, 0,0,0,0,0,0,0],
+    '2G': [1.05, 0.81, 0.63, 0.66, 0, 0,0,0,0,0,0,0],
+    'PKT 3': [0.97, 0.80, 0.69, 0.61, 0, 0,0,0,0,0,0,0],
+    'PKT 4': [1.12, 0.98, 0.87, 1.21, 0, 0,0,0,0,0,0,0],
     '1F': [0.76, 1.32, 1.33, 0.66, 0.54, 0,0,0,0,0,0,0],
     '2F': [0.84, 0.84, 1.21, 1.34, 1.26, 0,0,0,0,0,0,0],
     '3F': [0.40, 0.53, 0.64, 0.75, 1.07, 0,0,0,0,0,0,0]
 };
 
-// Data tandan, ABW, TPP, BTB Muda (Jan-Mei, seterusnya 0)
-const bulananTandan = {
-    '1G': [46506, 36542, 28592, 33693, 25660, 0,0,0,0,0,0,0],
-    '1A': [17396, 15608, 12103, 12784, 12575, 0,0,0,0,0,0,0],
-    '1C': [250, 248, 244, 176, 348, 0,0,0,0,0,0,0],
-    '1D': [8828, 7306, 5693, 8091, 0, 0,0,0,0,0,0,0],
-    '2G': [16780, 13330, 9511, 7660, 0, 0,0,0,0,0,0,0],
-    'PKT 3': [25850, 20500, 15034, 11100, 0, 0,0,0,0,0,0,0],
-    'PKT 4': [28658, 24211, 22259, 31425, 0, 0,0,0,0,0,0,0],
-    '1F': [0,0,0,0,0,0,0,0,0,0,0,0],
-    '2F': [0,0,0,0,0,0,0,0,0,0,0,0],
-    '3F': [0,0,0,0,0,0,0,0,0,0,0,0]
-};
-
-const bulananABW = {
-    '1G': [17.00, 17.00, 16.93, 17.02, 19.07, 0,0,0,0,0,0,0],
-    '1A': [14.85, 15.71, 16.32, 16.50, 16.51, 0,0,0,0,0,0,0],
-    '1C': [12.32, 12.78, 15.08, 15.00, 15.00, 0,0,0,0,0,0,0],
-    '1D': [12.67, 12.31, 13.40, 13.42, 0, 0,0,0,0,0,0,0],
-    '2G': [11.95, 8.57, 12.63, 16.57, 0, 0,0,0,0,0,0,0],
-    'PKT 3': [10.31, 10.69, 12.61, 15.09, 0, 0,0,0,0,0,0,0],
-    'PKT 4': [28.07, 29.00, 27.99, 27.64, 0, 0,0,0,0,0,0,0],
-    '1F': [0,0,0,0,0,0,0,0,0,0,0,0],
-    '2F': [0,0,0,0,0,0,0,0,0,0,0,0],
-    '3F': [0,0,0,0,0,0,0,0,0,0,0,0]
-};
-
-const bulananTPP = {
-    '1G': [0.70, 0.55, 0.43, 0.51, 0.39, 0,0,0,0,0,0,0],
-    '1A': [0.53, 0.47, 0.37, 0.39, 0.38, 0,0,0,0,0,0,0],
-    '1C': [0.47, 0.47, 0.46, 0.33, 0.66, 0,0,0,0,0,0,0],
-    '1D': [0.64, 0.53, 0.41, 0.58, 0, 0,0,0,0,0,0,0],
-    '2G': [0.72, 0.57, 0.41, 0.33, 0, 0,0,0,0,0,0,0],
-    'PKT 3': [0.82, 0.65, 0.48, 0.35, 0, 0,0,0,0,0,0,0],
-    'PKT 4': [0.33, 0.28, 0.25, 0.36, 0, 0,0,0,0,0,0,0],
-    '1F': [0,0,0,0,0,0,0,0,0,0,0,0],
-    '2F': [0,0,0,0,0,0,0,0,0,0,0,0],
-    '3F': [0,0,0,0,0,0,0,0,0,0,0,0]
-};
-
-const bulananBTB = {
-    '1G': [218, 243, 226, 122, 0, 0,0,0,0,0,0,0],
-    '1A': [40, 33, 40, 31, 0, 0,0,0,0,0,0,0],
-    '1C': [0, 3, 2, 5, 0, 0,0,0,0,0,0,0],
-    '1D': [124, 93, 76, 110, 0, 0,0,0,0,0,0,0],
-    '2G': [63, 58, 51, 54, 0, 0,0,0,0,0,0,0],
-    'PKT 3': [67, 65, 64, 60, 0, 0,0,0,0,0,0,0],
-    'PKT 4': [369, 418, 402, 376, 0, 0,0,0,0,0,0,0],
-    '1F': [0,0,0,0,0,0,0,0,0,0,0,0],
-    '2F': [0,0,0,0,0,0,0,0,0,0,0,0],
-    '3F': [0,0,0,0,0,0,0,0,0,0,0,0]
-};
-
-// Target bulanan sehingga Mei (hanya Jan-Mei)
 const targetBulanan = {
     '1G': [1.06, 1.15, 1.30, 1.37, 1.45],
     '1A': [0.77, 0.80, 1.03, 1.21, 1.31],
@@ -339,15 +286,68 @@ const targetBulanan = {
     '3F': [0.80, 0.88, 0.62, 0.55, 0.81]
 };
 
-// Data Blok (TIDAK DIUBAH - masih sehingga April)
+// ======================= DATA BLOK (1G,1A,1C,1D,2G,PKT3,PKT4) =======================
 const blokData = {
-    "1G": { peringkat: "1G", luasTotal: 512.51, sph: 130, targetApril: 4.76, blok: [ { blok: "Blok 1", luas: 60.6, mTan: 240.66, tanHa: 3.97, tandan: 14396, abw: 16.72, tpp: 1.83, btbMuda: 105 }, { blok: "Blok 2", luas: 81.8, mTan: 351.20, tanHa: 4.29, tandan: 20492, abw: 17.14, tpp: 1.93, btbMuda: 109 }, { blok: "Blok 3", luas: 78.8, mTan: 415.97, tanHa: 5.28, tandan: 24178, abw: 17.20, tpp: 2.36, btbMuda: 112 }, { blok: "Blok 4", luas: 68.4, mTan: 355.64, tanHa: 5.20, tandan: 20968, abw: 16.96, tpp: 2.36, btbMuda: 129 }, { blok: "Blok 5", luas: 76.2, mTan: 409.07, tanHa: 5.37, tandan: 24000, abw: 17.04, tpp: 2.42, btbMuda: 130 }, { blok: "Blok 6", luas: 60.6, mTan: 309.64, tanHa: 5.11, tandan: 18230, abw: 16.99, tpp: 2.31, btbMuda: 83 }, { blok: "Blok 7", luas: 86.2, mTan: 387.35, tanHa: 4.50, tandan: 23069, abw: 16.79, tpp: 2.06, btbMuda: 141 } ] },
-    "1A": { peringkat: "1A", luasTotal: 284.61, sph: 116, targetApril: 3.20, blok: [ { blok: "Blok 8", luas: 85.5, mTan: 320.35, tanHa: 3.75, tandan: 19537, abw: 16.40, tpp: 1.97, btbMuda: 32 }, { blok: "Blok 9", luas: 68.4, mTan: 264.41, tanHa: 3.87, tandan: 16644, abw: 15.89, tpp: 2.10, btbMuda: 42 }, { blok: "Blok 12", luas: 73.9, mTan: 178.05, tanHa: 2.41, tandan: 10851, abw: 16.41, tpp: 1.27, btbMuda: 30 }, { blok: "Blok 13", luas: 56.8, mTan: 149.10, tanHa: 2.63, tandan: 9459, abw: 15.76, tpp: 1.44, btbMuda: 40 } ] },
-    "1C": { peringkat: "1C", luasTotal: 4.82, sph: 110, targetApril: 2.26, blok: [ { blok: "Blok 21", luas: 4.8, mTan: 12.57, tanHa: 2.61, tandan: 918, abw: 13.69, tpp: 1.73, btbMuda: 10 } ] },
-    "1D": { peringkat: "1D", luasTotal: 128.15, sph: 108, targetApril: 3.02, blok: [ { blok: "Blok 10", luas: 63.8, mTan: 228.11, tanHa: 3.58, tandan: 17141, abw: 13.31, tpp: 2.49, btbMuda: 241 }, { blok: "Blok 11", luas: 64.4, mTan: 158.51, tanHa: 2.46, tandan: 12777, abw: 12.41, tpp: 1.84, btbMuda: 162 } ] },
-    "2G": { peringkat: "2G", luasTotal: 190.91, sph: 122, targetApril: 2.19, blok: [ { blok: "Blok 14", luas: 63.4, mTan: 225.22, tanHa: 3.55, tandan: 13109, abw: 17.18, tpp: 1.70, btbMuda: 60 }, { blok: "Blok 15", luas: 61.1, mTan: 228.44, tanHa: 3.74, tandan: 20792, abw: 10.99, tpp: 2.79, btbMuda: 89 }, { blok: "Blok 16", luas: 66.4, mTan: 151.27, tanHa: 2.28, tandan: 13380, abw: 11.31, tpp: 1.65, btbMuda: 77 } ] },
-    "PKT3": { peringkat: "PKT 3", luasTotal: 274.54, sph: 115, targetApril: 3.10, blok: [ { blok: "Blok 17", luas: 58.0, mTan: 209.18, tanHa: 3.61, tandan: 19670, abw: 10.63, tpp: 2.95, btbMuda: 70 }, { blok: "Blok 18", luas: 82.5, mTan: 279.33, tanHa: 3.39, tandan: 23050, abw: 12.12, tpp: 2.43, btbMuda: 71 }, { blok: "Blok 19", luas: 73.2, mTan: 203.67, tanHa: 2.78, tandan: 18990, abw: 10.73, tpp: 2.26, btbMuda: 56 }, { blok: "Blok 20", luas: 60.9, mTan: 150.54, tanHa: 2.47, tandan: 10774, abw: 13.97, tpp: 1.54, btbMuda: 59 } ] },
-    "PKT4": { peringkat: "PKT 4", luasTotal: 719.49, sph: 122, targetApril: 4.21, blok: [ { blok: "Chekroll 1", luas: 217.0, mTan: 1025.53, tanHa: 4.73, tandan: 37178, abw: 27.58, tpp: 1.40, btbMuda: 520 }, { blok: "Chekroll 2", luas: 210.4, mTan: 783.46, tanHa: 3.72, tandan: 28600, abw: 27.39, tpp: 1.11, btbMuda: 394 }, { blok: "Kontrak 1", luas: 148.3, mTan: 541.87, tanHa: 3.65, tandan: 18948, abw: 28.60, tpp: 1.05, btbMuda: 265 }, { blok: "Kontrak 2", luas: 143.8, mTan: 647.19, tanHa: 4.50, tandan: 21827, abw: 29.65, tpp: 1.24, btbMuda: 386 } ] }
+    "1G": {
+        peringkat: "1G", targetTahunan: 18.03,
+        blok: [
+            { blok: "Blok 1", luas: 60.60, mTan: 286.76, tanHa: 4.73, tandan: 17432, abw: 16.45, tpp: 2.21, btbMuda: 128 },
+            { blok: "Blok 2", luas: 81.81, mTan: 427.08, tanHa: 5.22, tandan: 20537, abw: 20.80, tpp: 1.93, btbMuda: 120 },
+            { blok: "Blok 3", luas: 78.78, mTan: 498.78, tanHa: 6.33, tandan: 29424, abw: 16.95, tpp: 2.87, btbMuda: 124 },
+            { blok: "Blok 4", luas: 68.38, mTan: 433.90, tanHa: 6.35, tandan: 25670, abw: 16.90, tpp: 2.89, btbMuda: 164 },
+            { blok: "Blok 5", luas: 76.18, mTan: 485.39, tanHa: 6.37, tandan: 28446, abw: 17.06, tpp: 2.87, btbMuda: 140 },
+            { blok: "Blok 6", luas: 60.60, mTan: 370.24, tanHa: 6.11, tandan: 22232, abw: 16.65, tpp: 2.82, btbMuda: 96 },
+            { blok: "Blok 7", luas: 86.16, mTan: 456.71, tanHa: 5.30, tandan: 27252, abw: 16.76, tpp: 2.43, btbMuda: 162 }
+        ]
+    },
+    "1A": {
+        peringkat: "1A", targetTahunan: 14.04,
+        blok: [
+            { blok: "Blok 8", luas: 85.50, mTan: 386.71, tanHa: 4.52, tandan: 24211, abw: 15.97, tpp: 2.44, btbMuda: 33 },
+            { blok: "Blok 9", luas: 68.40, mTan: 325.35, tanHa: 4.76, tandan: 19894, abw: 16.35, tpp: 2.51, btbMuda: 42 },
+            { blok: "Blok 12", luas: 73.91, mTan: 220.03, tanHa: 2.98, tandan: 14388, abw: 15.29, tpp: 1.68, btbMuda: 30 },
+            { blok: "Blok 13", luas: 56.80, mTan: 187.42, tanHa: 3.30, tandan: 11973, abw: 15.65, tpp: 1.82, btbMuda: 61 }
+        ]
+    },
+    "1C": {
+        peringkat: "1C", targetTahunan: 13.65,
+        blok: [
+            { blok: "Blok 21", luas: 4.82, mTan: 17.79, tanHa: 3.69, tandan: 1266, abw: 14.05, tpp: 2.39, btbMuda: 15 }
+        ]
+    },
+    "1D": {
+        peringkat: "1D", targetTahunan: 16.37,
+        blok: [
+            { blok: "Blok 10", luas: 63.75, mTan: 228.11, tanHa: 3.58, tandan: 17141, abw: 13.31, tpp: 2.49, btbMuda: 241 },
+            { blok: "Blok 11", luas: 64.40, mTan: 158.51, tanHa: 2.46, tandan: 12777, abw: 12.41, tpp: 1.84, btbMuda: 162 }
+        ]
+    },
+    "2G": {
+        peringkat: "2G", targetTahunan: 14.07,
+        blok: [
+            { blok: "Blok 14", luas: 63.38, mTan: 225.22, tanHa: 3.55, tandan: 13109, abw: 17.18, tpp: 1.70, btbMuda: 60 },
+            { blok: "Blok 15", luas: 61.09, mTan: 228.44, tanHa: 3.74, tandan: 20792, abw: 10.99, tpp: 2.79, btbMuda: 89 },
+            { blok: "Blok 16", luas: 66.44, mTan: 151.27, tanHa: 2.28, tandan: 13380, abw: 11.31, tpp: 1.65, btbMuda: 77 }
+        ]
+    },
+    "PKT3": {
+        peringkat: "PKT 3", targetTahunan: 15.50,
+        blok: [
+            { blok: "Blok 17", luas: 57.95, mTan: 209.18, tanHa: 3.61, tandan: 19670, abw: 10.63, tpp: 2.95, btbMuda: 70 },
+            { blok: "Blok 18", luas: 82.50, mTan: 279.33, tanHa: 3.39, tandan: 23050, abw: 12.12, tpp: 2.43, btbMuda: 71 },
+            { blok: "Blok 19", luas: 73.15, mTan: 203.67, tanHa: 2.78, tandan: 18990, abw: 10.73, tpp: 2.26, btbMuda: 56 },
+            { blok: "Blok 20", luas: 60.94, mTan: 150.54, tanHa: 2.47, tandan: 10774, abw: 13.97, tpp: 1.54, btbMuda: 59 }
+        ]
+    },
+    "PKT4": {
+        peringkat: "PKT 4", targetTahunan: 15.68,
+        blok: [
+            { blok: "Chekroll 1", luas: 216.98, mTan: 1025.53, tanHa: 4.73, tandan: 37178, abw: 27.58, tpp: 1.40, btbMuda: 520 },
+            { blok: "Chekroll 2", luas: 210.41, mTan: 783.46, tanHa: 3.72, tandan: 28600, abw: 27.39, tpp: 1.11, btbMuda: 394 },
+            { blok: "Kontrak 1", luas: 148.32, mTan: 541.87, tanHa: 3.65, tandan: 18948, abw: 28.60, tpp: 1.05, btbMuda: 265 },
+            { blok: "Kontrak 2", luas: 143.79, mTan: 647.19, tanHa: 4.50, tandan: 21827, abw: 29.65, tpp: 1.24, btbMuda: 386 }
+        ]
+    }
 };
 
 let peringkatChart = null;
@@ -357,7 +357,7 @@ function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
-// ========== GRAF PERINGKAT (Target di Kiri, Capai di Kanan) - Data sehingga Mei ==========
+// GRAF PERINGKAT
 function renderPeringkatChart() {
     const canvas = document.getElementById('peringkatChart');
     if(!canvas) return;
@@ -372,27 +372,10 @@ function renderPeringkatChart() {
         data: {
             labels: labels,
             datasets: [
-                { // Target (Legend Kiri - Dilukis Dahulu/Di Belakang)
-                    label: 'Target Tahunan (T/Ha)',
-                    data: targetTahunanData,
-                    backgroundColor: '#e2e8f0',
-                    borderColor: '#94a3b8',
-                    borderWidth: 2,
-                    borderDash: [6,6],
-                    borderRadius: 8,
-                    barPercentage: 0.65,
-                    order: 0,
-                    datalabels: { display: true, anchor: 'end', align: 'top', color: '#475569', font: { size: 10, weight: 'bold' }, formatter: v => v.toFixed(1) + ' T/Ha' }
-                },
-                { // Capaian (Legend Kanan - Dilukis Kemudian/Di Hadapan)
-                    label: 'Pencapaian (T/Ha) - Mei 2026',
-                    data: capaiData,
-                    backgroundColor: '#2d6a4f',
-                    borderRadius: 8,
-                    barPercentage: 0.65,
-                    order: 1,
-                    datalabels: { display: true, anchor: 'end', align: 'top', offset: 4, color: '#14532d', font: { size: 11, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' }
-                }
+                { label: 'Target Tahunan (T/Ha)', data: targetTahunanData, backgroundColor: '#e2e8f0', borderColor: '#94a3b8', borderWidth: 2, borderDash: [6,6], borderRadius: 8, barPercentage: 0.65, order: 0,
+                  datalabels: { display: true, anchor: 'end', align: 'top', color: '#475569', font: { size: 10, weight: 'bold' }, formatter: v => v.toFixed(1) + ' T/Ha' } },
+                { label: 'Pencapaian (T/Ha) - Mei 2026', data: capaiData, backgroundColor: '#2d6a4f', borderRadius: 8, barPercentage: 0.65, order: 1,
+                  datalabels: { display: true, anchor: 'end', align: 'top', offset: 4, color: '#14532d', font: { size: 11, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' } }
             ]
         },
         options: {
@@ -404,7 +387,7 @@ function renderPeringkatChart() {
     });
 }
 
-// ========== POPUP DETAIL PERINGKAT (Total Jan-Mei, dengan % perbezaan) ==========
+// POPUP DETAIL PERINGKAT
 function showDetailPeringkat(peringkatName) {
     const p = ringkasanPeringkat.find(x => x.name === peringkatName);
     if(!p) return;
@@ -412,28 +395,12 @@ function showDetailPeringkat(peringkatName) {
     const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
     const capaiData = bulananPeringkat[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
     const targetData = targetBulanan[peringkatName] || [0,0,0,0,0];
-    const tandanData = bulananTandan[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
-    const abwData = bulananABW[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
-    const tppData = bulananTPP[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
-    const btbData = bulananBTB[peringkatName] || [0,0,0,0,0,0,0,0,0,0,0,0];
 
-    // Kira total capai 2025 dan 2026 untuk Jan-Mei
-    let total2025 = 0;
-    let total2026 = 0;
-    ['Jan', 'Feb', 'Mac', 'Apr', 'Mei'].forEach(month => {
-        total2025 += p.bulanan[month].capai2025;
-        total2026 += p.bulanan[month].hasil;
-    });
-    const percentDiff = ((total2026 - total2025) / total2025 * 100).toFixed(1);
-    const diffColor = total2026 >= total2025 ? '#2d6a4f' : '#dc2626';
-    const diffSymbol = total2026 >= total2025 ? '▲' : '▼';
-
-    // Jadual untuk 12 bulan (Hasil 2026)
     let tableRows = '';
-    let totalCapaiJanMei = 0;
+    let totalCapai = 0;
     for(let i=0; i<12; i++) {
         const val = capaiData[i];
-        if(i < 5 && val > 0) totalCapaiJanMei += val;
+        if(i < 5 && val > 0) totalCapai += val;
         tableRows += `<tr>
             <td><strong>${months[i]}</strong></td>
             <td>${val > 0 ? val.toFixed(2) : '0.00'} T/Ha</td?>
@@ -442,120 +409,37 @@ function showDetailPeringkat(peringkatName) {
          `;
     }
 
+    const total2025 = p.bulanan.Jan.capai2025 + p.bulanan.Feb.capai2025 + p.bulanan.Mac.capai2025 + p.bulanan.Apr.capai2025 + p.bulanan.Mei.capai2025;
+    const diffPercent = ((p.capaiMei - total2025) / total2025 * 100).toFixed(1);
+
     document.getElementById('peringkatModalTitle').innerHTML = `Peringkat ${p.name} - Analisis Terperinci (Jan - Mei 2026)`;
     document.getElementById('peringkatModalBody').innerHTML = `
         <div class="detail-stats">
-            <div class="stat-box"><div class="stat-label">Luas (Ha)</div><div class="stat-value">${p.luas.toFixed(2)}</div></div>
-            <div class="stat-box"><div class="stat-label">SPH</div><div class="stat-value">${p.sph}</div></div>
             <div class="stat-box"><div class="stat-label">Target Tahunan</div><div class="stat-value">${p.targetTahunan.toFixed(2)} T/Ha</div></div>
             <div class="stat-box"><div class="stat-label">Pencapaian Mei</div><div class="stat-value">${p.capaiMei.toFixed(2)} T/Ha</div></div>
-            <div class="stat-box"><div class="stat-label">% Capai Target</div><div class="stat-value">${((p.capaiMei/p.targetMei)*100).toFixed(1)}%</div></div>
+            <div class="stat-box"><div class="stat-label">SPH</div><div class="stat-value">${p.sph}</div></div>
         </div>
-
         <h4>📊 Perbandingan Total Pencapaian Jan - Mei 2026 vs 2025</h4>
         <div style="background:#f8fafc; padding:20px; border-radius:16px; margin-bottom:25px; text-align:center;">
             <div style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
-                <div>
-                    <div class="stat-label">Pencapaian 2025</div>
-                    <div class="stat-value" style="font-size:1.5rem;">${total2025.toFixed(2)} T/Ha</div>
-                </div>
-                <div>
-                    <div class="stat-label">Pencapaian 2026</div>
-                    <div class="stat-value" style="font-size:1.5rem; color:#2d6a4f;">${total2026.toFixed(2)} T/Ha</div>
-                </div>
-                <div>
-                    <div class="stat-label">Perbezaan</div>
-                    <div class="stat-value" style="font-size:1.3rem; color:${diffColor};">${diffSymbol} ${Math.abs(percentDiff)}%</div>
-                </div>
+                <div><div class="stat-label">Pencapaian 2025</div><div class="stat-value" style="font-size:1.5rem;">${total2025.toFixed(2)} T/Ha</div></div>
+                <div><div class="stat-label">Pencapaian 2026</div><div class="stat-value" style="font-size:1.5rem; color:#2d6a4f;">${p.capaiMei.toFixed(2)} T/Ha</div></div>
+                <div><div class="stat-label">Perbezaan</div><div class="stat-value" style="font-size:1.3rem; color:${diffPercent >= 0 ? '#2d6a4f' : '#dc2626'};">${diffPercent >= 0 ? '▲' : '▼'} ${Math.abs(diffPercent)}%</div></div>
             </div>
         </div>
-
-        <h4>Pencapaian Hasil 2026 (T/Ha) vs Target (Jan - Mei)</h4>
-        <div class="mini-chart"><canvas id="hasilPeringkatChart" style="width:100%; height:240px;"></canvas></div>
-
-        <div class="sub-section">
-            <h4>Analisa Tandan & ABW (Jan - Mei 2026)</h4>
-            <div class="mini-chart"><canvas id="tandanABWPeringkatChart" style="width:100%; height:240px;"></canvas></div>
-        </div>
-
-        <div class="sub-section">
-            <h4>Tandan per Pokok (Jan - Mei 2026)</h4>
-            <div class="mini-chart"><canvas id="tppPeringkatChart" style="width:100%; height:240px;"></canvas></div>
-        </div>
-
-        <div class="sub-section">
-            <h4>BTB Muda (Jan - Mei 2026)</h4>
-            <div class="mini-chart"><canvas id="btbPeringkatChart" style="width:100%; height:240px;"></canvas></div>
-        </div>
-
-        <h4>Data Bulanan Jan - Dis 2026</h4>
-        <div style="overflow-x:auto;">
-            <table class="modal-table">
-                <thead><tr><th>Bulan</th><th>Hasil (T/Ha)</th><th>Target (T/Ha)</th><th>% Capai</th></tr></thead>
-                <tbody>${tableRows}</tbody>
-                <tfoot><tr style="background:#f1f5f9;"><td><strong>JUMLAH (Jan-Mei)</strong></td><td colspan="3"><strong>${totalCapaiJanMei.toFixed(2)} T/Ha</strong></td></tr></tfoot>
-            </table>
-        </div>
-        <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
-            <p>📌 Pencapaian Jan-Mei 2026: <strong>${p.capaiMei.toFixed(2)} T/Ha</strong> (${((p.capaiMei/p.targetMei)*100).toFixed(1)}% dari target Jan-Mei)</p>
-            <p style="font-size:0.7rem; margin-top:8px;">*Data Jun hingga Disember 2026 akan dikemaskini selepas bulan berjalan.</p>
-        </div>`;
-
+        <h4>📅 Data Bulanan Jan - Dis 2026</h4>
+        <div style="overflow-x:auto;"><table class="modal-table"><thead><tr><th>Bulan</th><th>Hasil (T/Ha)</th><th>Target (T/Ha)</th><th>% Capai</th></tr></thead><tbody>${tableRows}</tbody><tfoot><tr style="background:#f1f5f9;"><td><strong>JUMLAH (Jan-Mei)</strong></td><td colspan="3"><strong>${p.capaiMei.toFixed(2)} T/Ha</strong></td></tr></tfoot></table></div>
+        <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;"><p>📌 Pencapaian Jan-Mei 2026: <strong>${p.capaiMei.toFixed(2)} T/Ha</strong></p><p style="font-size:0.7rem; margin-top:8px;">*Data Jun hingga Disember 2026 akan dikemaskini selepas bulan berjalan.</p></div>`;
     document.getElementById('detailPeringkatModal').style.display = 'flex';
-
-    setTimeout(() => {
-        const monthsShort = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei'];
-        const capai5 = capaiData.slice(0,5);
-        const target5 = targetData;
-        const tandan5 = tandanData.slice(0,5);
-        const abw5 = abwData.slice(0,5);
-        const tpp5 = tppData.slice(0,5);
-        const btb5 = btbData.slice(0,5);
-
-        const ctxHasil = document.getElementById('hasilPeringkatChart');
-        const ctxTandan = document.getElementById('tandanABWPeringkatChart');
-        const ctxTpp = document.getElementById('tppPeringkatChart');
-        const ctxBtb = document.getElementById('btbPeringkatChart');
-
-        if(ctxHasil) new Chart(ctxHasil, {
-            type: 'bar',
-            data: { labels: monthsShort, datasets: [
-                { label: 'Pencapaian 2026 (T/Ha)', data: capai5, backgroundColor: '#2d6a4f', borderRadius: 8, datalabels: { display: true, anchor: 'end', align: 'top', color: '#14532d', font: { size: 10 }, formatter: v => v > 0 ? v.toFixed(2) : '0' } },
-                { label: 'Target 2026 (T/Ha)', data: target5, backgroundColor: '#e2e8f0', borderColor: '#94a3b8', borderWidth: 2, borderDash: [6,6], datalabels: { display: true, anchor: 'end', align: 'top', color: '#475569', font: { size: 10 }, formatter: v => v > 0 ? v.toFixed(2) : '' } }
-            ] },
-            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Tan/Ha' } } } }
-        });
-
-        if(ctxTandan) new Chart(ctxTandan, {
-            type: 'line',
-            data: { labels: monthsShort, datasets: [
-                { label: 'Jumlah Tandan', data: tandan5, borderColor: '#f4a261', backgroundColor: 'rgba(244,162,97,0.1)', fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#f4a261', yAxisID: 'y', datalabels: { display: true, anchor: 'end', align: 'top', color: '#e76f51', font: { size: 9 }, formatter: v => v > 0 ? v.toLocaleString() : '0' } },
-                { label: 'Purata Berat Tandan (kg)', data: abw5, borderColor: '#2d6a4f', borderWidth: 2, borderDash: [6,6], tension: 0.3, pointRadius: 5, pointBackgroundColor: '#2d6a4f', yAxisID: 'y1', datalabels: { display: true, anchor: 'end', align: 'top', color: '#1b4d3e', font: { size: 9 }, formatter: v => v > 0 ? v.toFixed(1) + ' kg' : '0' } }
-            ] },
-            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Tandan' } }, y1: { beginAtZero: true, title: { display: true, text: 'Berat (kg)' }, position: 'right' } } }
-        });
-
-        if(ctxTpp) new Chart(ctxTpp, {
-            type: 'line',
-            data: { labels: monthsShort, datasets: [{ label: 'Tandan per Pokok', data: tpp5, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#10b981', datalabels: { display: true, anchor: 'end', align: 'top', color: '#065f46', font: { size: 9 }, formatter: v => v > 0 ? v.toFixed(2) : '0' } }] },
-            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Tandan/Pokok' } } } }
-        });
-
-        if(ctxBtb) new Chart(ctxBtb, {
-            type: 'line',
-            data: { labels: monthsShort, datasets: [{ label: 'BTB Muda', data: btb5, borderColor: '#e76f51', backgroundColor: 'rgba(231,111,81,0.1)', fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#e76f51', datalabels: { display: true, anchor: 'end', align: 'top', color: '#c0392b', font: { size: 9 }, formatter: v => v > 0 ? v.toString() : '0' } }] },
-            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Bilangan BTB Muda' } } } }
-        });
-    }, 100);
 }
 
-// ========== GRAF BLOK (Target di Kiri, Capai di Kanan) - Sama seperti sebelumnya ==========
+// GRAF BLOK
 function renderBlokChart(peringkatId) {
     const data = blokData[peringkatId];
     if(!data) return;
 
-    document.getElementById('selectedPeringkat').innerText = data.peringkat;
-    document.getElementById('selectedPeringkatTable').innerText = data.peringkat;
+    document.getElementById('selectedPeringkat').innerText = peringkatId;
+    document.getElementById('selectedPeringkatTable').innerText = peringkatId;
 
     const canvas = document.getElementById('blokChart');
     if(!canvas) return;
@@ -563,50 +447,31 @@ function renderBlokChart(peringkatId) {
 
     const labels = data.blok.map(b => b.blok);
     const tanHaData = data.blok.map(b => b.tanHa);
-    const targetApril = data.targetApril;
-    const targetData = data.blok.map(() => targetApril);
+    const targetData = data.blok.map(() => data.targetTahunan);
 
     blokChart = new Chart(canvas, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [
-                { // Target (Legend Kiri - Dilukis Dahulu/Di Belakang)
-                    label: `Target hingga April (${targetApril} T/Ha)`,
-                    data: targetData,
-                    backgroundColor: '#e2e8f0',
-                    borderColor: '#94a3b8',
-                    borderWidth: 2,
-                    borderDash: [6,6],
-                    borderRadius: 8,
-                    barPercentage: 0.65,
-                    order: 0,
-                    datalabels: { display: true, anchor: 'end', align: 'top', color: '#475569', font: { size: 10, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' }
-                },
-                { // Capaian (Legend Kanan - Dilukis Kemudian/Di Hadapan)
-                    label: 'Pencapaian Jan-Apr (T/Ha)',
-                    data: tanHaData,
-                    backgroundColor: '#2d6a4f',
-                    borderRadius: 8,
-                    barPercentage: 0.65,
-                    order: 1,
-                    datalabels: { display: true, anchor: 'end', align: 'top', offset: 4, color: '#14532d', font: { size: 11, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' }
-                }
+                { label: `Target Tahunan (${data.targetTahunan} T/Ha)`, data: targetData, backgroundColor: '#e2e8f0', borderColor: '#94a3b8', borderWidth: 2, borderDash: [6,6], borderRadius: 8, barPercentage: 0.65, order: 0,
+                  datalabels: { display: true, anchor: 'end', align: 'top', color: '#475569', font: { size: 10, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' } },
+                { label: 'Pencapaian Jan-Mei (T/Ha)', data: tanHaData, backgroundColor: '#2d6a4f', borderRadius: 8, barPercentage: 0.65, order: 1,
+                  datalabels: { display: true, anchor: 'end', align: 'top', offset: 4, color: '#14532d', font: { size: 11, weight: 'bold' }, formatter: v => v.toFixed(2) + ' T/Ha' } }
             ]
         },
         options: {
             responsive: true, maintainAspectRatio: true, layout: { padding: { top: 45 } },
             plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)} T/Ha` } } },
-            scales: { y: { beginAtZero: true, title: { display: true, text: 'Tan/Ha' }, max: Math.max(...tanHaData, targetApril) * 1.2 }, x: { ticks: { font: { size: 10 } } } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Tan/Ha' }, max: Math.max(...tanHaData, data.targetTahunan) * 1.2 }, x: { ticks: { font: { size: 10 } } } },
             onClick: (e, active) => { if(active.length && active[0].datasetIndex === 1) showDetailBlok(peringkatId, data.blok[active[0].index].blok); }
         }
     });
 
-    // Update table
+    // Jadual ringkasan blok
     const tbody = document.getElementById('summaryTableBody');
     const tfoot = document.getElementById('summaryTableFooter');
     tbody.innerHTML = '';
-
     let totalMTan = 0, totalTandan = 0, totalLuas = 0;
     data.blok.forEach(blok => {
         totalMTan += blok.mTan;
@@ -623,7 +488,6 @@ function renderBlokChart(peringkatId) {
             <td>${blok.btbMuda}</td?>
          `;
     });
-
     const avgTanHa = totalMTan / totalLuas;
     tfoot.innerHTML = `<tr style="background:#f1f5f9; font-weight:700;">
         <td><strong>JUMLAH / PURATA</strong></td>
@@ -637,14 +501,14 @@ function renderBlokChart(peringkatId) {
      `;
 }
 
-// POPUP DETAIL BLOK (sama seperti sebelumnya)
+// POPUP DETAIL BLOK
 function showDetailBlok(peringkatId, blokName) {
     const data = blokData[peringkatId];
     const blok = data.blok.find(b => b.blok === blokName);
     if(!blok) return;
 
     const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep', 'Okt', 'Nov', 'Dis'];
-    const bulanCapai = bulananPeringkat[data.peringkat] || [0,0,0,0,0,0,0,0,0,0,0,0];
+    const bulanCapai = bulananPeringkat[peringkatId] || [0,0,0,0,0,0,0,0,0,0,0,0];
 
     let tableRows = '';
     let totalCapai = 0;
@@ -657,14 +521,13 @@ function showDetailBlok(peringkatId, blokName) {
          `;
     }
 
-    document.getElementById('blokModalTitle').innerHTML = `${data.peringkat} - ${blok.blok}`;
+    document.getElementById('blokModalTitle').innerHTML = `${peringkatId} - ${blok.blok}`;
     document.getElementById('blokModalBody').innerHTML = `
         <div class="detail-stats">
             <div class="stat-box"><div class="stat-label">Luas (Ha)</div><div class="stat-value">${blok.luas.toFixed(2)}</div></div>
             <div class="stat-box"><div class="stat-label">M.TAN (MT)</div><div class="stat-value">${blok.mTan.toFixed(2)}</div></div>
             <div class="stat-box"><div class="stat-label">TAN/HA</div><div class="stat-value">${blok.tanHa.toFixed(2)}</div></div>
-            <div class="stat-box"><div class="stat-label">Target hingga April</div><div class="stat-value">${data.targetApril.toFixed(2)} T/Ha</div></div>
-            <div class="stat-box"><div class="stat-label">SPH</div><div class="stat-value">${data.sph}</div></div>
+            <div class="stat-box"><div class="stat-label">Target Tahunan</div><div class="stat-value">${data.targetTahunan.toFixed(2)} T/Ha</div></div>
         </div>
         <div class="detail-stats">
             <div class="stat-box"><div class="stat-label">Jumlah Tandan</div><div class="stat-value">${blok.tandan.toLocaleString()}</div></div>
@@ -672,33 +535,10 @@ function showDetailBlok(peringkatId, blokName) {
             <div class="stat-box"><div class="stat-label">Tandan/Pokok</div><div class="stat-value">${blok.tpp.toFixed(2)}</div></div>
             <div class="stat-box"><div class="stat-label">BTB Muda</div><div class="stat-value">${blok.btbMuda}</div></div>
         </div>
-
-        <h4>Pencapaian Hasil 2026 (T/Ha)</h4>
-        <div class="mini-chart"><canvas id="hasilBlokChart" style="width:100%; height:240px;"></canvas></div>
-
-        <h4>Data Bulanan Jan - Dis 2026</h4>
-        <div style="overflow-x:auto;">
-            <table class="modal-table">
-                <thead><tr><th>Bulan</th><th>Hasil (T/Ha)</th><tr></thead>
-                <tbody>${tableRows}</tbody>
-                <tfoot><tr style="background:#f1f5f9;"><td><strong>JUMLAH (Jan-Mei)</strong><\/td><td><strong>${totalCapai.toFixed(2)} T/Ha<\/strong><\/td><\/tr><\/tfoot>
-            <\/table>
-        <\/div>
-        <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
-            <p>Pencapaian Jan-Mei 2026: <strong>${blok.mTan.toFixed(2)} MT<\/strong> (${blok.tanHa.toFixed(2)} T/Ha)<\/p>
-            <p style="font-size:0.7rem; margin-top:8px;">*Data Jun hingga Disember 2026 akan dikemaskini selepas bulan berjalan.<\/p>
-        <\/div>`;
-
+        <h4>📅 Data Bulanan Jan - Dis 2026</h4>
+        <div style="overflow-x:auto;"><table class="modal-table"><thead><tr><th>Bulan</th><th>Hasil (T/Ha)</th></tr></thead><tbody>${tableRows}</tbody><tfoot><tr style="background:#f1f5f9;"><td><strong>JUMLAH (Jan-Mei)</strong></td><td colspan="1"><strong>${totalCapai.toFixed(2)} T/Ha</strong></td></tr></tfoot></table></div>
+        <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;"><p>Pencapaian Jan-Mei 2026: <strong>${blok.mTan.toFixed(2)} MT</strong> (${blok.tanHa.toFixed(2)} T/Ha)</p><p style="font-size:0.7rem; margin-top:8px;">*Data Jun hingga Disember 2026 akan dikemaskini selepas bulan berjalan.</p></div>`;
     document.getElementById('detailBlokModal').style.display = 'flex';
-
-    setTimeout(() => {
-        const ctxHasil = document.getElementById('hasilBlokChart');
-        if(ctxHasil) new Chart(ctxHasil, {
-            type: 'bar',
-            data: { labels: months, datasets: [{ label: 'Hasil 2026 (T/Ha)', data: bulanCapai, backgroundColor: '#2d6a4f', borderRadius: 8, datalabels: { display: true, anchor: 'end', align: 'top', color: '#14532d', font: { size: 9 }, formatter: v => (v > 0 ? v.toFixed(2) : '0') } }] },
-            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Tan/Ha' } } } }
-        });
-    }, 100);
 }
 
 // ========== LOGIN FUNCTIONS ==========
