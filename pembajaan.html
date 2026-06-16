@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPMSB Lurah Bilut - Pembajaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>🌴 FPMSB</h1>
+            <small>Lurah Bilut</small>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="index.html"><span class="icon">📊</span> <span>Dashboard</span></a></li>
+            <li><a href="hasil.html"><span class="icon">📈</span> <span>Hasil</span></a></li>
+            <li><a href="pembajaan.html" class="active"><span class="icon">🧪</span> <span>Pembajaan</span></a></li>
+            <li><a href="merumput.html"><span class="icon">🌿</span> <span>Merumput</span></a></li>
+            <li><a href="mekanisasi.html"><span class="icon">🔧</span> <span>Mekanisasi</span></a></li>
+            <li class="divider"></li>
+            <li><a href="admin.html"><span class="icon">⚙️</span> <span>Admin</span></a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <h1>🧪 Pembajaan</h1>
+                <p style="color: #888; font-size: 14px;">Data pembajaan mengikut pusingan</p>
+            </div>
+            <div class="date" id="currentDate"></div>
+        </div>
+
+        <!-- Filter -->
+        <div class="filters">
+            <label>Pusingan:</label>
+            <select id="pusinganSelect">
+                <option value="1">Pusingan 1</option>
+                <option value="2">Pusingan 2</option>
+                <option value="3">Pusingan 3</option>
+                <option value="4">Pusingan 4</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadPembajaan()">Tapis</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="cards-grid" id="pembajaanStats">
+            <div class="card">
+                <div class="label">Keperluan (Beg)</div>
+                <div class="value" id="pKeperluan">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Siap (Beg)</div>
+                <div class="value" id="pSiap">0</div>
+            </div>
+            <div class="card">
+                <div class="label">% Siap</div>
+                <div class="value" id="pPeratus">0%</div>
+            </div>
+            <div class="card">
+                <div class="label">Kaedah</div>
+                <div class="value" style="font-size:16px;" id="pKaedah">Spreader: 0 | Manual: 0</div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <h3>📋 Butiran Pembajaan</h3>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Peringkat</th>
+                            <th class="text-right">Luas (Ha)</th>
+                            <th class="text-right">Kadar (kg/pokok)</th>
+                            <th class="text-right">Keperluan (Beg)</th>
+                            <th class="text-right">Spreader</th>
+                            <th class="text-right">Manual</th>
+                            <th class="text-right">Siap</th>
+                            <th class="text-center">% Siap</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pembajaanTableBody">
+                        <tr><td colspan="8" class="text-center" style="padding:20px;color:#888;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/supabase.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentDate').textContent = formatDate(new Date());
+            loadPembajaan();
+        });
+
+        document.getElementById('pusinganSelect').addEventListener('change', loadPembajaan);
+
+        async function loadPembajaan() {
+            try {
+                const pusingan = parseInt(document.getElementById('pusinganSelect').value);
+
+                const { data, error } = await supabase
+                    .from('pembajaan')
+                    .select('*')
+                    .eq('pusingan', pusingan)
+                    .order('peringkat');
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('pembajaanTableBody');
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding:20px;color:#888;">Tiada data</td></tr>';
+                    return;
+                }
+
+                // Stats
+                const totalKeperluan = data.reduce((s, r) => s + (r.keperluan || 0), 0);
+                const totalSiap = data.reduce((s, r) => s + (r.siap || 0), 0);
+                const totalSpreader = data.reduce((s, r) => s + (r.spreader || 0), 0);
+                const totalManual = data.reduce((s, r) => s + (r.manual || 0), 0);
+                const peratus = totalKeperluan > 0 ? (totalSiap / totalKeperluan) * 100 : 0;
+
+                document.getElementById('pKeperluan').textContent = totalKeperluan;
+                document.getElementById('pSiap').textContent = totalSiap;
+                document.getElementById('pPeratus').textContent = peratus.toFixed(1) + '%';
+                document.getElementById('pKaedah').textContent = `Spreader: ${totalSpreader} | Manual: ${totalManual}`;
+
+                // Table
+                tbody.innerHTML = data.map(row => `
+                    <tr>
+                        <td><strong>${row.peringkat || '-'}</strong></td>
+                        <td class="text-right">${formatNumber(row.luas)}</td>
+                        <td class="text-right">${formatNumber(row.kadar)}</td>
+                        <td class="text-right">${row.keperluan || 0}</td>
+                        <td class="text-right">${row.spreader || 0}</td>
+                        <td class="text-right">${row.manual || 0}</td>
+                        <td class="text-right">${row.siap || 0}</td>
+                        <td class="text-center">
+                            <span class="badge ${row.peratus_siap >= 80 ? 'badge-success' : row.peratus_siap >= 50 ? 'badge-warning' : 'badge-danger'}">
+                                ${row.peratus_siap || 0}%
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                console.error('Error loading pembajaan:', err);
+                document.getElementById('pembajaanTableBody').innerHTML = 
+                    '<tr><td colspan="8" class="text-center" style="padding:20px;color:red;">Gagal memuat data</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>
