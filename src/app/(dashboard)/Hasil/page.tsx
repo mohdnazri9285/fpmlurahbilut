@@ -66,7 +66,6 @@ export default function HasilPage() {
         setData(data);
       }
       
-      // Fetch tandan data
       const { data: tandan, error: tandanError } = await supabase
         .from('laporan_tandan')
         .select('*');
@@ -81,7 +80,6 @@ export default function HasilPage() {
     fetchData();
   }, [tahun]);
 
-  // Process data for chart
   const getChartData = () => {
     if (bulan === 'all') {
       return data.map(row => ({
@@ -101,7 +99,6 @@ export default function HasilPage() {
     }));
   };
 
-  // Process monthly comparison data
   const getMonthlyData = () => {
     if (data.length === 0) return [];
     
@@ -143,7 +140,6 @@ export default function HasilPage() {
         />
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="card">
           <p className="card-title">Jumlah Hasil {tahun}</p>
@@ -159,7 +155,6 @@ export default function HasilPage() {
         </div>
       </div>
 
-      {/* Monthly Trend Chart */}
       <div className="card mb-6">
         <h3 className="font-semibold text-gray-900 mb-4">Trend Bulanan {tahun}</h3>
         <div className="h-72">
@@ -176,7 +171,6 @@ export default function HasilPage() {
         </div>
       </div>
 
-      {/* Bar Chart by Block */}
       <div className="card mb-6">
         <h3 className="font-semibold text-gray-900 mb-4">
           Hasil Mengikut Blok {bulan !== 'all' ? `- ${bulanMap[bulan]}` : '- Keseluruhan'}
@@ -196,7 +190,6 @@ export default function HasilPage() {
         </div>
       </div>
 
-      {/* Tandan Data Table */}
       <div className="card">
         <h3 className="font-semibold text-gray-900 mb-4">Laporan Tandan</h3>
         <div className="overflow-x-auto">
