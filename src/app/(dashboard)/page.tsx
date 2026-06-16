@@ -7,10 +7,8 @@ import {
   Package, 
   Target,
   Leaf,
-  Droplets,
   Calendar,
   ArrowUp,
-  ArrowDown
 } from 'lucide-react';
 import {
   BarChart,
@@ -31,7 +29,6 @@ const COLORS = ['#22c55e', '#3b82f6', '#eab308', '#ef4444'];
 export default function DashboardPage() {
   const [hasil2025, setHasil2025] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState('all');
 
   useEffect(() => {
     async function fetchData() {
@@ -107,11 +104,11 @@ export default function DashboardPage() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="card">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="card-title">Jumlah Hasil</p>
-              <p className="card-value">{totalHasil.toFixed(2)} <span className="text-sm font-normal text-gray-500">MT</span></p>
+              <p className="text-sm font-medium text-gray-500">Jumlah Hasil</p>
+              <p className="text-2xl font-bold text-gray-900">{totalHasil.toFixed(2)} <span className="text-sm font-normal text-gray-500">MT</span></p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <TrendingUp className="text-green-600" size={24} />
@@ -123,11 +120,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="card-title">Jumlah Blok</p>
-              <p className="card-value">{totalBlok}</p>
+              <p className="text-sm font-medium text-gray-500">Jumlah Blok</p>
+              <p className="text-2xl font-bold text-gray-900">{totalBlok}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
               <Package className="text-blue-600" size={24} />
@@ -138,11 +135,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="card-title">Purata Pencapaian</p>
-              <p className="card-value">{purataPencapaian.toFixed(2)} <span className="text-sm font-normal text-gray-500">Tan/Ha</span></p>
+              <p className="text-sm font-medium text-gray-500">Purata Pencapaian</p>
+              <p className="text-2xl font-bold text-gray-900">{purataPencapaian.toFixed(2)} <span className="text-sm font-normal text-gray-500">Tan/Ha</span></p>
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
               <Target className="text-yellow-600" size={24} />
@@ -154,11 +151,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="card-title">Peringkat Aktif</p>
-              <p className="card-value">{Object.keys(peringkatData).length}</p>
+              <p className="text-sm font-medium text-gray-500">Peringkat Aktif</p>
+              <p className="text-2xl font-bold text-gray-900">{Object.keys(peringkatData).length}</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
               <Leaf className="text-purple-600" size={24} />
@@ -173,7 +170,7 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Bar Chart */}
-        <div className="card lg:col-span-2">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
           <h3 className="font-semibold text-gray-900 mb-4">Hasil Mengikut Blok</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -191,7 +188,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Pie Chart */}
-        <div className="card">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Hasil Mengikut Peringkat</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -201,7 +198,10 @@ export default function DashboardPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => {
+                    const percentage = percent ? (percent * 100).toFixed(0) : '0';
+                    return `${name} ${percentage}%`;
+                  }}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -218,7 +218,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Table */}
-      <div className="card">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-gray-900">Data Hasil 2025</h3>
           <div className="flex items-center gap-2">
