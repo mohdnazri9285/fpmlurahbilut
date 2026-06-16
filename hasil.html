@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPMSB Lurah Bilut - Hasil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>🌴 FPMSB</h1>
+            <small>Lurah Bilut</small>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="index.html"><span class="icon">📊</span> <span>Dashboard</span></a></li>
+            <li><a href="hasil.html" class="active"><span class="icon">📈</span> <span>Hasil</span></a></li>
+            <li><a href="pembajaan.html"><span class="icon">🧪</span> <span>Pembajaan</span></a></li>
+            <li><a href="merumput.html"><span class="icon">🌿</span> <span>Merumput</span></a></li>
+            <li><a href="mekanisasi.html"><span class="icon">🔧</span> <span>Mekanisasi</span></a></li>
+            <li class="divider"></li>
+            <li><a href="admin.html"><span class="icon">⚙️</span> <span>Admin</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <h1>📈 Laporan Hasil</h1>
+                <p style="color: #888; font-size: 14px;">Data hasil pengeluaran sawit mengikut bulan</p>
+            </div>
+            <div class="date" id="currentDate"></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <label>Tahun:</label>
+            <select id="tahunSelect">
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+            </select>
+            <label>Bulan:</label>
+            <select id="bulanSelect">
+                <option value="all">Semua Bulan</option>
+                <option value="jan">Januari</option>
+                <option value="feb">Februari</option>
+                <option value="mar">Mac</option>
+                <option value="apr">April</option>
+                <option value="may">Mei</option>
+                <option value="jun">Jun</option>
+                <option value="jul">Julai</option>
+                <option value="aug">Ogos</option>
+                <option value="sep">September</option>
+                <option value="oct">Oktober</option>
+                <option value="nov">November</option>
+                <option value="dec">Disember</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadHasil()">Tapis</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="cards-grid" id="hasilStats">
+            <div class="card">
+                <div class="label">Jumlah Hasil</div>
+                <div class="value" id="hTotal">0 MT</div>
+            </div>
+            <div class="card">
+                <div class="label">Bilangan Blok</div>
+                <div class="value" id="hBlok">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Purata / Blok</div>
+                <div class="value" id="hPurata">0 MT</div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <h3>📋 Data Hasil</h3>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Peringkat</th>
+                            <th>Blok</th>
+                            <th class="text-right">Luas (Ha)</th>
+                            <th class="text-right">Hasil (MT)</th>
+                            <th class="text-right">Pencapaian (Tan/Ha)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hasilTableBody">
+                        <tr><td colspan="5" class="text-center" style="padding:20px;color:#888;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Laporan Tandan -->
+        <div class="table-container" style="margin-top:20px;">
+            <h3>📋 Laporan Tandan</h3>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Blok</th>
+                            <th class="text-right">Jumlah Tandan</th>
+                            <th class="text-right">Tandan Muda</th>
+                            <th class="text-right">Purata Berat (kg)</th>
+                            <th class="text-right">Luas (Ha)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tandanTableBody">
+                        <tr><td colspan="5" class="text-center" style="padding:20px;color:#888;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/supabase.js"></script>
+    <script>
+        let currentData = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentDate').textContent = formatDate(new Date());
+            loadHasil();
+            loadTandan();
+        });
+
+        document.getElementById('tahunSelect').addEventListener('change', loadHasil);
+        document.getElementById('bulanSelect').addEventListener('change', loadHasil);
+
+        const bulanMap = {
+            'jan': 'hasil_jan', 'feb': 'hasil_feb', 'mar': 'hasil_mar',
+            'apr': 'hasil_apr', 'may': 'hasil_may', 'jun': 'hasil_jun',
+            'jul': 'hasil_jul', 'aug': 'hasil_aug', 'sep': 'hasil_sep',
+            'oct': 'hasil_oct', 'nov': 'hasil_nov', 'dec': 'hasil_dec'
+        };
+
+        async function loadHasil() {
+            try {
+                const tahun = document.getElementById('tahunSelect').value;
+                const bulan = document.getElementById('bulanSelect').value;
+                const tableName = tahun === '2025' ? 'hasil_2025' : 'hasil_2026';
+
+                const { data, error } = await supabase
+                    .from(tableName)
+                    .select('*')
+                    .order('blok');
+
+                if (error) throw error;
+                currentData = data || [];
+
+                let displayData = currentData;
+                let totalHasil = 0;
+
+                if (bulan !== 'all') {
+                    const col = bulanMap[bulan];
+                    if (col) {
+                        displayData = currentData.map(row => ({
+                            ...row,
+                            hasil_bulan: row[col] || 0
+                        }));
+                        totalHasil = displayData.reduce((s, r) => s + (r.hasil_bulan || 0), 0);
+                    }
+                } else {
+                    totalHasil = currentData.reduce((s, r) => s + (r.jumlah_hasil || 0), 0);
+                }
+
+                // Update stats
+                document.getElementById('hTotal').innerHTML = totalHasil.toFixed(2) + ' MT';
+                document.getElementById('hBlok').textContent = displayData.length;
+                const purata = displayData.length > 0 ? totalHasil / displayData.length : 0;
+                document.getElementById('hPurata').innerHTML = purata.toFixed(2) + ' MT';
+
+                // Update table
+                const tbody = document.getElementById('hasilTableBody');
+                if (displayData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding:20px;color:#888;">Tiada data</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = displayData.map(row => {
+                    const hasil = bulan !== 'all' ? (row.hasil_bulan || 0) : (row.jumlah_hasil || 0);
+                    return `
+                        <tr>
+                            <td>${row.peringkat || '-'}</td>
+                            <td><strong>${row.blok || '-'}</strong></td>
+                            <td class="text-right">${formatNumber(row.luas)}</td>
+                            <td class="text-right">${formatNumber(hasil)}</td>
+                            <td class="text-right">${formatNumber(row.pencapaian)}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Error loading hasil:', err);
+                document.getElementById('hasilTableBody').innerHTML = 
+                    '<tr><td colspan="5" class="text-center" style="padding:20px;color:red;">Gagal memuat data</td></tr>';
+            }
+        }
+
+        async function loadTandan() {
+            try {
+                const { data, error } = await supabase
+                    .from('laporan_tandan')
+                    .select('*')
+                    .order('blok');
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('tandanTableBody');
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding:20px;color:#888;">Tiada data</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.slice(0, 15).map(row => `
+                    <tr>
+                        <td><strong>${row.blok || '-'}</strong></td>
+                        <td class="text-right">${row.jumlah_tandan || 0}</td>
+                        <td class="text-right">${row.jumlah_tm || 0}</td>
+                        <td class="text-right">${formatNumber(row.purata_berat)}</td>
+                        <td class="text-right">${formatNumber(row.luas)}</td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                console.error('Error loading tandan:', err);
+            }
+        }
+    </script>
+</body>
+</html>
