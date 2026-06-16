@@ -52,20 +52,17 @@ export default function DashboardPage() {
     );
   }
 
-  // ===== STATISTIK =====
   const totalHasil = hasil2025.reduce((sum, row) => sum + (row.jumlah_hasil || 0), 0);
   const totalBlok = hasil2025.length;
   const totalLuas = hasil2025.reduce((sum, row) => sum + (row.luas || 0), 0);
   const purataPencapaian = hasil2025.reduce((sum, row) => sum + (row.pencapaian || 0), 0) / totalBlok;
 
-  // ===== DATA UNTUK CHART =====
   const chartData = hasil2025.map(row => ({
     name: row.blok,
     hasil: row.jumlah_hasil || 0,
     luas: row.luas || 0,
   })).slice(0, 12);
 
-  // ===== PIE CHART DATA =====
   const peringkatData = hasil2025.reduce((acc: any, row) => {
     const key = row.peringkat || 'Lain';
     if (!acc[key]) acc[key] = 0;
@@ -80,7 +77,6 @@ export default function DashboardPage() {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -102,13 +98,12 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Jumlah Hasil</p>
-              <p className="text-2xl font-bold text-gray-900">{totalHasil.toFixed(2)} <span className="text-sm font-normal text-gray-500">MT</span></p>
+              <p className="card-title">Jumlah Hasil</p>
+              <p className="card-value">{totalHasil.toFixed(2)} <span className="text-sm font-normal text-gray-500">MT</span></p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <TrendingUp className="text-green-600" size={24} />
@@ -120,11 +115,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Jumlah Blok</p>
-              <p className="text-2xl font-bold text-gray-900">{totalBlok}</p>
+              <p className="card-title">Jumlah Blok</p>
+              <p className="card-value">{totalBlok}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
               <Package className="text-blue-600" size={24} />
@@ -135,11 +130,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Purata Pencapaian</p>
-              <p className="text-2xl font-bold text-gray-900">{purataPencapaian.toFixed(2)} <span className="text-sm font-normal text-gray-500">Tan/Ha</span></p>
+              <p className="card-title">Purata Pencapaian</p>
+              <p className="card-value">{purataPencapaian.toFixed(2)} <span className="text-sm font-normal text-gray-500">Tan/Ha</span></p>
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
               <Target className="text-yellow-600" size={24} />
@@ -151,11 +146,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Peringkat Aktif</p>
-              <p className="text-2xl font-bold text-gray-900">{Object.keys(peringkatData).length}</p>
+              <p className="card-title">Peringkat Aktif</p>
+              <p className="card-value">{Object.keys(peringkatData).length}</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
               <Leaf className="text-purple-600" size={24} />
@@ -167,10 +162,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Bar Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
+        <div className="card lg:col-span-2">
           <h3 className="font-semibold text-gray-900 mb-4">Hasil Mengikut Blok</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -187,8 +180,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Pie Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="card">
           <h3 className="font-semibold text-gray-900 mb-4">Hasil Mengikut Peringkat</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -217,8 +209,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="card">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-gray-900">Data Hasil 2025</h3>
           <div className="flex items-center gap-2">
