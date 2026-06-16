@@ -87,21 +87,21 @@ export default function PembajaanPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="card">
-          <p className="card-title">Keperluan (Beg)</p>
-          <p className="card-value">{totalKeperluan}</p>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <p className="text-sm font-medium text-gray-500">Keperluan (Beg)</p>
+          <p className="text-2xl font-bold text-gray-900">{totalKeperluan}</p>
         </div>
-        <div className="card">
-          <p className="card-title">Siap (Beg)</p>
-          <p className="card-value">{totalSiap}</p>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <p className="text-sm font-medium text-gray-500">Siap (Beg)</p>
+          <p className="text-2xl font-bold text-gray-900">{totalSiap}</p>
         </div>
-        <div className="card">
-          <p className="card-title">% Siap</p>
-          <p className="card-value">{peratusSiap.toFixed(1)}%</p>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <p className="text-sm font-medium text-gray-500">% Siap</p>
+          <p className="text-2xl font-bold text-gray-900">{peratusSiap.toFixed(1)}%</p>
         </div>
-        <div className="card">
-          <p className="card-title">Kaedah</p>
-          <p className="card-value text-sm">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <p className="text-sm font-medium text-gray-500">Kaedah</p>
+          <p className="text-lg font-semibold text-gray-900">
             Spreader: {totalSpreader} | Manual: {totalManual}
           </p>
         </div>
@@ -109,7 +109,7 @@ export default function PembajaanPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="card">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Keperluan vs Siap (Beg)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -126,7 +126,7 @@ export default function PembajaanPage() {
           </div>
         </div>
 
-        <div className="card">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Kaedah Pembajaan</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -135,7 +135,10 @@ export default function PembajaanPage() {
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => {
+                    const percentage = percent ? (percent * 100).toFixed(0) : '0';
+                    return `${name} ${percentage}%`;
+                  }}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -152,7 +155,7 @@ export default function PembajaanPage() {
       </div>
 
       {/* Table */}
-      <div className="card">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h3 className="font-semibold text-gray-900 mb-4">Butiran Pembajaan Pusingan {pusingan}</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
