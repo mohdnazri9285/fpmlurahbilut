@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPMSB Lurah Bilut - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>🌴 FPMSB</h1>
+            <small>Lurah Bilut</small>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="index.html"><span class="icon">📊</span> <span>Dashboard</span></a></li>
+            <li><a href="hasil.html"><span class="icon">📈</span> <span>Hasil</span></a></li>
+            <li><a href="pembajaan.html"><span class="icon">🧪</span> <span>Pembajaan</span></a></li>
+            <li><a href="merumput.html"><span class="icon">🌿</span> <span>Merumput</span></a></li>
+            <li><a href="mekanisasi.html"><span class="icon">🔧</span> <span>Mekanisasi</span></a></li>
+            <li class="divider"></li>
+            <li><a href="admin.html" class="active"><span class="icon">⚙️</span> <span>Admin</span></a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <h1>⚙️ Admin Panel</h1>
+                <p style="color: #888; font-size: 14px;">Pengurusan pengguna dan kemasukan data</p>
+            </div>
+            <div class="date" id="currentDate"></div>
+        </div>
+
+        <!-- ===== SECTION 1: USER MANAGEMENT ===== -->
+        <div class="admin-section">
+            <h2>👤 Pengurusan Pengguna</h2>
+            
+            <!-- Form Tambah User -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px;">
+                <input type="text" id="userName" placeholder="Nama Pengguna" class="border rounded px-3 py-2 text-sm">
+                <input type="text" id="userJawatan" placeholder="Jawatan" class="border rounded px-3 py-2 text-sm">
+                <input type="text" id="userId" placeholder="ID Pengguna" class="border rounded px-3 py-2 text-sm">
+                <input type="password" id="userPassword" placeholder="Kata Laluan" class="border rounded px-3 py-2 text-sm">
+                <select id="userRole" class="border rounded px-3 py-2 text-sm">
+                    <option value="Supervisor">Supervisor</option>
+                    <option value="AFC">AFC</option>
+                    <option value="Field Controller">Field Controller</option>
+                    <option value="Developer">Developer</option>
+                </select>
+                <button class="btn btn-success" onclick="tambahUser()">➕ Tambah</button>
+            </div>
+
+            <!-- Table Users -->
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Jawatan</th>
+                            <th>ID</th>
+                            <th class="text-center">Role</th>
+                            <th class="text-center">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="5" class="text-center" style="padding:20px;color:#888;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== SECTION 2: UPLOAD CSV ===== -->
+        <div class="admin-section">
+            <h2>📤 Upload Data CSV</h2>
+            <p style="color:#888;font-size:14px;margin-bottom:12px;">Pilih fail CSV untuk mengemas kini data bulanan (format: peringkat, blok, hasil, dll.)</p>
+            
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('csvFile').click()">
+                <div style="font-size:48px;margin-bottom:8px;">📁</div>
+                <p><strong>Klik untuk pilih fail CSV</strong></p>
+                <p style="font-size:13px;color:#aaa;">atau drag & drop di sini</p>
+                <input type="file" id="csvFile" accept=".csv" onchange="handleCSVUpload(event)">
+            </div>
+
+            <div id="uploadStatus" style="margin-top:12px;font-size:14px;color:#888;"></div>
+
+            <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="uploadToSupabase()">📤 Upload ke Supabase</button>
+                <button class="btn btn-outline" onclick="document.getElementById('csvFile').value='';document.getElementById('uploadStatus').textContent='';previewData=[];">🔄 Reset</button>
+            </div>
+
+            <!-- Preview Table -->
+            <div id="previewContainer" style="display:none;margin-top:16px;">
+                <h3 style="font-size:14px;margin-bottom:8px;">👀 Preview Data</h3>
+                <div style="overflow-x:auto;max-height:300px;overflow-y:auto;border:1px solid #e8edf2;border-radius:8px;">
+                    <table id="previewTable" style="font-size:12px;">
+                        <thead id="previewHead"></thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="js/supabase.js"></script>
+    <script>
+        let previewData = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentDate').textContent = formatDate(new Date());
+            loadUsers();
+        });
+
+        // ============================================
+        // USER MANAGEMENT
+        // ============================================
+
+        async function loadUsers() {
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .order('jawatan');
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('userTableBody');
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding:20px;color:#888;">Tiada pengguna</td></tr>';
+                    return;
+                }
+
+                const roleColors = {
+                    'Developer': 'badge-success',
+                    'Field Controller': 'badge-info',
+                    'AFC': 'badge-warning',
+                    'Supervisor': 'badge'
+                };
+
+                tbody.innerHTML = data.map(user => `
+                    <tr>
+                        <td><strong>${user.username || '-'}</strong></td>
+                        <td>${user.jawatan || '-'}</td>
+                        <td>${user.user_id || '-'}</td>
+                        <td class="text-center"><span class="badge ${roleColors[user.role] || 'badge'}">${user.role || 'Supervisor'}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-danger" style="padding:4px 12px;font-size:12px;" onclick="deleteUser('${user.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                console.error('Error loading users:', err);
+                document.getElementById('userTableBody').innerHTML = 
+                    '<tr><td colspan="5" class="text-center" style="padding:20px;color:red;">Gagal memuat data</td></tr>';
+            }
+        }
+
+        async function tambahUser() {
+            const username = document.getElementById('userName').value.trim();
+            const jawatan = document.getElementById('userJawatan').value.trim();
+            const userId = document.getElementById('userId').value.trim();
+            const password = document.getElementById('userPassword').value.trim();
+            const role = document.getElementById('userRole').value;
+
+            if (!username || !userId || !password) {
+                alert('Sila isi Nama, ID dan Kata Laluan');
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .insert({
+                        username: username,
+                        jawatan: jawatan || 'Supervisor',
+                        user_id: userId,
+                        password_hash: password,
+                        role: role
+                    });
+
+                if (error) throw error;
+
+                alert('✅ Pengguna berjaya ditambah!');
+                document.getElementById('userName').value = '';
+                document.getElementById('userJawatan').value = '';
+                document.getElementById('userId').value = '';
+                document.getElementById('userPassword').value = '';
+                loadUsers();
+
+            } catch (err) {
+                console.error('Error adding user:', err);
+                alert('❌ Gagal menambah pengguna: ' + err.message);
+            }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Pastikan padam pengguna ini?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                alert('✅ Pengguna dipadam');
+                loadUsers();
+
+            } catch (err) {
+                console.error('Error deleting user:', err);
+                alert('❌ Gagal memadam: ' + err.message);
+            }
+        }
+
+        // ============================================
+        // CSV UPLOAD
+        // ============================================
+
+        function handleCSVUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n').filter(line => line.trim() !== '');
+                
+                if (lines.length < 2) {
+                    document.getElementById('uploadStatus').innerHTML = '❌ Fail kosong atau format tidak sah';
+                    return;
+                }
+
+                // Parse header
+                const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                
+                // Parse data
+                previewData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                    if (values.length === headers.length) {
+                        const row = {};
+                        headers.forEach((h, idx) => {
+                            row[h] = values[idx] || '';
+                        });
+                        previewData.push(row);
+                    }
+                }
+
+                if (previewData.length === 0) {
+                    document.getElementById('uploadStatus').innerHTML = '❌ Tiada data valid dalam CSV';
+                    return;
+                }
+
+                // Show preview
+                showPreview(headers, previewData);
+                document.getElementById('uploadStatus').innerHTML = `✅ ${previewData.length} baris data siap untuk upload`;
+            };
+            reader.readAsText(file);
+        }
+
+        function showPreview(headers, data) {
+            const container = document.getElementById('previewContainer');
+            container.style.display = 'block';
+
+            // Head
+            const thead = document.getElementById('previewHead');
+            thead.innerHTML = `<tr>${headers.map(h => `<th style="padding:6px 12px;border-bottom:1px solid #ddd;text-align:left;font-weight:600;font-size:11px;">${h}</th>`).join('')}</tr>`;
+
+            // Body
+            const tbody = document.getElementById('previewBody');
+            tbody.innerHTML = data.slice(0, 20).map(row => `
+                <tr>${headers.map(h => `<td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;font-size:11px;">${row[h] || ''}</td>`).join('')}</tr>
+            `).join('');
+
+            if (data.length > 20) {
+                tbody.innerHTML += `<tr><td colspan="${headers.length}" style="padding:8px;text-align:center;color:#888;font-size:12px;">... dan ${data.length - 20} baris lagi</td></tr>`;
+            }
+        }
+
+        async function uploadToSupabase() {
+            if (previewData.length === 0) {
+                alert('Sila pilih fail CSV terlebih dahulu');
+                return;
+            }
+
+            // Tentukan jadual berdasarkan header
+            const headers = Object.keys(previewData[0]);
+            let tableName = '';
+
+            if (headers.some(h => h.includes('Hasil Sebenar'))) {
+                tableName = 'hasil_2025';
+            } else if (headers.some(h => h.includes('Tandan Sebenar'))) {
+                tableName = 'laporan_tandan';
+            } else if (headers.some(h => h.includes('Spreader (Beg)'))) {
+                tableName = 'pembajaan';
+            } else if (headers.some(h => h.includes('Pusingan'))) {
+                // Check if it's merumput or pembajaan
+                if (headers.some(h => h.includes('Pusingan 1'))) {
+                    tableName = 'merumput';
+                } else {
+                    tableName = 'pembajaan';
+                }
+            } else {
+                alert('❌ Format CSV tidak dikenali. Pastikan ia dari jadual Hasil, Tandan, Pembajaan atau Merumput.');
+                return;
+            }
+
+            if (!confirm(`Upload ${previewData.length} baris ke jadual "${tableName}"?`)) return;
+
+            try {
+                document.getElementById('uploadStatus').innerHTML = '⏳ Mengupload data...';
+
+                // Delete existing data for the table
+                await supabase.from(tableName).delete().neq('id', 0);
+
+                // Insert new data
+                const { error } = await supabase
+                    .from(tableName)
+                    .insert(previewData);
+
+                if (error) throw error;
+
+                document.getElementById('uploadStatus').innerHTML = `✅ ${previewData.length} baris berjaya diupload ke ${tableName}!`;
+                previewData = [];
+                document.getElementById('previewContainer').style.display = 'none';
+                document.getElementById('csvFile').value = '';
+
+            } catch (err) {
+                console.error('Upload error:', err);
+                document.getElementById('uploadStatus').innerHTML = '❌ Gagal upload: ' + err.message;
+            }
+        }
+
+        // ============================================
+        // DRAG & DROP SUPPORT
+        // ============================================
+
+        const dropArea = document.getElementById('uploadArea');
+        dropArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#1a4d2e';
+            this.style.background = '#f0f7f4';
+        });
+
+        dropArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#d0d7de';
+            this.style.background = '';
+        });
+
+        dropArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '#d0d7de';
+            this.style.background = '';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('csvFile').files = files;
+                handleCSVUpload({ target: { files: files } });
+            }
+        });
+    </script>
+</body>
+</html>
