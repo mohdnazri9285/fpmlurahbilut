@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
+        /* ==================== CSS SAMA SEPERTI SEBELUM ==================== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
 
@@ -233,19 +234,35 @@ const targetTahunan = {
 };
 
 // ========================================================================
-// DATA BULANAN PERINGKAT (HASIL) - JAN-JULAI
+// DATA BULANAN PERINGKAT (HASIL 2026) - JAN-JULAI
 // ========================================================================
-const bulananPeringkat = {
-    "1G": { hasil: [1.54,1.21,0.94,1.12,0.95,1.00,0.95] },
-    "1A": { hasil: [0.91,0.86,0.69,0.74,0.73,1.18,1.29] },
-    "1C": { hasil: [0.63,0.66,0.77,0.55,1.08,1.00,0.67] },
-    "1D": { hasil: [0.87,0.70,0.60,0.85,0.88,1.17,1.12] },
-    "2G": { hasil: [1.05,0.81,0.63,0.66,0.75,0.93,1.06] },
-    "3": { hasil: [0.97,0.80,0.69,0.61,0.82,1.33,1.45] },
-    "4": { hasil: [0.93,0.82,0.72,1.01,0.90,1.04,1.12] },
-    "1F": { hasil: [0.76,1.32,1.33,0.66,0.54,0.85,0.49] },
-    "2F": { hasil: [0.84,0.84,1.21,1.34,1.26,1.97,1.40] },
-    "3F": { hasil: [0.80,0.88,0.62,0.55,0.81,1.10,1.01] }
+const bulanan2026 = {
+    "1G": [1.54,1.21,0.94,1.12,0.95,1.00,0.95],
+    "1A": [0.91,0.86,0.69,0.74,0.73,1.18,1.29],
+    "1C": [0.63,0.66,0.77,0.55,1.08,1.00,0.67],
+    "1D": [0.87,0.70,0.60,0.85,0.88,1.17,1.12],
+    "2G": [1.05,0.81,0.63,0.66,0.75,0.93,1.06],
+    "3": [0.97,0.80,0.69,0.61,0.82,1.33,1.45],
+    "4": [0.93,0.82,0.72,1.01,0.90,1.04,1.12],
+    "1F": [0.76,1.32,1.33,0.66,0.54,0.85,0.49],
+    "2F": [0.84,0.84,1.21,1.34,1.26,1.97,1.40],
+    "3F": [0.80,0.88,0.62,0.55,0.81,1.10,1.01]
+};
+
+// ========================================================================
+// DATA BULANAN PERINGKAT (HASIL 2025) - JAN-JULAI (DIKIRA DARI CSV)
+// ========================================================================
+const bulanan2025 = {
+    "1G": [0.83, 0.58, 0.85, 1.20, 1.32, 1.50, 1.42],
+    "1A": [0.80, 0.59, 0.58, 1.24, 1.39, 1.29, 1.32],
+    "1C": [0.50, 0.74, 0.97, 1.58, 0.84, 1.02, 0.92],
+    "1D": [0.63, 0.47, 0.55, 1.23, 1.45, 0.99, 1.17],
+    "2G": [0.55, 0.43, 0.64, 0.95, 1.27, 1.22, 1.18],
+    "3": [0.70, 0.52, 0.50, 0.94, 1.33, 1.29, 1.29],
+    "4": [0.48, 0.60, 0.59, 0.77, 0.77, 0.90, 1.31],
+    "1F": [1.83, 0.88, 1.87, 3.13, 2.45, 1.88, 2.97],
+    "2F": [1.27, 1.12, 1.14, 2.15, 1.79, 2.36, 1.46],
+    "3F": [0.96, 0.39, 0.54, 0.81, 1.08, 1.17, 1.50]
 };
 
 // ========================================================================
@@ -393,11 +410,11 @@ function renderPeringkatChart() {
     const peringkatList = ["1G","1A","1C","1D","2G","3","4","1F","2F","3F"];
     const labels = peringkatList;
 
-    // Kira jumlah T/Ha (Jan-Julai) dari data bulanan
+    // Kira jumlah T/Ha (Jan-Julai) dari data bulanan 2026
     const capaiJulai = peringkatList.map(p => {
-        const data = bulananPeringkat[p];
+        const data = bulanan2026[p];
         if(!data) return 0;
-        return data.hasil.reduce((a,b) => a + b, 0);
+        return data.reduce((a,b) => a + b, 0);
     });
     const targetData = peringkatList.map(p => targetTahunan[p] || 0);
 
@@ -614,14 +631,17 @@ function renderBlokChart(peringkatId) {
     </tr>`;
 }
 
-// ========== POPUP 1: DETAIL PERINGKAT ==========
+// ========== POPUP 1: DETAIL PERINGKAT (DENGAN PERBANDINGAN 2025 VS 2026) ==========
 function showPopup1(peringkatId) {
-    const data = bulananPeringkat[peringkatId];
-    if(!data) return;
+    const data2026 = bulanan2026[peringkatId];
+    const data2025 = bulanan2025[peringkatId];
+    if(!data2026 || !data2025) return;
 
     const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul'];
-    const hasil = data.hasil;
-    const totalHasil = hasil.reduce((a,b) => a + b, 0);
+    const hasil2025 = data2025;
+    const hasil2026 = data2026;
+    const total2025 = hasil2025.reduce((a,b) => a + b, 0);
+    const total2026 = hasil2026.reduce((a,b) => a + b, 0);
 
     // Dapatkan data tandan untuk peringkat ini (dari blokData2026)
     const blokData = blokData2026[peringkatId];
@@ -642,15 +662,16 @@ function showPopup1(peringkatId) {
     document.getElementById('peringkatModalBody').innerHTML = `
         <div class="detail-stats">
             <div class="stat-box"><div class="stat-label">Target Tahunan</div><div class="stat-value">${targetTahunan[peringkatId].toFixed(2)} T/Ha</div></div>
-            <div class="stat-box"><div class="stat-label">Pencapaian Jan-Julai</div><div class="stat-value">${totalHasil.toFixed(2)} T/Ha</div></div>
-            <div class="stat-box"><div class="stat-label">% Capai Target</div><div class="stat-value">${((totalHasil/targetTahunan[peringkatId])*100).toFixed(1)}%</div></div>
+            <div class="stat-box"><div class="stat-label">Pencapaian 2025</div><div class="stat-value">${total2025.toFixed(2)} T/Ha</div></div>
+            <div class="stat-box"><div class="stat-label">Pencapaian 2026</div><div class="stat-value">${total2026.toFixed(2)} T/Ha</div></div>
+            <div class="stat-box"><div class="stat-label">Beza</div><div class="stat-value">${(total2026 - total2025).toFixed(2)} T/Ha</div></div>
             <div class="stat-box"><div class="stat-label">Jumlah Tandan</div><div class="stat-value">${totalTandan.toLocaleString()}</div></div>
             <div class="stat-box"><div class="stat-label">Purata ABW</div><div class="stat-value">${avgAbw.toFixed(2)} kg</div></div>
             <div class="stat-box"><div class="stat-label">Purata TPP</div><div class="stat-value">${avgTpp.toFixed(2)}</div></div>
             <div class="stat-box"><div class="stat-label">BTB Muda</div><div class="stat-value">${totalBtb} (${percentBtb}%)</div></div>
         </div>
 
-        <h4>📊 Pencapaian Hasil Bulanan (T/Ha)</h4>
+        <h4>📊 Perbandingan Hasil Bulanan 2025 vs 2026 (T/Ha)</h4>
         <div class="mini-chart"><canvas id="popup1HasilChart" style="width:100%; height:220px;"></canvas></div>
 
         <h4 style="margin-top:25px;">📊 Analisa Tandan (Purata Seluruh Blok)</h4>
@@ -670,35 +691,52 @@ function showPopup1(peringkatId) {
         </div>
 
         <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
-            <p>📌 Pencapaian 2026 (Jan-Julai): <strong>${totalHasil.toFixed(2)} T/Ha</strong> (${((totalHasil/targetTahunan[peringkatId])*100).toFixed(1)}% dari target tahunan)</p>
+            <p>📌 Pencapaian 2025: <strong>${total2025.toFixed(2)} T/Ha</strong> | 2026: <strong>${total2026.toFixed(2)} T/Ha</strong></p>
             <p style="font-size:0.7rem; margin-top:8px;">*Data Ogos-Disember 2026 akan dikemaskini selepas bulan berjalan.</p>
         </div>`;
 
     document.getElementById('detailPeringkatModal').style.display = 'flex';
 
     setTimeout(() => {
-        // Graf Hasil (tanpa target)
+        // Graf Perbandingan 2025 vs 2026
         const ctx1 = document.getElementById('popup1HasilChart');
         if(ctx1) {
             new Chart(ctx1, {
                 type: 'bar',
                 data: {
                     labels: months,
-                    datasets: [{ 
-                        label: 'Hasil 2026 (T/Ha)', 
-                        data: hasil, 
-                        backgroundColor: '#2d6a4f', 
-                        borderRadius: 6, 
-                        barPercentage: 0.6,
-                        datalabels: { 
-                            display: true, 
-                            anchor: 'end', 
-                            align: 'top', 
-                            color: '#14532d', 
-                            font: { size: 9 }, 
-                            formatter: v => v.toFixed(2) 
-                        } 
-                    }]
+                    datasets: [
+                        { 
+                            label: '2025 (T/Ha)', 
+                            data: hasil2025, 
+                            backgroundColor: '#94a3b8', 
+                            borderRadius: 6, 
+                            barPercentage: 0.6,
+                            datalabels: { 
+                                display: true, 
+                                anchor: 'end', 
+                                align: 'top', 
+                                color: '#475569', 
+                                font: { size: 9 }, 
+                                formatter: v => v.toFixed(2) 
+                            } 
+                        },
+                        { 
+                            label: '2026 (T/Ha)', 
+                            data: hasil2026, 
+                            backgroundColor: '#2d6a4f', 
+                            borderRadius: 6, 
+                            barPercentage: 0.6,
+                            datalabels: { 
+                                display: true, 
+                                anchor: 'end', 
+                                align: 'top', 
+                                color: '#14532d', 
+                                font: { size: 9 }, 
+                                formatter: v => v.toFixed(2) 
+                            } 
+                        }
+                    ]
                 },
                 options: { 
                     responsive: true, 
@@ -881,8 +919,8 @@ function showPopup2(peringkatId, blokName) {
         tppBulan = d.tpp || [0,0,0,0,0,0,0];
     }
 
-    // Dapatkan hasil bulanan untuk blok ini (dari data peringkat)
-    const hasilBulanan = bulananPeringkat[peringkatId]?.hasil || [0,0,0,0,0,0,0];
+    // Dapatkan hasil bulanan untuk blok ini (dari data peringkat 2026)
+    const hasilBulanan = bulanan2026[peringkatId] || [0,0,0,0,0,0,0];
 
     document.getElementById('blokModalTitle').innerHTML = `${peringkatId} - ${blokName}`;
     document.getElementById('blokModalBody').innerHTML = `
@@ -893,7 +931,7 @@ function showPopup2(peringkatId, blokName) {
             <div class="stat-box"><div class="stat-label">Jumlah Tandan</div><div class="stat-value">${blok.tandan.toLocaleString()}</div></div>
         </div>
 
-        <h4>📊 Pencapaian Hasil Bulanan (T/Ha)</h4>
+        <h4>📊 Pencapaian Hasil Bulanan 2026 (T/Ha)</h4>
         <div class="mini-chart"><canvas id="popup2HasilChart" style="width:100%; height:200px;"></canvas></div>
 
         <h4 style="margin-top:25px;">📊 Analisa Tandan Bulanan (2026)</h4>
@@ -920,7 +958,7 @@ function showPopup2(peringkatId, blokName) {
     document.getElementById('detailBlokModal').style.display = 'flex';
 
     setTimeout(() => {
-        // Graf Hasil Bulanan
+        // Graf Hasil Bulanan 2026
         const ctx0 = document.getElementById('popup2HasilChart');
         if(ctx0) {
             new Chart(ctx0, {
