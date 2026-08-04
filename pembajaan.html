@@ -258,16 +258,20 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
     const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
     let summaryChart = null;
+    let allData = []; // Simpan semua data asal
 
     async function loadData(peringkatFilter = 'all') {
         const container = document.getElementById('dashboardContent');
         container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#2d6a4f;"></i><p style="margin-top:12px; color:#64748b;">Memuatkan data...</p></div>';
 
         try {
-            const { data, error } = await sb.from('pembajaan').select('*');
-            if (error) throw error;
+            if (allData.length === 0) {
+                const { data, error } = await sb.from('pembajaan').select('*');
+                if (error) throw error;
+                allData = data || [];
+            }
 
-            if (!data || data.length === 0) {
+            if (allData.length === 0) {
                 container.innerHTML = `
                     <div class="card">
                         <div class="no-data">
@@ -283,11 +287,9 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                 return;
             }
 
-            // =============================================================
-            // 1. GRAF – % SIAP KESELURUHAN (TIDAK DIPENGARUHI FILTER)
-            // =============================================================
+            // --- GRAF – % SIAP KESELURUHAN (TIDAK DIPENGARUHI FILTER) ---
             const pusinganMapGlobal = {};
-            data.forEach(row => {
+            allData.forEach(row => {
                 const pusingan = row.pusingan;
                 if (!pusinganMapGlobal[pusingan]) {
                     pusinganMapGlobal[pusingan] = { keperluan: 0, siap: 0 };
@@ -302,13 +304,11 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                 const data = pusinganMapGlobal[p];
                 return data.keperluan > 0 ? ((data.siap / data.keperluan) * 100) : 0;
             });
-            // ------------------------------------------------
+            // ---------------------------------------------------------
 
-            // =============================================================
-            // 2. JADUAL (RIBBON) – MENGIKUT FILTER
-            // =============================================================
+            // --- JADUAL (RIBBON) – MENGIKUT FILTER ---
             const ribbonData = {};
-            data.forEach(row => {
+            allData.forEach(row => {
                 if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
                     const pusingan = row.pusingan;
                     if (!ribbonData[pusingan]) {
@@ -392,11 +392,9 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                     </div>
                 `;
             });
-            // ------------------------------------------------
+            // ------------------------------------------------------
 
-            // =============================================================
-            // 3. RENDER DASHBOARD
-            // =============================================================
+            // --- RENDER DASHBOARD ---
             const colors = percentDataGlobal.map(p => p >= 75 ? '#2d6a4f' : (p >= 50 ? '#f4a261' : '#e76f51'));
 
             container.innerHTML = `
@@ -415,11 +413,8 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                     <div id="ribbonContainer">${ribbonHtml}</div>
                 </div>
             `;
-            // ------------------------------------------------
 
-            // =============================================================
-            // 4. LUKIS GRAF
-            // =============================================================
+            // --- LUKIS GRAF ---
             const canvas = document.getElementById('summaryChart');
             if (canvas) {
                 if (summaryChart) summaryChart.destroy();
@@ -460,11 +455,8 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                     }
                 });
             }
-            // ------------------------------------------------
 
-            // =============================================================
-            // 5. SETUP FILTER BUTTONS
-            // =============================================================
+            // --- SETUP FILTER BUTTONS ---
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -473,7 +465,6 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                     loadData(peringkat);
                 });
             });
-            // ------------------------------------------------
 
             window.toggleRibbon = function(ribbonId) {
                 const currentRibbon = document.getElementById(ribbonId);
