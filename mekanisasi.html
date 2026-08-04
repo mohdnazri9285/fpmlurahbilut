@@ -204,18 +204,18 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     // =============================================================
-    // SUPABASE CONFIG – URL & KEY BARU
+    // SUPABASE CONFIG – ANON KEY BETUL
     // =============================================================
     const supabaseUrl = 'https://uzwhfoxtykrsmtkafbgh.supabase.co';
-    const supabaseKey = 'uzwhfoxtykrsmtkafbgh';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6d2hmb3h0eWtyc210a2FmYmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTIzOTEsImV4cCI6MjA3MTIyODM5MX0.CT1w3b6dO9IeF3JgCZ7u8YyX6G2bXuK7Gt5qzJx3RMg';
+    const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
     async function loadData() {
         const container = document.getElementById('dashboardContent');
         container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#2d6a4f;"></i><p style="margin-top:12px; color:#64748b;">Memuatkan data...</p></div>';
 
         try {
-            const { data, error } = await supabase.from('mekanisasi').select('*');
+            const { data, error } = await sb.from('mekanisasi').select('*');
             if (error) throw error;
 
             if (!data || data.length === 0) {
