@@ -436,8 +436,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
         if (!canvas) return;
         if (summaryChart) summaryChart.destroy();
 
-        const labels = allPusingan.sort((a,b) => a.pusingan - b.pusingan).map(p => `Pusingan ${p.pusingan}`);
-
+        // --- KIRA % SIAP UNTUK SETIAP PUSINGAN ---
         const percentData = allPusingan.sort((a,b) => a.pusingan - b.pusingan).map(p => {
             let totalKeperluan = 0, totalSiap = 0;
             p.data.forEach(row => {
@@ -448,7 +447,9 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
             });
             return totalKeperluan > 0 ? ((totalSiap / totalKeperluan) * 100) : 0;
         });
+        // ----------------------------------------
 
+        const labels = allPusingan.sort((a,b) => a.pusingan - b.pusingan).map(p => `Pusingan ${p.pusingan}`);
         const colors = percentData.map(p => p >= 75 ? '#2d6a4f' : (p >= 50 ? '#f4a261' : '#e76f51'));
 
         summaryChart = new Chart(canvas, {
