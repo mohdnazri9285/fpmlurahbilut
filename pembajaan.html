@@ -2,499 +2,267 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>FPMSB Lurah Bilut - Laporan Pembajaan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload CSV - FPMSB Lurah Bilut</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
 
-        .navbar { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-bottom: 3px solid #2d6a4f; position: sticky; top: 0; z-index: 1000; padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between; }
-        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; width: 100%; }
-        .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-img { height: 48px; width: auto; border-radius: 10px; background: #2d6a4f; color: white; padding: 0 12px; display: flex; align-items: center; font-weight: 700; font-size: 1.2rem; }
-        .logo-text h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
-        .logo-text p { font-size: 0.65rem; color: #64748b; }
+        .container { max-width: 900px; margin: 60px auto; padding: 0 24px; }
+        .card { background: white; border-radius: 24px; padding: 40px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+        .card h1 { font-size: 2rem; font-weight: 700; color: #0f172a; border-left: 4px solid #2d6a4f; padding-left: 16px; margin-bottom: 24px; }
+        .card p { color: #64748b; margin-bottom: 24px; }
 
-        .nav-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; flex: 1; }
-        .nav-link { padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.85rem; color: #475569; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .nav-link.active { background: #2d6a4f; color: white; }
-        .nav-link:not(.active):hover { background: #eef2ff; color: #2d6a4f; }
+        .upload-group { margin-bottom: 30px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; background: #f8fafc; position: relative; }
+        .upload-group h3 { font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .upload-group h3 i { color: #2d6a4f; }
+        .upload-group .file-input-wrapper { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+        .upload-group .file-input-wrapper label { font-size: 0.85rem; color: #475569; }
+        .upload-group input[type="file"] { padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; font-size: 0.8rem; }
+        .upload-group .status { font-size: 0.75rem; color: #64748b; margin-top: 8px; font-weight: 600; display: block; }
 
-        .btn-upload-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: #2d6a4f;
-            color: white;
-            border-radius: 50%;
-            text-decoration: none;
-            font-size: 1.2rem;
-            transition: all 0.2s;
-        }
-        .btn-upload-icon:hover {
-            background: #1b4d3e;
-            transform: scale(1.05);
-        }
+        .btn-go { display: inline-block; margin-top: 12px; padding: 8px 20px; background: #2d6a4f; color: white; border: none; border-radius: 30px; font-weight: 600; font-size: 0.8rem; text-decoration: none; transition: all 0.2s; }
+        .btn-go:hover { background: #1b4d3e; transform: translateY(-2px); }
+        .btn-go i { margin-right: 6px; }
 
-        .main { max-width: 1400px; margin: 0 auto; padding: 30px 24px; }
-        .page-title h1 { font-size: 1.8rem; font-weight: 700; color: #0f172a; border-left: 4px solid #2d6a4f; padding-left: 16px; }
-        .page-title p { color: #64748b; margin-top: 8px; margin-left: 20px; }
+        .btn-upload { padding: 14px 32px; background: #2d6a4f; color: white; border: none; border-radius: 40px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 20px; }
+        .btn-upload:hover { background: #1b4d3e; transform: translateY(-2px); }
 
-        .card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            padding: 24px 28px;
-            margin-bottom: 30px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s;
-        }
-        .card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
-        .card h3 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-left: 4px solid #2d6a4f; padding-left: 14px; }
-        .card h3 i { color: #2d6a4f; }
+        .btn-group { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+        .btn-secondary { padding: 10px 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 40px; font-weight: 600; font-size: 0.9rem; color: #475569; cursor: pointer; transition: all 0.2s; }
+        .btn-secondary:hover { background: #eef2ff; color: #2d6a4f; }
+        .btn-home { padding: 10px 24px; background: #2d6a4f; color: white; border: none; border-radius: 40px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .btn-home:hover { background: #1b4d3e; transform: translateY(-2px); }
 
-        .chart-container { position: relative; width: 100%; min-height: 380px; overflow-x: auto; }
-        canvas { max-width: 100%; height: auto; max-height: 380px; }
+        .status-msg { margin-top: 16px; padding: 12px; border-radius: 12px; display: none; }
+        .status-msg.success { background: #dcfce7; color: #166534; display: block; }
+        .status-msg.error { background: #fee2e2; color: #dc2626; display: block; }
+        .status-msg.info { background: #e0f2fe; color: #0369a1; display: block; }
 
-        .filter-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 16px;
-            justify-content: center;
-        }
-        .filter-btn {
-            padding: 8px 18px;
-            border-radius: 40px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: #475569;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .filter-btn:hover { background: #eef2ff; color: #2d6a4f; }
-        .filter-btn.active { background: #2d6a4f; color: white; border-color: #2d6a4f; }
-
-        .ribbon {
-            background: white;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .ribbon-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            cursor: pointer;
-            background: #f8fafc;
-            border-radius: 16px 16px 0 0;
-            transition: background 0.2s;
-            user-select: none;
-        }
-
-        .ribbon-header:hover {
-            background: #eef2ff;
-        }
-
-        .ribbon-header .ribbon-title {
-            font-weight: 700;
-            font-size: 1.05rem;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .ribbon-header .ribbon-title i {
-            color: #2d6a4f;
-        }
-
-        .ribbon-header .ribbon-toggle {
-            font-size: 1.2rem;
-            color: #64748b;
-            transition: transform 0.3s ease;
-        }
-
-        .ribbon.open .ribbon-toggle {
-            transform: rotate(180deg);
-        }
-
-        .ribbon-body {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            padding: 0 24px;
-        }
-
-        .ribbon.open .ribbon-body {
-            max-height: 2000px;
-            padding: 20px 24px 24px;
-        }
-
-        .ribbon-body .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-        .ribbon-body .data-table th, .ribbon-body .data-table td {
-            border: 1px solid #e2e8f0;
-            padding: 10px 8px;
-            text-align: center;
-            vertical-align: middle;
-        }
-        .ribbon-body .data-table th {
-            background: #f8fafc;
-            font-weight: 700;
-            color: #1e293b;
-        }
-        .ribbon-body .data-table td:first-child {
-            font-weight: 600;
-            background: #f8fafc;
-        }
-
-        .progress-bar {
-            background: #e2e8f0;
-            border-radius: 20px;
-            height: 20px;
-            overflow: hidden;
-            width: 100%;
-            min-width: 80px;
-        }
-        .progress-fill {
-            height: 100%;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.65rem;
-            font-weight: 600;
-        }
-
-        .badge { background: #dcfce7; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: #166534; }
-
-        .no-data {
-            text-align: center;
-            padding: 40px 20px;
-            color: #64748b;
-            border: 2px dashed #e2e8f0;
-            border-radius: 16px;
-            background: #f8fafc;
-        }
-        .no-data i { font-size: 3rem; color: #2d6a4f; margin-bottom: 16px; display: block; }
-        .no-data a { color: #2d6a4f; font-weight: 600; text-decoration: none; }
-        .no-data a:hover { text-decoration: underline; }
-
-        footer { text-align: center; padding: 25px; border-top: 1px solid #e2e8f0; font-size: 0.7rem; color: #94a3b8; background: white; }
-
-        @media (max-width: 768px) {
-            .navbar { padding: 0.8rem 1rem; flex-wrap: wrap; }
-            .nav-container { flex-direction: column; align-items: stretch; }
-            .nav-links { justify-content: center; }
-            .main { padding: 20px 16px; }
-            .card { padding: 16px; }
-            .chart-container { min-height: 300px; }
-            .ribbon-header { padding: 12px 16px; }
-            .ribbon-body .data-table th, .ribbon-body .data-table td { padding: 6px 4px; font-size: 0.65rem; }
-            .ribbon-body { padding: 0 16px; }
-            .ribbon.open .ribbon-body { padding: 12px 16px 16px; }
-            .filter-btn { padding: 6px 14px; font-size: 0.7rem; }
-        }
+        @media (max-width: 768px) { .card { padding: 24px; } .upload-group .file-input-wrapper { flex-direction: column; align-items: stretch; } .btn-group { flex-direction: column; } }
     </style>
 </head>
 <body>
 
-<div class="navbar">
-    <div class="nav-container">
-        <div class="logo-area">
-            <div class="logo-img">FPMSB</div>
-            <div class="logo-text"><h2>FPMSB Lurah Bilut</h2><p>Dashboard Operasi Ladang</p></div>
+<div class="container">
+    <div class="card">
+        <h1><i class="fas fa-upload" style="color: #2d6a4f;"></i> Upload Data CSV ke Supabase</h1>
+        <p>Pilih fail CSV dan upload terus ke Supabase. <strong>Data lama akan diganti dengan data baru.</strong></p>
+
+        <!-- MEKANISASI -->
+        <div class="upload-group">
+            <h3><i class="fas fa-tractor"></i> Mekanisasi</h3>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileMekanisasi" accept=".csv">
+                <label>laporan mekanisasi.csv</label>
+            </div>
+            <span class="status" id="statusMekanisasi">Belum muat naik</span>
+            <a href="mekanisasi.html" class="btn-go"><i class="fas fa-arrow-right"></i> Pergi ke Mekanisasi</a>
         </div>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link"><i class="fas fa-info-circle"></i> Info</a>
-            <a href="hasil.html" class="nav-link"><i class="fas fa-chart-line"></i> Hasil</a>
-            <a href="pembajaan.html" class="nav-link active"><i class="fas fa-seedling"></i> Pembajaan</a>
-            <a href="merumput.html" class="nav-link"><i class="fas fa-cut"></i> Merumput</a>
-            <a href="mekanisasi.html" class="nav-link"><i class="fas fa-tractor"></i> Mekanisasi</a>
-            <a href="upload.html" class="btn-upload-icon"><i class="fas fa-upload"></i></a>
+
+        <!-- MERUMPUT -->
+        <div class="upload-group">
+            <h3><i class="fas fa-cut"></i> Merumput</h3>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileMerumput" accept=".csv">
+                <label>laporan merumput.csv</label>
+            </div>
+            <span class="status" id="statusMerumput">Belum muat naik</span>
+            <a href="merumput.html" class="btn-go"><i class="fas fa-arrow-right"></i> Pergi ke Merumput</a>
+        </div>
+
+        <!-- PEMBAJAAN -->
+        <div class="upload-group">
+            <h3><i class="fas fa-seedling"></i> Pembajaan</h3>
+            <div class="file-input-wrapper">
+                <input type="file" id="filePembajaan" accept=".csv">
+                <label>laporan pembajaan pusingan.csv</label>
+            </div>
+            <span class="status" id="statusPembajaan">Belum muat naik</span>
+            <a href="pembajaan.html" class="btn-go"><i class="fas fa-arrow-right"></i> Pergi ke Pembajaan</a>
+        </div>
+
+        <button class="btn-upload" id="btnUpload">Muat Naik ke Supabase</button>
+        <div class="status-msg" id="statusMsg"></div>
+
+        <div class="btn-group">
+            <a href="index.html" class="btn-home"><i class="fas fa-home"></i> Kembali ke Halaman Utama</a>
         </div>
     </div>
 </div>
-
-<div class="main">
-    <div class="page-title">
-        <h1>🧪 Laporan Pembajaan</h1>
-        <p>Status Taburan Baja Mengikut Peringkat & Pusingan</p>
-    </div>
-
-    <div id="dashboardContent">
-        <!-- Akan diisi oleh JavaScript -->
-    </div>
-</div>
-<footer>© FPMSB Lurah Bilut — Data Operasi Ladang Sawit</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script>
-Chart.register(ChartDataLabels);
-
-// =============================================================
-// SUPABASE CONFIG – ANON KEY BETUL
-// =============================================================
-const supabaseUrl = 'https://uzwhfoxtykrsmtkafbgh.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6d2hmb3h0eWtyc210a2FmYmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MDQ3NzMsImV4cCI6MjEwMTM4MDc3M30.XjVwWmjNZKrRQUA5ZAkGwnlV5S_yr05mL6BLfdNk2NA';
+    // =============================================================
+    // SUPABASE CONFIG – ANON KEY BETUL
+    // =============================================================
+    const supabaseUrl = 'https://uzwhfoxtykrsmtkafbgh.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6d2hmb3h0eWtyc210a2FmYmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MDQ3NzMsImV4cCI6MjEwMTM4MDc3M30.XjVwWmjNZKrRQUA5ZAkGwnlV5S_yr05mL6BLfdNk2NA';
     const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let summaryChart = null;
-    let allData = []; // Simpan semua data asal
+    document.getElementById('btnUpload').addEventListener('click', async function() {
+        const inputs = [
+            { id: 'fileMekanisasi', table: 'mekanisasi', statusId: 'statusMekanisasi' },
+            { id: 'fileMerumput', table: 'merumput', statusId: 'statusMerumput' },
+            { id: 'filePembajaan', table: 'pembajaan', statusId: 'statusPembajaan' }
+        ];
 
-    async function loadData(peringkatFilter = 'all') {
-        const container = document.getElementById('dashboardContent');
-        container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#2d6a4f;"></i><p style="margin-top:12px; color:#64748b;">Memuatkan data...</p></div>';
+        let uploaded = 0;
+        let total = 0;
+        let hasError = false;
 
-        try {
-            if (allData.length === 0) {
-                const { data, error } = await sb.from('pembajaan').select('*');
-                if (error) throw error;
-                allData = data || [];
-            }
+        for (const { id, table, statusId } of inputs) {
+            const input = document.getElementById(id);
+            const statusEl = document.getElementById(statusId);
+            if (input.files.length > 0) {
+                total++;
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const csvData = e.target.result;
+                        const lines = csvData.split('\n').filter(line => line.trim() !== '');
+                        if (lines.length < 2) throw new Error('CSV tidak lengkap');
 
-            if (allData.length === 0) {
-                container.innerHTML = `
-                    <div class="card">
-                        <div class="no-data">
-                            <i class="fas fa-database"></i>
-                            <h3>Tiada Data Pembajaan</h3>
-                            <p>Sila muat naik fail <strong>laporan pembajaan pusingan.csv</strong> melalui halaman Upload.</p>
-                            <p style="margin-top:12px;">
-                                <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
-                            </p>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
+                        // --- TUKAR HEADER KE HURUF KECIL ---
+                        const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase());
+                        const headers = rawHeaders.filter(h => h !== '');
+                        // ------------------------------------
 
-            // --- GRAF – % SIAP KESELURUHAN (TIDAK DIPENGARUHI FILTER) ---
-            const pusinganMapGlobal = {};
-            allData.forEach(row => {
-                const pusingan = row.pusingan;
-                if (!pusinganMapGlobal[pusingan]) {
-                    pusinganMapGlobal[pusingan] = { keperluan: 0, siap: 0 };
-                }
-                pusinganMapGlobal[pusingan].keperluan += row.keperluan_beg;
-                pusinganMapGlobal[pusingan].siap += row.siap_beg;
-            });
+                        const data = [];
 
-            const pusinganListGlobal = Object.keys(pusinganMapGlobal).sort((a,b) => a - b);
-            const labels = pusinganListGlobal.map(p => `Pusingan ${p}`);
-            const percentDataGlobal = pusinganListGlobal.map(p => {
-                const data = pusinganMapGlobal[p];
-                return data.keperluan > 0 ? ((data.siap / data.keperluan) * 100) : 0;
-            });
-            // ---------------------------------------------------------
+                        // --- LOGIK BERBEZA MENGIKUT TABLE ---
+                        if (table === 'mekanisasi') {
+                            // Logik untuk Mekanisasi (Jentera + Ratio)
+                            let isRatioSection = false;
+                            for (let i = 1; i < lines.length; i++) {
+                                const values = lines[i].split(',');
+                                if (values.every(v => v.trim() === '')) continue;
 
-            // --- JADUAL (RIBBON) – MENGIKUT FILTER ---
-            const ribbonData = {};
-            allData.forEach(row => {
-                if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
-                    const pusingan = row.pusingan;
-                    if (!ribbonData[pusingan]) {
-                        ribbonData[pusingan] = [];
-                    }
-                    ribbonData[pusingan].push(row);
-                }
-            });
+                                const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
+                                
+                                if (firstValue === 'peringkat') {
+                                    isRatioSection = true;
+                                    continue;
+                                }
+                                if (firstValue === 'jentera') {
+                                    isRatioSection = false;
+                                    continue;
+                                }
 
-            const sortedPusingan = Object.keys(ribbonData).sort((a,b) => a - b);
-
-            let ribbonHtml = '';
-            sortedPusingan.forEach((p, idx) => {
-                const rows = ribbonData[p];
-                let tbodyHtml = '';
-                let totalKeperluan = 0, totalSiap = 0;
-
-                rows.forEach(row => {
-                    const peringkat = row.peringkat;
-                    const luas = row.luas_ha;
-                    const kadar = row.kadar;
-                    const keperluan = row.keperluan_beg;
-                    const manual = row.manual_beg;
-                    const spreader = row.spreader_beg;
-                    const siap = row.siap_beg;
-
-                    totalKeperluan += keperluan;
-                    totalSiap += siap;
-
-                    const percent = keperluan > 0 ? ((siap / keperluan) * 100) : 0;
-                    const color = percent >= 75 ? '#2d6a4f' : (percent >= 50 ? '#f4a261' : '#e76f51');
-
-                    tbodyHtml += `<tr>
-                        <td><strong>${peringkat}</strong></td>
-                        <td>${luas.toFixed(2)}</td>
-                        <td>${kadar} kg/pokok</td>
-                        <td>${keperluan.toLocaleString()}</td>
-                        <td>${manual.toLocaleString()}</td>
-                        <td>${spreader.toLocaleString()}</td>
-                        <td>${siap > 0 ? siap.toLocaleString() + ' Beg' : '-'}</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${percent}%; background: ${color}">
-                                    ${percent.toFixed(0)}%
-                                </div>
-                            </div>
-                        </td>
-                    </tr>`;
-                });
-
-                const overallPercent = totalKeperluan > 0 ? ((totalSiap / totalKeperluan) * 100) : 0;
-
-                ribbonHtml += `
-                    <div class="ribbon ${idx === 0 ? 'open' : ''}" id="ribbon${idx+1}">
-                        <div class="ribbon-header" onclick="toggleRibbon('ribbon${idx+1}')">
-                            <div class="ribbon-title">
-                                <i class="fas fa-seedling"></i> Pusingan ${p}
-                                <span class="badge">${overallPercent.toFixed(1)}%</span>
-                            </div>
-                            <div class="ribbon-toggle"><i class="fas fa-chevron-down"></i></div>
-                        </div>
-                        <div class="ribbon-body">
-                            <div style="overflow-x:auto;">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Peringkat</th>
-                                            <th>Luas (Ha)</th>
-                                            <th>Kadar (kg/pokok)</th>
-                                            <th>Keperluan (Beg)</th>
-                                            <th>Manual (Beg)</th>
-                                            <th>Spreader (Beg)</th>
-                                            <th>Siap (Beg)</th>
-                                            <th>% Siap</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>${tbodyHtml}</tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            // ------------------------------------------------------
-
-            // --- RENDER DASHBOARD ---
-            const colors = percentDataGlobal.map(p => p >= 75 ? '#2d6a4f' : (p >= 50 ? '#f4a261' : '#e76f51'));
-
-            container.innerHTML = `
-                <div class="card">
-                    <h3><i class="fas fa-chart-bar"></i> Rumusan Pembajaan Setiap Pusingan (%)</h3>
-                    <div class="chart-container"><canvas id="summaryChart" style="width:100%; height:320px;"></canvas></div>
-                    <div class="filter-buttons" id="filterButtons">
-                        <button class="filter-btn active" data-peringkat="all">Semua</button>
-                        ${['1G','1A','1C','1D','2G','3','1F','2F','3F'].map(p => 
-                            `<button class="filter-btn" data-peringkat="${p}">${p}</button>`
-                        ).join('')}
-                    </div>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-list"></i> Detail Pembajaan Mengikut Pusingan</h3>
-                    <div id="ribbonContainer">${ribbonHtml}</div>
-                </div>
-            `;
-
-            // --- LUKIS GRAF ---
-            const canvas = document.getElementById('summaryChart');
-            if (canvas) {
-                if (summaryChart) summaryChart.destroy();
-
-                summaryChart = new Chart(canvas, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: '% Siap Keseluruhan',
-                            data: percentDataGlobal,
-                            backgroundColor: colors,
-                            borderRadius: 8,
-                            barPercentage: 0.5,
-                            categoryPercentage: 0.8,
-                            datalabels: {
-                                display: true,
-                                anchor: 'end',
-                                align: 'top',
-                                color: '#1b4d3e',
-                                font: { size: 11, weight: 'bold' },
-                                formatter: v => v.toFixed(1) + '%'
+                                if (!isRatioSection) {
+                                    const cleanValues = values.slice(0, 3);
+                                    if (cleanValues.length === 3) {
+                                        data.push({
+                                            jentera: cleanValues[0].trim(),
+                                            aplikasi: cleanValues[1].trim(),
+                                            jumlah: parseInt(cleanValues[2]) || 0
+                                        });
+                                    }
+                                } else {
+                                    const cleanValues = values.slice(0, 4);
+                                    if (cleanValues.length === 4) {
+                                        data.push({
+                                            peringkat: cleanValues[0].trim(),
+                                            luas: parseFloat(cleanValues[1]) || 0,
+                                            bilangan_jentera_penuaian: parseInt(cleanValues[2]) || 0,
+                                            ratio: parseFloat(cleanValues[3]) || 0
+                                        });
+                                    }
+                                }
                             }
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        layout: { padding: { top: 35 } },
-                        plugins: {
-                            legend: { position: 'top' },
-                            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(1)}%` } }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
-                            x: { ticks: { font: { size: 11 } } }
+                        } else if (table === 'merumput') {
+                            // Logik untuk Merumput (3 program)
+                            for (let i = 1; i < lines.length; i++) {
+                                const values = lines[i].split(',');
+                                if (values.every(v => v.trim() === '')) continue;
+
+                                const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
+                                if (firstValue === 'peringkat') continue;
+
+                                const cleanValues = values.slice(0, 6);
+                                if (cleanValues.length === 6) {
+                                    data.push({
+                                        peringkat: cleanValues[0].trim(),
+                                        luas_ha: parseFloat(cleanValues[1]) || 0,
+                                        pusingan: parseInt(cleanValues[2]) || 0,
+                                        program_bulatan: parseFloat(cleanValues[3]) || 0,
+                                        program_anak_kayu: parseFloat(cleanValues[4]) || 0,
+                                        program_sawit_liar: parseFloat(cleanValues[5]) || 0
+                                    });
+                                }
+                            }
+                        } else if (table === 'pembajaan') {
+                            // Logik untuk Pembajaan (4 pusingan)
+                            for (let i = 1; i < lines.length; i++) {
+                                const values = lines[i].split(',');
+                                if (values.every(v => v.trim() === '')) continue;
+
+                                const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
+                                if (firstValue === 'peringkat') continue;
+
+                                const cleanValues = values.slice(0, 8);
+                                if (cleanValues.length === 8) {
+                                    data.push({
+                                        peringkat: cleanValues[0].trim(),
+                                        luas_ha: parseFloat(cleanValues[1]) || 0,
+                                        pusingan: parseInt(cleanValues[2]) || 0,
+                                        kadar: parseFloat(cleanValues[3]) || 0,
+                                        keperluan_beg: parseInt(cleanValues[4]) || 0,
+                                        spreader_beg: parseInt(cleanValues[5]) || 0,
+                                        manual_beg: parseInt(cleanValues[6]) || 0,
+                                        siap_beg: parseInt(cleanValues[7]) || 0
+                                    });
+                                }
+                            }
+                        }
+                        // ------------------------------------------
+
+                        // --- CLEANUP: PADAM DATA LAMA ---
+                        const { error: deleteError } = await sb.from(table).delete().neq('id', 0);
+                        if (deleteError) throw deleteError;
+                        // ----------------------------------
+
+                        const { error } = await sb.from(table).insert(data);
+                        if (error) throw error;
+
+                        uploaded++;
+                        statusEl.textContent = `✅ ${file.name} berjaya diupload (${data.length} baris)`;
+                        statusEl.style.color = '#2d6a4f';
+                    } catch (err) {
+                        hasError = true;
+                        statusEl.textContent = `❌ Gagal: ${err.message}`;
+                        statusEl.style.color = '#dc2626';
+                    }
+                    if (uploaded === total) {
+                        if (hasError) {
+                            showStatus('⚠️ Beberapa fail gagal diupload. Sila semak semula.', 'error');
+                        } else if (total === 0) {
+                            showStatus('⚠️ Tiada fail dipilih.', 'info');
+                        } else {
+                            showStatus(`✅ Berjaya! ${uploaded} fail telah diupload (data lama diganti).`, 'success');
                         }
                     }
-                });
+                };
+                reader.readAsText(file);
             }
-
-            // --- SETUP FILTER BUTTONS ---
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    const peringkat = btn.getAttribute('data-peringkat');
-                    loadData(peringkat);
-                });
-            });
-
-            window.toggleRibbon = function(ribbonId) {
-                const currentRibbon = document.getElementById(ribbonId);
-                if (!currentRibbon) return;
-                if (currentRibbon.classList.contains('open')) {
-                    currentRibbon.classList.remove('open');
-                    return;
-                }
-                const allRibbons = document.querySelectorAll('.ribbon');
-                allRibbons.forEach(r => r.classList.remove('open'));
-                currentRibbon.classList.add('open');
-            };
-
-        } catch (err) {
-            container.innerHTML = `
-                <div class="card">
-                    <div class="no-data">
-                        <i class="fas fa-exclamation-triangle" style="color:#e76f51;"></i>
-                        <h3>Ralat Memuat Data</h3>
-                        <p>${err.message}</p>
-                        <p style="margin-top:12px;">
-                            <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
-                        </p>
-                    </div>
-                </div>
-            `;
         }
-    }
 
-    loadData('all');
+        if (total === 0) {
+            showStatus('ℹ️ Tiada fail dipilih.', 'info');
+        }
+    });
+
+    function showStatus(msg, type) {
+        const el = document.getElementById('statusMsg');
+        el.className = 'status-msg ' + type;
+        el.textContent = msg;
+        setTimeout(() => {
+            el.className = 'status-msg';
+            el.textContent = '';
+        }, 6000);
+    }
 </script>
 </body>
 </html>
