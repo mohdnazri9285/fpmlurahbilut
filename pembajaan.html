@@ -244,243 +244,203 @@
 </div>
 <footer>© FPMSB Lurah Bilut — Data Operasi Ladang Sawit</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script>
 Chart.register(ChartDataLabels);
 
 // ========================================================================
-// FUNGSI BACA CSV DARI localStorage (SOKONG KOMA & TAB)
+// SUPABASE CONFIG
 // ========================================================================
-function loadCSV(key) {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    
-    // Bahagikan baris, buang baris kosong sepenuhnya
-    const lines = raw.split('\n').filter(line => line.trim() !== '');
-    if (lines.length < 2) return null;
-
-    // Tentukan sama ada CSV menggunakan koma atau tab
-    const sample = lines[0];
-    let delimiter = ',';
-    if (sample.includes('\t')) {
-        delimiter = '\t';
-    }
-
-    // Cari header pertama yang sah (bukan baris kosong atau ,,,)
-    let headerIndex = -1;
-    for (let i = 0; i < lines.length; i++) {
-        const firstCol = lines[i].split(delimiter)[0]?.trim() || '';
-        if (firstCol === 'Peringkat') {
-            headerIndex = i;
-            break;
-        }
-    }
-    if (headerIndex === -1) return null;
-
-    const headers = lines[headerIndex].split(delimiter).map(h => h.trim());
-    const data = [];
-    
-    // Baca semua baris selepas header pertama
-    for (let i = headerIndex + 1; i < lines.length; i++) {
-        const values = lines[i].split(delimiter);
-        // Abaikan baris kosong atau baris yang semua nilai kosong
-        if (values.every(v => v.trim() === '')) continue;
-        // Abaikan baris yang merupakan header berulang (firstCol === 'Peringkat')
-        if (values[0]?.trim() === 'Peringkat') continue;
-        // Abaikan baris yang jumlah nilai tidak sama dengan header
-        if (values.length !== headers.length) continue;
-        
-        const obj = {};
-        headers.forEach((h, idx) => {
-            obj[h] = values[idx] ? values[idx].trim() : '';
-        });
-        data.push(obj);
-    }
-    return data;
-}
+const supabaseUrl = 'https://ipagjpoiesnkiqxexpqp.supabase.co';
+const supabaseKey = 'ipagjpoiesnkiqxexpqp';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ========================================================================
-// DATA PEMBAJAAN (DARI localStorage – SATU FAIL GABUNGAN)
+// FUNGSI UTAMA
 // ========================================================================
-const rawData = loadCSV('pembajaan');
-
-const allPusingan = [];
-if (rawData) {
-    // Kumpulkan data mengikut pusingan
-    const pusinganMap = {};
-    rawData.forEach(row => {
-        const pusingan = parseInt(row['Pusingan']) || 0;
-        if (!pusinganMap[pusingan]) {
-            pusinganMap[pusingan] = [];
-        }
-        pusinganMap[pusingan].push(row);
-    });
-
-    // Tukar kepada array
-    allPusingan.push(...Object.keys(pusinganMap).map(p => ({
-        pusingan: parseInt(p),
-        data: pusinganMap[p]
-    })));
-}
-
-const peringkatList = ['1G', '1A', '1C', '1D', '2G', '3', '1F', '2F', '3F'];
-
-// ========================================================================
-// FUNGSI TOGGLE RIBBON – AUTO COLLAPSE LAIN
-// ========================================================================
-function toggleRibbon(ribbonId) {
-    const currentRibbon = document.getElementById(ribbonId);
-    if (!currentRibbon) return;
-
-    if (currentRibbon.classList.contains('open')) {
-        currentRibbon.classList.remove('open');
-        return;
-    }
-
-    const allRibbons = document.querySelectorAll('.ribbon');
-    allRibbons.forEach(r => r.classList.remove('open'));
-    currentRibbon.classList.add('open');
-}
-
-// ========================================================================
-// RENDER FUNCTIONS
-// ========================================================================
-
 let summaryChart = null;
 
-function renderDashboard(peringkatFilter = 'all') {
+async function loadData(peringkatFilter = 'all') {
     const container = document.getElementById('dashboardContent');
+    container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#2d6a4f;"></i><p style="margin-top:12px; color:#64748b;">Memuatkan data...</p></div>';
 
-    if (!allPusingan.length) {
+    try {
+        const { data, error } = await supabase.from('pembajaan').select('*');
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div class="card">
+                    <div class="no-data">
+                        <i class="fas fa-database"></i>
+                        <h3>Tiada Data Pembajaan</h3>
+                        <p>Sila muat naik fail <strong>laporan pembajaan pusingan.csv</strong> melalui halaman Upload.</p>
+                        <p style="margin-top:12px;">
+                            <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
+                        </p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Kumpulkan data mengikut pusingan
+        const pusinganMap = {};
+        data.forEach(row => {
+            const pusingan = row.pusingan;
+            if (!pusinganMap[pusingan]) {
+                pusinganMap[pusingan] = [];
+            }
+            pusinganMap[pusingan].push(row);
+        });
+
+        const allPusingan = Object.keys(pusinganMap).map(p => ({
+            pusingan: parseInt(p),
+            data: pusinganMap[p]
+        }));
+
+        const peringkatList = ['1G', '1A', '1C', '1D', '2G', '3', '1F', '2F', '3F'];
+
+        container.innerHTML = `
+            <div class="card">
+                <h3><i class="fas fa-chart-bar"></i> Rumusan Pembajaan Setiap Pusingan (%)</h3>
+                <div class="chart-container"><canvas id="summaryChart" style="width:100%; height:320px;"></canvas></div>
+                <div class="filter-buttons" id="filterButtons">
+                    <button class="filter-btn active" data-peringkat="all">Semua</button>
+                    ${peringkatList.map(p => `<button class="filter-btn" data-peringkat="${p}">${p}</button>`).join('')}
+                </div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-list"></i> Detail Pembajaan Mengikut Pusingan</h3>
+                <div id="ribbonContainer">
+                    ${allPusingan.sort((a,b) => a.pusingan - b.pusingan).map((p, idx) => `
+                        <div class="ribbon ${idx === 0 ? 'open' : ''}" id="ribbon${idx+1}">
+                            <div class="ribbon-header" onclick="toggleRibbon('ribbon${idx+1}')">
+                                <div class="ribbon-title">
+                                    <i class="fas fa-seedling"></i> Pusingan ${p.pusingan}
+                                    <span class="badge" id="badge${idx+1}">0%</span>
+                                </div>
+                                <div class="ribbon-toggle"><i class="fas fa-chevron-down"></i></div>
+                            </div>
+                            <div class="ribbon-body">
+                                <div style="overflow-x:auto;">
+                                    <table class="data-table" id="table${idx+1}">
+                                        <thead>
+                                            <tr>
+                                                <th>Peringkat</th>
+                                                <th>Luas (Ha)</th>
+                                                <th>Kadar (kg/pokok)</th>
+                                                <th>Keperluan (Beg)</th>
+                                                <th>Manual (Beg)</th>
+                                                <th>Spreader (Beg)</th>
+                                                <th>Siap (Beg)</th>
+                                                <th>% Siap</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody${idx+1}"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        // Render ribbon tables
+        allPusingan.sort((a,b) => a.pusingan - b.pusingan).forEach((p, idx) => {
+            const tbody = document.getElementById(`tbody${idx+1}`);
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            let totalKeperluan = 0, totalSiap = 0;
+
+            p.data.forEach(row => {
+                const peringkat = row.peringkat;
+                const luas = row.luas_ha;
+                const kadar = row.kadar;
+                const keperluan = row.keperluan_beg;
+                const manual = row.manual_beg;
+                const spreader = row.spreader_beg;
+                const siap = row.siap_beg;
+
+                totalKeperluan += keperluan;
+                totalSiap += siap;
+
+                const percent = keperluan > 0 ? ((siap / keperluan) * 100) : 0;
+                const color = percent >= 75 ? '#2d6a4f' : (percent >= 50 ? '#f4a261' : '#e76f51');
+
+                tbody.innerHTML += `<tr>
+                    <td><strong>${peringkat}</strong></td>
+                    <td>${luas.toFixed(2)}</td>
+                    <td>${kadar} kg/pokok</td>
+                    <td>${keperluan.toLocaleString()}</td>
+                    <td>${manual.toLocaleString()}</td>
+                    <td>${spreader.toLocaleString()}</td>
+                    <td>${siap > 0 ? siap.toLocaleString() + ' Beg' : '-'}</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percent}%; background: ${color}">
+                                ${percent.toFixed(0)}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            // Update badge ribbon
+            const badge = document.getElementById(`badge${idx+1}`);
+            if (badge) {
+                const overallPercent = totalKeperluan > 0 ? ((totalSiap / totalKeperluan) * 100) : 0;
+                badge.textContent = `${overallPercent.toFixed(1)}%`;
+            }
+        });
+
+        // Render graf
+        renderSummary(allPusingan, peringkatFilter);
+
+        // Setup filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const peringkat = btn.getAttribute('data-peringkat');
+                renderSummary(allPusingan, peringkat);
+            });
+        });
+
+        // Fungsi toggle ribbon
+        window.toggleRibbon = function(ribbonId) {
+            const currentRibbon = document.getElementById(ribbonId);
+            if (!currentRibbon) return;
+            if (currentRibbon.classList.contains('open')) {
+                currentRibbon.classList.remove('open');
+                return;
+            }
+            const allRibbons = document.querySelectorAll('.ribbon');
+            allRibbons.forEach(r => r.classList.remove('open'));
+            currentRibbon.classList.add('open');
+        };
+
+    } catch (err) {
         container.innerHTML = `
             <div class="card">
                 <div class="no-data">
-                    <i class="fas fa-database"></i>
-                    <h3>Tiada Data Pembajaan</h3>
-                    <p>Sila muat naik fail <strong>laporan pembajaan pusingan.csv</strong> terlebih dahulu.</p>
+                    <i class="fas fa-exclamation-triangle" style="color:#e76f51;"></i>
+                    <h3>Ralat Memuat Data</h3>
+                    <p>${err.message}</p>
                     <p style="margin-top:12px;">
                         <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
                     </p>
                 </div>
             </div>
         `;
-        return;
     }
-
-    container.innerHTML = `
-        <!-- GRAF RUMUSAN – % SIAP SETIAP PUSINGAN -->
-        <div class="card">
-            <h3><i class="fas fa-chart-bar"></i> Rumusan Pembajaan Setiap Pusingan (%)</h3>
-            <div class="chart-container"><canvas id="summaryChart" style="width:100%; height:320px;"></canvas></div>
-
-            <!-- FILTER DI BAWAH GRAF -->
-            <div class="filter-buttons" id="filterButtons">
-                <button class="filter-btn active" data-peringkat="all">Semua</button>
-                ${peringkatList.map(p => `<button class="filter-btn" data-peringkat="${p}">${p}</button>`).join('')}
-            </div>
-        </div>
-
-        <!-- DETAIL PEMBAJAAN BY PUSINGAN – EXPAND/COLLAPSE RIBBON -->
-        <div class="card">
-            <h3><i class="fas fa-list"></i> Detail Pembajaan Mengikut Pusingan</h3>
-            <div id="ribbonContainer">
-                ${allPusingan.sort((a,b) => a.pusingan - b.pusingan).map((p, idx) => `
-                    <div class="ribbon ${idx === 0 ? 'open' : ''}" id="ribbon${idx+1}">
-                        <div class="ribbon-header" onclick="toggleRibbon('ribbon${idx+1}')">
-                            <div class="ribbon-title">
-                                <i class="fas fa-seedling"></i> Pusingan ${p.pusingan}
-                                <span class="badge" id="badge${idx+1}">0%</span>
-                            </div>
-                            <div class="ribbon-toggle"><i class="fas fa-chevron-down"></i></div>
-                        </div>
-                        <div class="ribbon-body">
-                            <div style="overflow-x:auto;">
-                                <table class="data-table" id="table${idx+1}">
-                                    <thead>
-                                        <tr>
-                                            <th>Peringkat</th>
-                                            <th>Luas (Ha)</th>
-                                            <th>Kadar (kg/pokok)</th>
-                                            <th>Keperluan (Beg)</th>
-                                            <th>Manual (Beg)</th>
-                                            <th>Spreader (Beg)</th>
-                                            <th>Siap (Beg)</th>
-                                            <th>% Siap</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbody${idx+1}"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-
-    // Render graf
-    renderSummary(peringkatFilter);
-
-    // Render ribbon tables
-    allPusingan.sort((a,b) => a.pusingan - b.pusingan).forEach((p, idx) => {
-        const tbody = document.getElementById(`tbody${idx+1}`);
-        if (!tbody) return;
-        tbody.innerHTML = '';
-
-        let totalKeperluan = 0, totalSiap = 0;
-
-        p.data.forEach(row => {
-            const peringkat = row['Peringkat'] || '';
-            const luas = parseFloat(row['Luas (Ha)']) || 0;
-            const kadar = parseFloat(row['Kadar (kg/pokok)']) || 0;
-            const keperluan = parseInt(row['Keperluan (Beg)']?.replace(/,/g, '')) || 0;
-            const manual = parseInt(row['Manual (Beg)']?.replace(/,/g, '')) || 0;
-            const spreader = parseInt(row['Spreader (Beg)']?.replace(/,/g, '')) || 0;
-            const siap = parseInt(row['Siap (Beg)']?.replace(/,/g, '')) || 0;
-
-            totalKeperluan += keperluan;
-            totalSiap += siap;
-
-            const percent = keperluan > 0 ? ((siap / keperluan) * 100) : 0;
-            const color = percent >= 75 ? '#2d6a4f' : (percent >= 50 ? '#f4a261' : '#e76f51');
-
-            tbody.innerHTML += `<tr>
-                <td><strong>${peringkat}</strong></td>
-                <td>${luas.toFixed(2)}</td>
-                <td>${kadar} kg/pokok</td>
-                <td>${keperluan.toLocaleString()}</td>
-                <td>${manual.toLocaleString()}</td>
-                <td>${spreader.toLocaleString()}</td>
-                <td>${siap > 0 ? siap.toLocaleString() + ' Beg' : '-'}</td>
-                <td>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${percent}%; background: ${color}">
-                            ${percent.toFixed(0)}%
-                        </div>
-                    </div>
-                </td>
-            </tr>`;
-        });
-
-        // Update badge ribbon
-        const badge = document.getElementById(`badge${idx+1}`);
-        if (badge) {
-            const overallPercent = totalKeperluan > 0 ? ((totalSiap / totalKeperluan) * 100) : 0;
-            badge.textContent = `${overallPercent.toFixed(1)}%`;
-        }
-    });
-
-    // Setup filter buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const peringkat = btn.getAttribute('data-peringkat');
-            renderSummary(peringkat);
-        });
-    });
 }
 
-function renderSummary(peringkatFilter = 'all') {
+function renderSummary(allPusingan, peringkatFilter = 'all') {
     const canvas = document.getElementById('summaryChart');
     if (!canvas) return;
     if (summaryChart) summaryChart.destroy();
@@ -490,12 +450,9 @@ function renderSummary(peringkatFilter = 'all') {
     const percentData = allPusingan.sort((a,b) => a.pusingan - b.pusingan).map(p => {
         let totalKeperluan = 0, totalSiap = 0;
         p.data.forEach(row => {
-            const peringkat = row['Peringkat'] || '';
-            if (peringkatFilter === 'all' || peringkat === peringkatFilter) {
-                const keperluan = parseInt(row['Keperluan (Beg)']?.replace(/,/g, '')) || 0;
-                const siap = parseInt(row['Siap (Beg)']?.replace(/,/g, '')) || 0;
-                totalKeperluan += keperluan;
-                totalSiap += siap;
+            if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
+                totalKeperluan += row.keperluan_beg;
+                totalSiap += row.siap_beg;
             }
         });
         return totalKeperluan > 0 ? ((totalSiap / totalKeperluan) * 100) : 0;
@@ -543,7 +500,7 @@ function renderSummary(peringkatFilter = 'all') {
 // ========================================================================
 // INIT
 // ========================================================================
-renderDashboard('all');
+loadData('all');
 </script>
 </body>
 </html>
