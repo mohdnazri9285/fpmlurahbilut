@@ -125,15 +125,23 @@
                         const lines = csvData.split('\n').filter(line => line.trim() !== '');
                         if (lines.length < 2) throw new Error('CSV tidak lengkap');
 
-                        const headers = lines[0].split(',').map(h => h.trim());
+                        // --- PERUBAHAN PENTING: BUANG KOLUM KOSONG ---
+                        const rawHeaders = lines[0].split(',').map(h => h.trim());
+                        const headers = rawHeaders.filter(h => h !== '');
+                        // ---------------------------------------------
+
                         const data = [];
                         for (let i = 1; i < lines.length; i++) {
                             const values = lines[i].split(',');
                             if (values.every(v => v.trim() === '')) continue;
-                            if (values.length !== headers.length) continue;
+                            
+                            // Padankan bilangan nilai dengan header (buang nilai kosong di hujung)
+                            const cleanValues = values.slice(0, headers.length);
+                            if (cleanValues.length !== headers.length) continue;
+
                             const obj = {};
                             headers.forEach((h, idx) => {
-                                obj[h] = values[idx] ? values[idx].trim() : '';
+                                obj[h] = cleanValues[idx] ? cleanValues[idx].trim() : '';
                             });
                             data.push(obj);
                         }
