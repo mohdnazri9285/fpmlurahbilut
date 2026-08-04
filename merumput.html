@@ -250,16 +250,13 @@
 <script>
 Chart.register(ChartDataLabels);
 
-// ========================================================================
-// SUPABASE CONFIG
-// ========================================================================
+// =============================================================
+// SUPABASE CONFIG – SATU SAHAJA
+// =============================================================
 const supabaseUrl = 'https://ipagjpoiesnkiqxexpqp.supabase.co';
 const supabaseKey = 'ipagjpoiesnkiqxexpqp';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// ========================================================================
-// FUNGSI UTAMA
-// ========================================================================
 let summaryChart = null;
 
 async function loadData(peringkatFilter = 'all') {
@@ -286,7 +283,6 @@ async function loadData(peringkatFilter = 'all') {
             return;
         }
 
-        // Kenal pasti kolum program
         const headers = Object.keys(data[0]);
         const programColumns = headers.filter(h => 
             h !== 'id' && 
@@ -296,7 +292,6 @@ async function loadData(peringkatFilter = 'all') {
             h !== 'created_at'
         );
 
-        // Kumpulkan data mengikut pusingan
         const pusinganMap = {};
         data.forEach(row => {
             const pusingan = row.pusingan;
@@ -357,7 +352,6 @@ async function loadData(peringkatFilter = 'all') {
             </div>
         `;
 
-        // Render ribbon tables
         dataMerumput.sort((a,b) => a.pusingan - b.pusingan).forEach((p, idx) => {
             const tbody = document.getElementById(`tbody${idx+1}`);
             if (!tbody) return;
@@ -388,7 +382,6 @@ async function loadData(peringkatFilter = 'all') {
                 tbody.innerHTML += rowHtml;
             });
 
-            // Update badge ribbon
             const badge = document.getElementById(`badge${idx+1}`);
             if (badge) {
                 let totalPercent = 0;
@@ -405,10 +398,8 @@ async function loadData(peringkatFilter = 'all') {
             }
         });
 
-        // Render graf
         renderSummary(dataMerumput, peringkatFilter, programColumns);
 
-        // Setup filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -418,7 +409,6 @@ async function loadData(peringkatFilter = 'all') {
             });
         });
 
-        // Fungsi toggle ribbon
         window.toggleRibbon = function(ribbonId) {
             const currentRibbon = document.getElementById(ribbonId);
             if (!currentRibbon) return;
@@ -509,9 +499,6 @@ function renderSummary(dataMerumput, peringkatFilter = 'all', programColumns = [
     });
 }
 
-// ========================================================================
-// INIT
-// ========================================================================
 loadData('all');
 </script>
 </body>
