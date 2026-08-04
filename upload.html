@@ -130,38 +130,71 @@
                         const headers = rawHeaders.filter(h => h !== '');
                         // ------------------------------------
 
-                        const data = [];
+                        // --- KENAL PASTI BAHAGIAN JENTERA & RATIO ---
+                        const jenteraData = [];
+                        const ratioData = [];
+                        let isRatioSection = false;
+
                         for (let i = 1; i < lines.length; i++) {
                             const values = lines[i].split(',');
                             if (values.every(v => v.trim() === '')) continue;
 
-                            // --- ABAIKAN BARIS HEADER BERULANG ---
                             const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
-                            if (firstValue === 'peringkat' || firstValue === 'jentera') continue;
-                            // -------------------------------------
                             
-                            // --- GUNAKAN BILANGAN HEADER SEBAGAI RUJUKAN ---
-                            const cleanValues = values.slice(0, headers.length);
-                            if (cleanValues.length !== headers.length) continue;
-                            // ---------------------------------------------
+                            // Jika jumpa header berulang, tukar ke bahagian ratio
+                            if (firstValue === 'peringkat') {
+                                isRatioSection = true;
+                                continue;
+                            }
+                            if (firstValue === 'jentera') {
+                                isRatioSection = false;
+                                continue;
+                            }
 
-                            const obj = {};
-                            headers.forEach((h, idx) => {
-                                obj[h] = cleanValues[idx] ? cleanValues[idx].trim() : '';
-                            });
-                            data.push(obj);
+                            if (!isRatioSection) {
+                                // Bahagian Jentera
+                                const cleanValues = values.slice(0, 3);
+                                if (cleanValues.length === 3) {
+                                    jenteraData.push({
+                                        jentera: cleanValues[0].trim(),
+                                        aplikasi: cleanValues[1].trim(),
+                                        jumlah: parseInt(cleanValues[2]) || 0
+                                    });
+                                }
+                            } else {
+                                // Bahagian Ratio
+                                const cleanValues = values.slice(0, 4);
+                                if (cleanValues.length === 4) {
+                                    ratioData.push({
+                                        peringkat: cleanValues[0].trim(),
+                                        luas: parseFloat(cleanValues[1]) || 0,
+                                        bilangan_jentera_penuaian: parseInt(cleanValues[2]) || 0,
+                                        ratio: parseFloat(cleanValues[3]) || 0
+                                    });
+                                }
+                            }
                         }
+                        // ------------------------------------------
 
                         // --- CLEANUP: PADAM DATA LAMA ---
                         const { error: deleteError } = await sb.from(table).delete().neq('id', 0);
                         if (deleteError) throw deleteError;
                         // ----------------------------------
 
-                        const { error } = await sb.from(table).insert(data);
-                        if (error) throw error;
+                        // --- INSERT JENTERA ---
+                        if (jenteraData.length > 0) {
+                            const { error: jenteraError } = await sb.from(table).insert(jenteraData);
+                            if (jenteraError) throw jenteraError;
+                        }
+
+                        // --- INSERT RATIO ---
+                        if (ratioData.length > 0) {
+                            const { error: ratioError } = await sb.from(table).insert(ratioData);
+                            if (ratioError) throw ratioError;
+                        }
 
                         uploaded++;
-                        statusEl.textContent = `✅ ${file.name} berjaya diupload (data lama diganti)`;
+                        statusEl.textContent = `✅ ${file.name} berjaya diupload (jentera: ${jenteraData.length}, ratio: ${ratioData.length})`;
                         statusEl.style.color = '#2d6a4f';
                     } catch (err) {
                         hasError = true;
