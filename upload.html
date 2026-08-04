@@ -130,46 +130,89 @@
                         const headers = rawHeaders.filter(h => h !== '');
                         // ------------------------------------
 
-                        // --- KENAL PASTI BAHAGIAN JENTERA & RATIO ---
-                        const jenteraData = [];
-                        const ratioData = [];
-                        let isRatioSection = false;
+                        const data = [];
 
-                        for (let i = 1; i < lines.length; i++) {
-                            const values = lines[i].split(',');
-                            if (values.every(v => v.trim() === '')) continue;
+                        // --- LOGIK BERBEZA MENGIKUT TABLE ---
+                        if (table === 'mekanisasi') {
+                            // Logik untuk Mekanisasi (Jentera + Ratio)
+                            let isRatioSection = false;
+                            for (let i = 1; i < lines.length; i++) {
+                                const values = lines[i].split(',');
+                                if (values.every(v => v.trim() === '')) continue;
 
-                            const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
-                            
-                            // Jika jumpa header berulang, tukar ke bahagian ratio
-                            if (firstValue === 'peringkat') {
-                                isRatioSection = true;
-                                continue;
+                                const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
+                                
+                                if (firstValue === 'peringkat') {
+                                    isRatioSection = true;
+                                    continue;
+                                }
+                                if (firstValue === 'jentera') {
+                                    isRatioSection = false;
+                                    continue;
+                                }
+
+                                if (!isRatioSection) {
+                                    const cleanValues = values.slice(0, 3);
+                                    if (cleanValues.length === 3) {
+                                        data.push({
+                                            jentera: cleanValues[0].trim(),
+                                            aplikasi: cleanValues[1].trim(),
+                                            jumlah: parseInt(cleanValues[2]) || 0
+                                        });
+                                    }
+                                } else {
+                                    const cleanValues = values.slice(0, 4);
+                                    if (cleanValues.length === 4) {
+                                        data.push({
+                                            peringkat: cleanValues[0].trim(),
+                                            luas: parseFloat(cleanValues[1]) || 0,
+                                            bilangan_jentera_penuaian: parseInt(cleanValues[2]) || 0,
+                                            ratio: parseFloat(cleanValues[3]) || 0
+                                        });
+                                    }
+                                }
                             }
-                            if (firstValue === 'jentera') {
-                                isRatioSection = false;
-                                continue;
-                            }
+                        } else if (table === 'merumput') {
+                            // Logik untuk Merumput (3 program)
+                            for (let i = 1; i < lines.length; i++) {
+                                const values = lines[i].split(',');
+                                if (values.every(v => v.trim() === '')) continue;
 
-                            if (!isRatioSection) {
-                                // Bahagian Jentera
-                                const cleanValues = values.slice(0, 3);
-                                if (cleanValues.length === 3) {
-                                    jenteraData.push({
-                                        jentera: cleanValues[0].trim(),
-                                        aplikasi: cleanValues[1].trim(),
-                                        jumlah: parseInt(cleanValues[2]) || 0
+                                const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
+                                if (firstValue === 'peringkat') continue;
+
+                                const cleanValues = values.slice(0, 6);
+                                if (cleanValues.length === 6) {
+                                    data.push({
+                                        peringkat: cleanValues[0].trim(),
+                                        luas_ha: parseFloat(cleanValues[1]) || 0,
+                                        pusingan: parseInt(cleanValues[2]) || 0,
+                                        program_bulatan: parseFloat(cleanValues[3]) || 0,
+                                        program_anak_kayu: parseFloat(cleanValues[4]) || 0,
+                                        program_sawit_liar: parseFloat(cleanValues[5]) || 0
                                     });
                                 }
-                            } else {
-                                // Bahagian Ratio
-                                const cleanValues = values.slice(0, 4);
-                                if (cleanValues.length === 4) {
-                                    ratioData.push({
+                            }
+                        } else if (table === 'pembajaan') {
+                            // Logik untuk Pembajaan (4 pusingan)
+                            for (let i = 1; i < lines.length; i++) {
+                                const values = lines[i].split(',');
+                                if (values.every(v => v.trim() === '')) continue;
+
+                                const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
+                                if (firstValue === 'peringkat') continue;
+
+                                const cleanValues = values.slice(0, 8);
+                                if (cleanValues.length === 8) {
+                                    data.push({
                                         peringkat: cleanValues[0].trim(),
-                                        luas: parseFloat(cleanValues[1]) || 0,
-                                        bilangan_jentera_penuaian: parseInt(cleanValues[2]) || 0,
-                                        ratio: parseFloat(cleanValues[3]) || 0
+                                        luas_ha: parseFloat(cleanValues[1]) || 0,
+                                        pusingan: parseInt(cleanValues[2]) || 0,
+                                        kadar: parseFloat(cleanValues[3]) || 0,
+                                        keperluan_beg: parseInt(cleanValues[4]) || 0,
+                                        spreader_beg: parseInt(cleanValues[5]) || 0,
+                                        manual_beg: parseInt(cleanValues[6]) || 0,
+                                        siap_beg: parseInt(cleanValues[7]) || 0
                                     });
                                 }
                             }
@@ -181,20 +224,11 @@
                         if (deleteError) throw deleteError;
                         // ----------------------------------
 
-                        // --- INSERT JENTERA ---
-                        if (jenteraData.length > 0) {
-                            const { error: jenteraError } = await sb.from(table).insert(jenteraData);
-                            if (jenteraError) throw jenteraError;
-                        }
-
-                        // --- INSERT RATIO ---
-                        if (ratioData.length > 0) {
-                            const { error: ratioError } = await sb.from(table).insert(ratioData);
-                            if (ratioError) throw ratioError;
-                        }
+                        const { error } = await sb.from(table).insert(data);
+                        if (error) throw error;
 
                         uploaded++;
-                        statusEl.textContent = `✅ ${file.name} berjaya diupload (jentera: ${jenteraData.length}, ratio: ${ratioData.length})`;
+                        statusEl.textContent = `✅ ${file.name} berjaya diupload (${data.length} baris)`;
                         statusEl.style.color = '#2d6a4f';
                     } catch (err) {
                         hasError = true;
