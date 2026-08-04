@@ -95,11 +95,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     // =============================================================
-    // SUPABASE CONFIG – URL & KEY BARU
+    // SUPABASE CONFIG – GUNA NAMA BARU (sb) UNTUK ELak RALAT
     // =============================================================
     const supabaseUrl = 'https://uzwhfoxtykrsmtkafbgh.supabase.co';
     const supabaseKey = 'uzwhfoxtykrsmtkafbgh';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
     document.getElementById('btnUpload').addEventListener('click', async function() {
         const inputs = [
@@ -138,7 +138,7 @@
                             data.push(obj);
                         }
 
-                        const { error } = await supabase.from(table).insert(data);
+                        const { error } = await sb.from(table).insert(data);
                         if (error) throw error;
 
                         uploaded++;
