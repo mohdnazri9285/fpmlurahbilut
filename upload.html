@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload CSV - FPMSB Lurah Bilut</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
+
+        .container { max-width: 900px; margin: 60px auto; padding: 0 24px; }
+        .card { background: white; border-radius: 24px; padding: 40px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+        .card h1 { font-size: 2rem; font-weight: 700; color: #0f172a; border-left: 4px solid #2d6a4f; padding-left: 16px; margin-bottom: 24px; }
+        .card p { color: #64748b; margin-bottom: 24px; }
+
+        .upload-group {
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            background: #f8fafc;
+            position: relative;
+        }
+        .upload-group h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .upload-group h3 i { color: #2d6a4f; }
+        .upload-group .file-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+        .upload-group .file-input-wrapper label {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+        .upload-group input[type="file"] {
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.8rem;
+        }
+        .upload-group .status {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 8px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .btn-go {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 20px;
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-go:hover {
+            background: #1b4d3e;
+            transform: translateY(-2px);
+        }
+        .btn-go i { margin-right: 6px; }
+
+        .btn-upload {
+            padding: 14px 32px;
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-upload:hover {
+            background: #1b4d3e;
+            transform: translateY(-2px);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .btn-secondary {
+            padding: 10px 24px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #eef2ff;
+            color: #2d6a4f;
+        }
+        .btn-danger {
+            padding: 10px 24px;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #dc2626;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+        .btn-home {
+            padding: 10px 24px;
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-home:hover {
+            background: #1b4d3e;
+            transform: translateY(-2px);
+        }
+
+        .status-msg {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 12px;
+            display: none;
+        }
+        .status-msg.success {
+            background: #dcfce7;
+            color: #166534;
+            display: block;
+        }
+        .status-msg.error {
+            background: #fee2e2;
+            color: #dc2626;
+            display: block;
+        }
+        .status-msg.info {
+            background: #e0f2fe;
+            color: #0369a1;
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 { font-size: 1.5rem; color: #0f172a; }
+        .modal-close {
+            font-size: 28px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #64748b;
+        }
+        .modal-list {
+            list-style: none;
+            padding: 0;
+        }
+        .modal-list li {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .modal-list li .key { font-weight: 600; color: #1e293b; }
+        .modal-list li .size { color: #64748b; font-size: 0.85rem; }
+
+        @media (max-width: 768px) {
+            .card { padding: 24px; }
+            .upload-group .file-input-wrapper { flex-direction: column; align-items: stretch; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1><i class="fas fa-upload" style="color: #2d6a4f;"></i> Upload Data CSV</h1>
+        <p>Pilih fail CSV mengikut dashboard. <strong>Fail yang tidak dipilih akan kekal dengan data lama.</strong></p>
+
+        <!-- HASIL -->
+        <div class="upload-group">
+            <h3><i class="fas fa-chart-line"></i> Hasil (4 fail)</h3>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileHasil2026" accept=".csv" data-key="hasil2026">
+                <label>hasil 2026.csv</label>
+            </div>
+            <div class="file-input-wrapper">
+                <input type="file" id="filePurataBerat" accept=".csv" data-key="purataBeratTandan">
+                <label>laporan purata berat tandan.csv</label>
+            </div>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileTandanMuda" accept=".csv" data-key="tandanMuda">
+                <label>laporan tandan muda.csv</label>
+            </div>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileTandan" accept=".csv" data-key="tandan">
+                <label>laporan tandan.csv</label>
+            </div>
+            <span class="status" id="statusHasil">Belum muat naik</span>
+            <a href="hasil.html" class="btn-go"><i class="fas fa-arrow-right"></i> Pergi ke Hasil</a>
+        </div>
+
+        <!-- PEMBAJAAN (1 FAIL GABUNGAN) -->
+        <div class="upload-group">
+            <h3><i class="fas fa-seedling"></i> Pembajaan (1 fail)</h3>
+            <div class="file-input-wrapper">
+                <input type="file" id="filePembajaan" accept=".csv" data-key="pembajaan">
+                <label>laporan pembajaan pusingan.csv</label>
+            </div>
+            <span class="status" id="statusPembajaan">Belum muat naik</span>
+            <a href="pembajaan.html" class="btn-go"><i class="fas fa-arrow-right"></i> Pergi ke Pembajaan</a>
+        </div>
+
+        <!-- MERUMPUT -->
+        <div class="upload-group">
+            <h3><i class="fas fa-cut"></i> Merumput (1 fail)</h3>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileMerumput" accept=".csv" data-key="merumput">
+                <label>laporan merumput.csv</label>
+            </div>
+            <span class="status" id="statusMerumput">Belum muat naik</span>
+            <a href="merumput.html" class="btn-go"><i class="fas fa-arrow-right"></i> Pergi ke Merumput</a>
+        </div>
+
+        <!-- MEKANISASI -->
+        <div class="upload-group">
+            <h3><i class="fas fa-tractor"></i> Mekanisasi (1 fail)</h3>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileMekanisasi" accept=".csv" data-key="mekanisasi">
+                <label>laporan mekanisasi.csv</label>
+            </div>
+            <span class="status" id="statusMekanisasi">Belum muat naik</span>
+            <a href="mekanisasi.html" class="btn-go"><i class="fas fa-arrow-right"></i> Pergi ke Mekanisasi</a>
+        </div>
+
+        <button class="btn-upload" id="btnUpload">Muat Naik Fail Terpilih</button>
+        <div class="status-msg" id="statusMsg"></div>
+
+        <div class="btn-group">
+            <button class="btn-secondary" onclick="semakData()"><i class="fas fa-database"></i> Semak Data Tersimpan</button>
+            <button class="btn-danger" onclick="padamData()"><i class="fas fa-trash-alt"></i> Padam Semua Data</button>
+            <a href="index.html" class="btn-home"><i class="fas fa-home"></i> Kembali ke Halaman Utama</a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Semak Data -->
+<div class="modal" id="dataModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📦 Data Tersimpan</h2>
+            <button class="modal-close" onclick="tutupModal()">&times;</button>
+        </div>
+        <ul class="modal-list" id="dataList">
+            <li style="color:#64748b; padding:20px; text-align:center;">Tiada data tersimpan.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    document.getElementById('btnUpload').addEventListener('click', function() {
+        const inputs = [
+            { id: 'fileHasil2026', key: 'hasil2026', statusId: 'statusHasil' },
+            { id: 'filePurataBerat', key: 'purataBeratTandan', statusId: 'statusHasil' },
+            { id: 'fileTandanMuda', key: 'tandanMuda', statusId: 'statusHasil' },
+            { id: 'fileTandan', key: 'tandan', statusId: 'statusHasil' },
+            { id: 'filePembajaan', key: 'pembajaan', statusId: 'statusPembajaan' },
+            { id: 'fileMerumput', key: 'merumput', statusId: 'statusMerumput' },
+            { id: 'fileMekanisasi', key: 'mekanisasi', statusId: 'statusMekanisasi' }
+        ];
+
+        let uploaded = 0;
+        let total = 0;
+        let hasError = false;
+
+        inputs.forEach(({ id, key, statusId }) => {
+            const input = document.getElementById(id);
+            const statusEl = document.getElementById(statusId);
+            if (input.files.length > 0) {
+                total++;
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const csvData = e.target.result;
+                        localStorage.setItem(key, csvData);
+                        uploaded++;
+                        statusEl.textContent = `✅ ${file.name} disimpan`;
+                        statusEl.style.color = '#2d6a4f';
+                    } catch (err) {
+                        hasError = true;
+                        statusEl.textContent = `❌ Gagal simpan ${file.name}`;
+                        statusEl.style.color = '#dc2626';
+                    }
+                    if (uploaded === total) {
+                        if (hasError) {
+                            showStatus('⚠️ Beberapa fail gagal disimpan. Sila semak semula.', 'error');
+                        } else if (total === 0) {
+                            showStatus('⚠️ Tiada fail dipilih. Data kekal seperti sedia ada.', 'info');
+                        } else {
+                            showStatus(`✅ Berjaya! ${uploaded} fail telah dikemaskini.`, 'success');
+                        }
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        if (total === 0) {
+            showStatus('ℹ️ Tiada fail dipilih. Data kekal seperti sedia ada.', 'info');
+        }
+    });
+
+    function showStatus(msg, type) {
+        const el = document.getElementById('statusMsg');
+        el.className = 'status-msg ' + type;
+        el.textContent = msg;
+        setTimeout(() => {
+            el.className = 'status-msg';
+            el.textContent = '';
+        }, 6000);
+    }
+
+    // =============================================================
+    // SEMAK DATA TERSIMPAN
+    // =============================================================
+    function semakData() {
+        const keys = [
+            'hasil2026', 'purataBeratTandan', 'tandanMuda', 'tandan',
+            'pembajaan',
+            'merumput', 'mekanisasi'
+        ];
+        const list = document.getElementById('dataList');
+        list.innerHTML = '';
+        let found = false;
+        keys.forEach(key => {
+            const data = localStorage.getItem(key);
+            if (data) {
+                found = true;
+                const size = (data.length / 1024).toFixed(1);
+                list.innerHTML += `<li>
+                    <span class="key">${key}</span>
+                    <span class="size">${size} KB</span>
+                </li>`;
+            }
+        });
+        if (!found) {
+            list.innerHTML = '<li style="color:#64748b; padding:20px; text-align:center;">Tiada data tersimpan.</li>';
+        }
+        document.getElementById('dataModal').style.display = 'flex';
+    }
+
+    function tutupModal() {
+        document.getElementById('dataModal').style.display = 'none';
+    }
+
+    // =============================================================
+    // PADAM SEMUA DATA
+    // =============================================================
+    function padamData() {
+        if (confirm('⚠️ Anda pasti mahu padam SEMUA data tersimpan? Tindakan ini tidak boleh dibuat semula.')) {
+            const keys = [
+                'hasil2026', 'purataBeratTandan', 'tandanMuda', 'tandan',
+                'pembajaan',
+                'merumput', 'mekanisasi'
+            ];
+            keys.forEach(key => localStorage.removeItem(key));
+            showStatus('🧹 Semua data telah dipadam.', 'info');
+            document.querySelectorAll('.status').forEach(el => {
+                el.textContent = 'Belum muat naik';
+                el.style.color = '#64748b';
+            });
+        }
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('dataModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>
