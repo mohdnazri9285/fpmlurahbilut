@@ -283,76 +283,93 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                 return;
             }
 
+            // --- KIRA % SIAP UNTUK SETIAP PUSINGAN (MENGIKUT FILTER) ---
             const pusinganMap = {};
             data.forEach(row => {
-                const pusingan = row.pusingan;
-                if (!pusinganMap[pusingan]) {
-                    pusinganMap[pusingan] = [];
+                if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
+                    const pusingan = row.pusingan;
+                    if (!pusinganMap[pusingan]) {
+                        pusinganMap[pusingan] = { keperluan: 0, siap: 0 };
+                    }
+                    pusinganMap[pusingan].keperluan += row.keperluan_beg;
+                    pusinganMap[pusingan].siap += row.siap_beg;
                 }
-                pusinganMap[pusingan].push(row);
             });
 
-            const allPusingan = Object.keys(pusinganMap).map(p => ({
-                pusingan: parseInt(p),
-                data: pusinganMap[p]
-            }));
+            const pusinganList = Object.keys(pusinganMap).sort((a,b) => a - b);
+            const labels = pusinganList.map(p => `Pusingan ${p}`);
+            const percentData = pusinganList.map(p => {
+                const data = pusinganMap[p];
+                return data.keperluan > 0 ? ((data.siap / data.keperluan) * 100) : 0;
+            });
+            // --------------------------------------------------------
 
-            const peringkatList = ['1G', '1A', '1C', '1D', '2G', '3', '1F', '2F', '3F'];
+            // --- GRAF ---
+            const canvas = document.getElementById('summaryChart');
+            if (canvas) {
+                if (summaryChart) summaryChart.destroy();
 
-            container.innerHTML = `
-                <div class="card">
-                    <h3><i class="fas fa-chart-bar"></i> Rumusan Pembajaan Setiap Pusingan (%)</h3>
-                    <div class="chart-container"><canvas id="summaryChart" style="width:100%; height:320px;"></canvas></div>
-                    <div class="filter-buttons" id="filterButtons">
-                        <button class="filter-btn active" data-peringkat="all">Semua</button>
-                        ${peringkatList.map(p => `<button class="filter-btn" data-peringkat="${p}">${p}</button>`).join('')}
-                    </div>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-list"></i> Detail Pembajaan Mengikut Pusingan</h3>
-                    <div id="ribbonContainer">
-                        ${allPusingan.sort((a,b) => a.pusingan - b.pusingan).map((p, idx) => `
-                            <div class="ribbon ${idx === 0 ? 'open' : ''}" id="ribbon${idx+1}">
-                                <div class="ribbon-header" onclick="toggleRibbon('ribbon${idx+1}')">
-                                    <div class="ribbon-title">
-                                        <i class="fas fa-seedling"></i> Pusingan ${p.pusingan}
-                                        <span class="badge" id="badge${idx+1}">0%</span>
-                                    </div>
-                                    <div class="ribbon-toggle"><i class="fas fa-chevron-down"></i></div>
-                                </div>
-                                <div class="ribbon-body">
-                                    <div style="overflow-x:auto;">
-                                        <table class="data-table" id="table${idx+1}">
-                                            <thead>
-                                                <tr>
-                                                    <th>Peringkat</th>
-                                                    <th>Luas (Ha)</th>
-                                                    <th>Kadar (kg/pokok)</th>
-                                                    <th>Keperluan (Beg)</th>
-                                                    <th>Manual (Beg)</th>
-                                                    <th>Spreader (Beg)</th>
-                                                    <th>Siap (Beg)</th>
-                                                    <th>% Siap</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tbody${idx+1}"></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+                const colors = percentData.map(p => p >= 75 ? '#2d6a4f' : (p >= 50 ? '#f4a261' : '#e76f51'));
 
-            allPusingan.sort((a,b) => a.pusingan - b.pusingan).forEach((p, idx) => {
-                const tbody = document.getElementById(`tbody${idx+1}`);
-                if (!tbody) return;
-                tbody.innerHTML = '';
+                summaryChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '% Siap Keseluruhan',
+                            data: percentData,
+                            backgroundColor: colors,
+                            borderRadius: 8,
+                            barPercentage: 0.5,
+                            categoryPercentage: 0.8,
+                            datalabels: {
+                                display: true,
+                                anchor: 'end',
+                                align: 'top',
+                                color: '#1b4d3e',
+                                font: { size: 11, weight: 'bold' },
+                                formatter: v => v.toFixed(1) + '%'
+                            }
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        layout: { padding: { top: 35 } },
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(1)}%` } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+                            x: { ticks: { font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+            // ----------
 
+            // --- RIBBON TABLES ---
+            const ribbonData = {};
+            data.forEach(row => {
+                if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
+                    const pusingan = row.pusingan;
+                    if (!ribbonData[pusingan]) {
+                        ribbonData[pusingan] = [];
+                    }
+                    ribbonData[pusingan].push(row);
+                }
+            });
+
+            const sortedPusingan = Object.keys(ribbonData).sort((a,b) => a - b);
+
+            let ribbonHtml = '';
+            sortedPusingan.forEach((p, idx) => {
+                const rows = ribbonData[p];
+                let tbodyHtml = '';
                 let totalKeperluan = 0, totalSiap = 0;
 
-                p.data.forEach(row => {
+                rows.forEach(row => {
                     const peringkat = row.peringkat;
                     const luas = row.luas_ha;
                     const kadar = row.kadar;
@@ -367,7 +384,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                     const percent = keperluan > 0 ? ((siap / keperluan) * 100) : 0;
                     const color = percent >= 75 ? '#2d6a4f' : (percent >= 50 ? '#f4a261' : '#e76f51');
 
-                    tbody.innerHTML += `<tr>
+                    tbodyHtml += `<tr>
                         <td><strong>${peringkat}</strong></td>
                         <td>${luas.toFixed(2)}</td>
                         <td>${kadar} kg/pokok</td>
@@ -385,23 +402,70 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                     </tr>`;
                 });
 
-                const badge = document.getElementById(`badge${idx+1}`);
-                if (badge) {
-                    const overallPercent = totalKeperluan > 0 ? ((totalSiap / totalKeperluan) * 100) : 0;
-                    badge.textContent = `${overallPercent.toFixed(1)}%`;
-                }
+                const overallPercent = totalKeperluan > 0 ? ((totalSiap / totalKeperluan) * 100) : 0;
+
+                ribbonHtml += `
+                    <div class="ribbon ${idx === 0 ? 'open' : ''}" id="ribbon${idx+1}">
+                        <div class="ribbon-header" onclick="toggleRibbon('ribbon${idx+1}')">
+                            <div class="ribbon-title">
+                                <i class="fas fa-seedling"></i> Pusingan ${p}
+                                <span class="badge">${overallPercent.toFixed(1)}%</span>
+                            </div>
+                            <div class="ribbon-toggle"><i class="fas fa-chevron-down"></i></div>
+                        </div>
+                        <div class="ribbon-body">
+                            <div style="overflow-x:auto;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Peringkat</th>
+                                            <th>Luas (Ha)</th>
+                                            <th>Kadar (kg/pokok)</th>
+                                            <th>Keperluan (Beg)</th>
+                                            <th>Manual (Beg)</th>
+                                            <th>Spreader (Beg)</th>
+                                            <th>Siap (Beg)</th>
+                                            <th>% Siap</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${tbodyHtml}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
             });
 
-            renderSummary(allPusingan, peringkatFilter);
+            // Add ribbon container
+            const ribbonContainer = document.createElement('div');
+            ribbonContainer.innerHTML = `
+                <div class="card">
+                    <h3><i class="fas fa-list"></i> Detail Pembajaan Mengikut Pusingan</h3>
+                    <div id="ribbonContainer">${ribbonHtml}</div>
+                </div>
+            `;
+            container.appendChild(ribbonContainer.children[0]);
+            // ---------------
 
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    const peringkat = btn.getAttribute('data-peringkat');
-                    renderSummary(allPusingan, peringkat);
+            // --- FILTER BUTTONS ---
+            const filterContainer = document.querySelector('.filter-buttons');
+            if (filterContainer) {
+                filterContainer.innerHTML = `
+                    <button class="filter-btn active" data-peringkat="all">Semua</button>
+                    ${['1G','1A','1C','1D','2G','3','1F','2F','3F'].map(p => 
+                        `<button class="filter-btn" data-peringkat="${p}">${p}</button>`
+                    ).join('')}
+                `;
+                filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        filterContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        const peringkat = btn.getAttribute('data-peringkat');
+                        loadData(peringkat);
+                    });
                 });
-            });
+            }
+            // ---------------
 
             window.toggleRibbon = function(ribbonId) {
                 const currentRibbon = document.getElementById(ribbonId);
@@ -429,64 +493,6 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                 </div>
             `;
         }
-    }
-
-    function renderSummary(allPusingan, peringkatFilter = 'all') {
-        const canvas = document.getElementById('summaryChart');
-        if (!canvas) return;
-        if (summaryChart) summaryChart.destroy();
-
-        // --- KIRA % SIAP UNTUK SETIAP PUSINGAN ---
-        const percentData = allPusingan.sort((a,b) => a.pusingan - b.pusingan).map(p => {
-            let totalKeperluan = 0, totalSiap = 0;
-            p.data.forEach(row => {
-                if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
-                    totalKeperluan += row.keperluan_beg;
-                    totalSiap += row.siap_beg;
-                }
-            });
-            return totalKeperluan > 0 ? ((totalSiap / totalKeperluan) * 100) : 0;
-        });
-        // ----------------------------------------
-
-        const labels = allPusingan.sort((a,b) => a.pusingan - b.pusingan).map(p => `Pusingan ${p.pusingan}`);
-        const colors = percentData.map(p => p >= 75 ? '#2d6a4f' : (p >= 50 ? '#f4a261' : '#e76f51'));
-
-        summaryChart = new Chart(canvas, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '% Siap Keseluruhan',
-                    data: percentData,
-                    backgroundColor: colors,
-                    borderRadius: 8,
-                    barPercentage: 0.5,
-                    categoryPercentage: 0.8,
-                    datalabels: {
-                        display: true,
-                        anchor: 'end',
-                        align: 'top',
-                        color: '#1b4d3e',
-                        font: { size: 11, weight: 'bold' },
-                        formatter: v => v.toFixed(1) + '%'
-                    }
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                layout: { padding: { top: 35 } },
-                plugins: {
-                    legend: { position: 'top' },
-                    tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(1)}%` } }
-                },
-                scales: {
-                    y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
-                    x: { ticks: { font: { size: 11 } } }
-                }
-            }
-        });
     }
 
     loadData('all');
