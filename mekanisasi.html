@@ -234,42 +234,11 @@
                 return;
             }
 
-            const jenteraData = [];
-            const ratioData = [];
-            let isRatio = false;
-
-            data.forEach(row => {
-                if (row.jentera && row.jentera.toUpperCase() === 'PERINGKAT') {
-                    isRatio = true;
-                    return;
-                }
-                if (!isRatio) {
-                    if (row.jentera && row.jentera !== '') {
-                        jenteraData.push({
-                            kategori: row.aplikasi || '',
-                            nama: row.jentera || '',
-                            bilangan: parseInt(row.jumlah) || 0,
-                            unit: 'UNIT'
-                        });
-                    }
-                } else {
-                    if (row.jentera && row.jentera !== '') {
-                        ratioData.push({
-                            peringkat: row.jentera || '',
-                            luas: parseFloat(row.aplikasi) || 0,
-                            jentera: parseInt(row.jumlah) || 0,
-                            ratio: 0
-                        });
-                    }
-                }
-            });
-
-            ratioData.forEach(item => {
-                if (item.jentera > 0) {
-                    item.ratio = item.luas / item.jentera;
-                }
-            });
-
+            // =============================================================
+            // BAHAGIAN 1: JENTERA
+            // =============================================================
+            const jenteraData = data.filter(row => row.jentera && row.aplikasi && !row.peringkat);
+            
             const kategoriSummary = {
                 "PENUAIAN": { total: 0 },
                 "OPERASI LADANG": { total: 0 },
@@ -279,8 +248,8 @@
             };
 
             jenteraData.forEach(item => {
-                if (kategoriSummary[item.kategori]) {
-                    kategoriSummary[item.kategori].total += item.bilangan;
+                if (kategoriSummary[item.aplikasi]) {
+                    kategoriSummary[item.aplikasi].total += item.jumlah;
                 }
             });
 
@@ -304,20 +273,20 @@
             let cardsHtml = '';
             jenteraData.forEach(item => {
                 let iconClass = 'fas fa-tractor';
-                if (item.nama === 'KOMODO C700') iconClass = 'fas fa-tractor';
-                else if (item.nama === 'CARABAO G350') iconClass = 'fas fa-tractor';
-                else if (item.nama === '3-WHEELER') iconClass = 'fas fa-motorcycle';
-                else if (item.nama === 'TIGER G1500') iconClass = 'fas fa-tractor';
-                else if (item.nama === 'PALM CUTTER') iconClass = 'fas fa-cut';
-                else if (item.nama === 'TRACTOR MOUNTED SPREADER') iconClass = 'fas fa-seedling';
-                else if (item.nama === 'MISTBLOWER') iconClass = 'fas fa-spray-can';
-                else if (item.nama === 'TRACTOR MOUNTED GRASSCUTTER') iconClass = 'fas fa-cut';
+                if (item.jentera === 'KOMODO C700') iconClass = 'fas fa-tractor';
+                else if (item.jentera === 'CARABAO G350') iconClass = 'fas fa-tractor';
+                else if (item.jentera === '3-WHEELER') iconClass = 'fas fa-motorcycle';
+                else if (item.jentera === 'TIGER G1500') iconClass = 'fas fa-tractor';
+                else if (item.jentera === 'PALM CUTTER') iconClass = 'fas fa-cut';
+                else if (item.jentera === 'TRACTOR MOUNTED SPREADER') iconClass = 'fas fa-seedling';
+                else if (item.jentera === 'MISTBLOWER') iconClass = 'fas fa-spray-can';
+                else if (item.jentera === 'TRACTOR MOUNTED GRASSCUTTER') iconClass = 'fas fa-cut';
                 cardsHtml += `
                     <div class="grid-card">
                         <div class="grid-icon"><i class="${iconClass}"></i></div>
-                        <div class="grid-category">${item.kategori}</div>
-                        <div class="grid-name">${item.nama}</div>
-                        <div class="grid-value">${item.bilangan} <span class="grid-unit">${item.unit}</span></div>
+                        <div class="grid-category">${item.aplikasi}</div>
+                        <div class="grid-name">${item.jentera}</div>
+                        <div class="grid-value">${item.jumlah} <span class="grid-unit">UNIT</span></div>
                     </div>
                 `;
             });
@@ -325,27 +294,36 @@
             let tableHtml = '';
             jenteraData.forEach(item => {
                 tableHtml += `<tr>
-                    <td>${item.kategori}</td>
-                    <td><strong>${item.nama}</strong></td>
-                    <td>${item.bilangan}</td>
-                    <td>${item.unit}</td>
+                    <td>${item.aplikasi}</td>
+                    <td><strong>${item.jentera}</strong></td>
+                    <td>${item.jumlah}</td>
+                    <td>UNIT</td>
                 </tr>`;
             });
+
+            // =============================================================
+            // BAHAGIAN 2: RATIO
+            // =============================================================
+            const ratioData = data.filter(row => row.peringkat && row.luas && row.peringkat !== 'JUMLAH');
 
             let ratioHtml = '';
             let totalLuas = 0, totalJentera = 0;
             ratioData.forEach(item => {
                 totalLuas += item.luas;
-                totalJentera += item.jentera;
+                totalJentera += item.bilangan_jentera_penuaian;
+                const ratio = item.bilangan_jentera_penuaian > 0 ? (item.luas / item.bilangan_jentera_penuaian) : 0;
                 ratioHtml += `<tr>
                     <td><strong>${item.peringkat}</strong></td>
                     <td>${item.luas.toFixed(2)}</td>
-                    <td>${item.jentera}</td>
-                    <td>${item.ratio.toFixed(2)}</td>
+                    <td>${item.bilangan_jentera_penuaian}</td>
+                    <td>${ratio.toFixed(3)}</td>
                 </tr>`;
             });
-            const totalRatio = totalLuas / totalJentera;
+            const totalRatio = totalLuas > 0 && totalJentera > 0 ? (totalLuas / totalJentera) : 0;
 
+            // =============================================================
+            // RENDER DASHBOARD
+            // =============================================================
             container.innerHTML = `
                 <div class="card">
                     <h3><i class="fas fa-chart-pie"></i> Ringkasan Mengikut Kategori</h3>
@@ -379,7 +357,7 @@
                                     <td><strong>JUMLAH</strong></td>
                                     <td>${totalLuas.toFixed(2)}</td>
                                     <td>${totalJentera}</td>
-                                    <td>${totalRatio.toFixed(2)}</td>
+                                    <td>${totalRatio.toFixed(3)}</td>
                                 </tr>
                             </tfoot>
                         </table>
