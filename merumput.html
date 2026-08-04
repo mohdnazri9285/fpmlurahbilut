@@ -251,255 +251,255 @@
 Chart.register(ChartDataLabels);
 
 // =============================================================
-// SUPABASE CONFIG – URL & KEY BARU
+// SUPABASE CONFIG – ANON KEY BETUL
 // =============================================================
 const supabaseUrl = 'https://uzwhfoxtykrsmtkafbgh.supabase.co';
-const supabaseKey = 'uzwhfoxtykrsmtkafbgh';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6d2hmb3h0eWtyc210a2FmYmdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2NTIzOTEsImV4cCI6MjA3MTIyODM5MX0.CT1w3b6dO9IeF3JgCZ7u8YyX6G2bXuK7Gt5qzJx3RMg';
+    const sb = supabase.createClient(supabaseUrl, supabaseKey);
 
-let summaryChart = null;
+    let summaryChart = null;
 
-async function loadData(peringkatFilter = 'all') {
-    const container = document.getElementById('dashboardContent');
-    container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#2d6a4f;"></i><p style="margin-top:12px; color:#64748b;">Memuatkan data...</p></div>';
+    async function loadData(peringkatFilter = 'all') {
+        const container = document.getElementById('dashboardContent');
+        container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#2d6a4f;"></i><p style="margin-top:12px; color:#64748b;">Memuatkan data...</p></div>';
 
-    try {
-        const { data, error } = await supabase.from('merumput').select('*');
-        if (error) throw error;
+        try {
+            const { data, error } = await sb.from('merumput').select('*');
+            if (error) throw error;
 
-        if (!data || data.length === 0) {
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="no-data">
+                            <i class="fas fa-database"></i>
+                            <h3>Tiada Data Merumput</h3>
+                            <p>Sila muat naik fail <strong>laporan merumput.csv</strong> melalui halaman Upload.</p>
+                            <p style="margin-top:12px;">
+                                <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
+                            </p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const headers = Object.keys(data[0]);
+            const programColumns = headers.filter(h => 
+                h !== 'id' && 
+                h !== 'peringkat' && 
+                h !== 'luas_ha' && 
+                h !== 'pusingan' &&
+                h !== 'created_at'
+            );
+
+            const pusinganMap = {};
+            data.forEach(row => {
+                const pusingan = row.pusingan;
+                if (!pusinganMap[pusingan]) {
+                    pusinganMap[pusingan] = [];
+                }
+                pusinganMap[pusingan].push(row);
+            });
+
+            const dataMerumput = Object.keys(pusinganMap).map(p => ({
+                pusingan: parseInt(p),
+                peringkat: pusinganMap[p]
+            }));
+
+            const peringkatList = ['1G', '2G', '1A', '1C', '1D', '3', '4', '2F', '1F', '3F'];
+
+            container.innerHTML = `
+                <div class="card">
+                    <h3><i class="fas fa-chart-bar"></i> Rumusan Merumput Setiap Pusingan (Luas Siap - Ha)</h3>
+                    <div class="chart-container"><canvas id="summaryChart" style="width:100%; height:320px;"></canvas></div>
+                    <div class="filter-buttons" id="filterButtons">
+                        <button class="filter-btn active" data-peringkat="all">Semua</button>
+                        ${peringkatList.map(p => `<button class="filter-btn" data-peringkat="${p}">${p}</button>`).join('')}
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-list"></i> Detail Merumput Mengikut Pusingan</h3>
+                    <div id="ribbonContainer">
+                        ${dataMerumput.sort((a,b) => a.pusingan - b.pusingan).map((p, idx) => `
+                            <div class="ribbon ${idx === 0 ? 'open' : ''}" id="ribbon${idx+1}">
+                                <div class="ribbon-header" onclick="toggleRibbon('ribbon${idx+1}')">
+                                    <div class="ribbon-title">
+                                        <i class="fas fa-cut"></i> Pusingan ${p.pusingan}
+                                        <span class="badge" id="badge${idx+1}">0%</span>
+                                    </div>
+                                    <div class="ribbon-toggle"><i class="fas fa-chevron-down"></i></div>
+                                </div>
+                                <div class="ribbon-body">
+                                    <div style="overflow-x:auto;">
+                                        <table class="data-table" id="table${idx+1}">
+                                            <thead>
+                                                <tr>
+                                                    <th>Peringkat</th>
+                                                    <th>Luas (Ha)</th>
+                                                    ${programColumns.map(col => `
+                                                        <th>${col} (Ha)</th>
+                                                        <th>% ${col}</th>
+                                                    `).join('')}
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbody${idx+1}"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            dataMerumput.sort((a,b) => a.pusingan - b.pusingan).forEach((p, idx) => {
+                const tbody = document.getElementById(`tbody${idx+1}`);
+                if (!tbody) return;
+                tbody.innerHTML = '';
+
+                p.peringkat.forEach(row => {
+                    let rowHtml = `<tr>
+                        <td><strong>${row.peringkat}</strong></td>
+                        <td>${row.luas_ha.toFixed(2)}</td>`;
+                    
+                    programColumns.forEach(col => {
+                        const val = row[col] || 0;
+                        const percent = row.luas_ha > 0 ? ((val / row.luas_ha) * 100) : 0;
+                        const color = percent >= 75 ? '#2d6a4f' : (percent >= 50 ? '#f4a261' : '#e76f51');
+                        rowHtml += `
+                            <td>${val > 0 ? val.toFixed(2) + ' Ha' : '-'}</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${percent}%; background: ${color}">
+                                        ${percent.toFixed(0)}%
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+                    });
+
+                    rowHtml += `</tr>`;
+                    tbody.innerHTML += rowHtml;
+                });
+
+                const badge = document.getElementById(`badge${idx+1}`);
+                if (badge) {
+                    let totalPercent = 0;
+                    let totalRows = 0;
+                    p.peringkat.forEach(row => {
+                        programColumns.forEach(col => {
+                            const val = row[col] || 0;
+                            totalPercent += row.luas_ha > 0 ? ((val / row.luas_ha) * 100) : 0;
+                            totalRows++;
+                        });
+                    });
+                    const overallPercent = totalRows > 0 ? (totalPercent / totalRows) : 0;
+                    badge.textContent = `${overallPercent.toFixed(1)}%`;
+                }
+            });
+
+            renderSummary(dataMerumput, peringkatFilter, programColumns);
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const peringkat = btn.getAttribute('data-peringkat');
+                    renderSummary(dataMerumput, peringkat, programColumns);
+                });
+            });
+
+            window.toggleRibbon = function(ribbonId) {
+                const currentRibbon = document.getElementById(ribbonId);
+                if (!currentRibbon) return;
+                if (currentRibbon.classList.contains('open')) {
+                    currentRibbon.classList.remove('open');
+                    return;
+                }
+                const allRibbons = document.querySelectorAll('.ribbon');
+                allRibbons.forEach(r => r.classList.remove('open'));
+                currentRibbon.classList.add('open');
+            };
+
+        } catch (err) {
             container.innerHTML = `
                 <div class="card">
                     <div class="no-data">
-                        <i class="fas fa-database"></i>
-                        <h3>Tiada Data Merumput</h3>
-                        <p>Sila muat naik fail <strong>laporan merumput.csv</strong> melalui halaman Upload.</p>
+                        <i class="fas fa-exclamation-triangle" style="color:#e76f51;"></i>
+                        <h3>Ralat Memuat Data</h3>
+                        <p>${err.message}</p>
                         <p style="margin-top:12px;">
                             <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
                         </p>
                     </div>
                 </div>
             `;
-            return;
         }
-
-        const headers = Object.keys(data[0]);
-        const programColumns = headers.filter(h => 
-            h !== 'id' && 
-            h !== 'peringkat' && 
-            h !== 'luas_ha' && 
-            h !== 'pusingan' &&
-            h !== 'created_at'
-        );
-
-        const pusinganMap = {};
-        data.forEach(row => {
-            const pusingan = row.pusingan;
-            if (!pusinganMap[pusingan]) {
-                pusinganMap[pusingan] = [];
-            }
-            pusinganMap[pusingan].push(row);
-        });
-
-        const dataMerumput = Object.keys(pusinganMap).map(p => ({
-            pusingan: parseInt(p),
-            peringkat: pusinganMap[p]
-        }));
-
-        const peringkatList = ['1G', '2G', '1A', '1C', '1D', '3', '4', '2F', '1F', '3F'];
-
-        container.innerHTML = `
-            <div class="card">
-                <h3><i class="fas fa-chart-bar"></i> Rumusan Merumput Setiap Pusingan (Luas Siap - Ha)</h3>
-                <div class="chart-container"><canvas id="summaryChart" style="width:100%; height:320px;"></canvas></div>
-                <div class="filter-buttons" id="filterButtons">
-                    <button class="filter-btn active" data-peringkat="all">Semua</button>
-                    ${peringkatList.map(p => `<button class="filter-btn" data-peringkat="${p}">${p}</button>`).join('')}
-                </div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-list"></i> Detail Merumput Mengikut Pusingan</h3>
-                <div id="ribbonContainer">
-                    ${dataMerumput.sort((a,b) => a.pusingan - b.pusingan).map((p, idx) => `
-                        <div class="ribbon ${idx === 0 ? 'open' : ''}" id="ribbon${idx+1}">
-                            <div class="ribbon-header" onclick="toggleRibbon('ribbon${idx+1}')">
-                                <div class="ribbon-title">
-                                    <i class="fas fa-cut"></i> Pusingan ${p.pusingan}
-                                    <span class="badge" id="badge${idx+1}">0%</span>
-                                </div>
-                                <div class="ribbon-toggle"><i class="fas fa-chevron-down"></i></div>
-                            </div>
-                            <div class="ribbon-body">
-                                <div style="overflow-x:auto;">
-                                    <table class="data-table" id="table${idx+1}">
-                                        <thead>
-                                            <tr>
-                                                <th>Peringkat</th>
-                                                <th>Luas (Ha)</th>
-                                                ${programColumns.map(col => `
-                                                    <th>${col} (Ha)</th>
-                                                    <th>% ${col}</th>
-                                                `).join('')}
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tbody${idx+1}"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-
-        dataMerumput.sort((a,b) => a.pusingan - b.pusingan).forEach((p, idx) => {
-            const tbody = document.getElementById(`tbody${idx+1}`);
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            p.peringkat.forEach(row => {
-                let rowHtml = `<tr>
-                    <td><strong>${row.peringkat}</strong></td>
-                    <td>${row.luas_ha.toFixed(2)}</td>`;
-                
-                programColumns.forEach(col => {
-                    const val = row[col] || 0;
-                    const percent = row.luas_ha > 0 ? ((val / row.luas_ha) * 100) : 0;
-                    const color = percent >= 75 ? '#2d6a4f' : (percent >= 50 ? '#f4a261' : '#e76f51');
-                    rowHtml += `
-                        <td>${val > 0 ? val.toFixed(2) + ' Ha' : '-'}</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${percent}%; background: ${color}">
-                                    ${percent.toFixed(0)}%
-                                </div>
-                            </div>
-                        </td>
-                    `;
-                });
-
-                rowHtml += `</tr>`;
-                tbody.innerHTML += rowHtml;
-            });
-
-            const badge = document.getElementById(`badge${idx+1}`);
-            if (badge) {
-                let totalPercent = 0;
-                let totalRows = 0;
-                p.peringkat.forEach(row => {
-                    programColumns.forEach(col => {
-                        const val = row[col] || 0;
-                        totalPercent += row.luas_ha > 0 ? ((val / row.luas_ha) * 100) : 0;
-                        totalRows++;
-                    });
-                });
-                const overallPercent = totalRows > 0 ? (totalPercent / totalRows) : 0;
-                badge.textContent = `${overallPercent.toFixed(1)}%`;
-            }
-        });
-
-        renderSummary(dataMerumput, peringkatFilter, programColumns);
-
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const peringkat = btn.getAttribute('data-peringkat');
-                renderSummary(dataMerumput, peringkat, programColumns);
-            });
-        });
-
-        window.toggleRibbon = function(ribbonId) {
-            const currentRibbon = document.getElementById(ribbonId);
-            if (!currentRibbon) return;
-            if (currentRibbon.classList.contains('open')) {
-                currentRibbon.classList.remove('open');
-                return;
-            }
-            const allRibbons = document.querySelectorAll('.ribbon');
-            allRibbons.forEach(r => r.classList.remove('open'));
-            currentRibbon.classList.add('open');
-        };
-
-    } catch (err) {
-        container.innerHTML = `
-            <div class="card">
-                <div class="no-data">
-                    <i class="fas fa-exclamation-triangle" style="color:#e76f51;"></i>
-                    <h3>Ralat Memuat Data</h3>
-                    <p>${err.message}</p>
-                    <p style="margin-top:12px;">
-                        <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
-                    </p>
-                </div>
-            </div>
-        `;
     }
-}
 
-function renderSummary(dataMerumput, peringkatFilter = 'all', programColumns = []) {
-    const canvas = document.getElementById('summaryChart');
-    if (!canvas) return;
-    if (summaryChart) summaryChart.destroy();
+    function renderSummary(dataMerumput, peringkatFilter = 'all', programColumns = []) {
+        const canvas = document.getElementById('summaryChart');
+        if (!canvas) return;
+        if (summaryChart) summaryChart.destroy();
 
-    const labels = dataMerumput.sort((a,b) => a.pusingan - b.pusingan).map(p => `Pusingan ${p.pusingan}`);
+        const labels = dataMerumput.sort((a,b) => a.pusingan - b.pusingan).map(p => `Pusingan ${p.pusingan}`);
 
-    const warnaProgram = ['#2d6a4f', '#f4a261', '#e76f51', '#3b82f6', '#8b5cf6'];
+        const warnaProgram = ['#2d6a4f', '#f4a261', '#e76f51', '#3b82f6', '#8b5cf6'];
 
-    const datasets = programColumns.map((col, idx) => {
-        const data = dataMerumput.sort((a,b) => a.pusingan - b.pusingan).map(p => {
-            let sum = 0;
-            p.peringkat.forEach(row => {
-                if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
-                    sum += row[col] || 0;
-                }
-            });
-            return sum;
-        });
-        return {
-            label: col,
-            data: data,
-            backgroundColor: warnaProgram[idx % warnaProgram.length],
-            borderRadius: 6,
-            barPercentage: 0.6,
-            datalabels: {
-                display: true,
-                anchor: 'end',
-                align: 'top',
-                color: '#14532d',
-                font: { size: 10, weight: 'bold' },
-                formatter: v => v.toFixed(0) + ' Ha'
-            }
-        };
-    });
-
-    summaryChart = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            layout: { padding: { top: 35 } },
-            plugins: {
-                legend: { position: 'top' },
-                tooltip: {
-                    callbacks: {
-                        label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(0)} Ha`
+        const datasets = programColumns.map((col, idx) => {
+            const data = dataMerumput.sort((a,b) => a.pusingan - b.pusingan).map(p => {
+                let sum = 0;
+                p.peringkat.forEach(row => {
+                    if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
+                        sum += row[col] || 0;
                     }
+                });
+                return sum;
+            });
+            return {
+                label: col,
+                data: data,
+                backgroundColor: warnaProgram[idx % warnaProgram.length],
+                borderRadius: 6,
+                barPercentage: 0.6,
+                datalabels: {
+                    display: true,
+                    anchor: 'end',
+                    align: 'top',
+                    color: '#14532d',
+                    font: { size: 10, weight: 'bold' },
+                    formatter: v => v.toFixed(0) + ' Ha'
                 }
-            },
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Hektar' } },
-                x: { ticks: { font: { size: 11 } } }
-            }
-        }
-    });
-}
+            };
+        });
 
-loadData('all');
+        summaryChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                layout: { padding: { top: 35 } },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(0)} Ha`
+                        }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Hektar' } },
+                    x: { ticks: { font: { size: 11 } } }
+                }
+            }
+        });
+    }
+
+    loadData('all');
 </script>
 </body>
 </html>
