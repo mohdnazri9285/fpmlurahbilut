@@ -134,6 +134,11 @@
                         for (let i = 1; i < lines.length; i++) {
                             const values = lines[i].split(',');
                             if (values.every(v => v.trim() === '')) continue;
+
+                            // --- ABAIKAN BARIS HEADER BERULANG ---
+                            const firstValue = values[0] ? values[0].trim().toLowerCase() : '';
+                            if (firstValue === 'peringkat' || firstValue === 'jentera') continue;
+                            // -------------------------------------
                             
                             const cleanValues = values.slice(0, headers.length);
                             if (cleanValues.length !== headers.length) continue;
