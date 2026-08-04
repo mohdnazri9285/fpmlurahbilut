@@ -101,7 +101,13 @@
     const supabaseKey = 'ipagjpoiesnkiqxexpqp';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+    console.log('✅ Supabase connected');
+    console.log('URL:', supabaseUrl);
+    console.log('Key:', supabaseKey);
+
     document.getElementById('btnUpload').addEventListener('click', async function() {
+        console.log('📤 Upload button clicked');
+
         const inputs = [
             { id: 'fileMekanisasi', table: 'mekanisasi', statusId: 'statusMekanisasi' },
             { id: 'fileMerumput', table: 'merumput', statusId: 'statusMerumput' },
@@ -118,6 +124,7 @@
             if (input.files.length > 0) {
                 total++;
                 const file = input.files[0];
+                console.log(`📂 Processing: ${file.name} → table ${table}`);
                 const reader = new FileReader();
                 reader.onload = async function(e) {
                     try {
@@ -126,6 +133,8 @@
                         if (lines.length < 2) throw new Error('CSV tidak lengkap');
 
                         const headers = lines[0].split(',').map(h => h.trim());
+                        console.log(`📋 Headers: ${headers.join(', ')}`);
+
                         const data = [];
                         for (let i = 1; i < lines.length; i++) {
                             const values = lines[i].split(',');
@@ -137,15 +146,22 @@
                             });
                             data.push(obj);
                         }
+                        console.log(`📦 ${data.length} rows prepared`);
 
                         // Upload ke Supabase
+                        console.log(`⬆️ Uploading to ${table}...`);
                         const { error } = await supabase.from(table).insert(data);
-                        if (error) throw error;
+                        if (error) {
+                            console.error('❌ Supabase error:', error);
+                            throw error;
+                        }
 
+                        console.log(`✅ Uploaded to ${table}`);
                         uploaded++;
                         statusEl.textContent = `✅ ${file.name} berjaya diupload`;
                         statusEl.style.color = '#2d6a4f';
                     } catch (err) {
+                        console.error('❌ Error:', err);
                         hasError = true;
                         statusEl.textContent = `❌ Gagal: ${err.message}`;
                         statusEl.style.color = '#dc2626';
