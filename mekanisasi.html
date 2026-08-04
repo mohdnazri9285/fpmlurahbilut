@@ -21,9 +21,6 @@
         .nav-link.active { background: #2d6a4f; color: white; }
         .nav-link:not(.active):hover { background: #eef2ff; color: #2d6a4f; }
 
-        /* =============================================================
-           BUTANG UPLOAD – IKON BULATAN DI NAVBAR
-           ============================================================= */
         .btn-upload-icon {
             display: flex;
             align-items: center;
@@ -204,276 +201,219 @@
 </div>
 <footer>© FPMSB Lurah Bilut — Data Operasi Ladang Sawit</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ========================================================================
-// FUNGSI BACA CSV DARI localStorage
+// SUPABASE CONFIG
 // ========================================================================
-function loadCSV(key) {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    
-    const lines = raw.split('\n').filter(line => line.trim() !== '');
-    if (lines.length < 2) return null;
-
-    const headers = lines[0].split(',').map(h => h.trim());
-    const data = [];
-    for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',');
-        if (values.every(v => v.trim() === '')) continue;
-        if (values.length !== headers.length) continue;
-        const obj = {};
-        headers.forEach((h, idx) => {
-            obj[h] = values[idx] ? values[idx].trim() : '';
-        });
-        data.push(obj);
-    }
-    return data;
-}
+const supabaseUrl = 'https://ipagjpoiesnkiqxexpqp.supabase.co';
+const supabaseKey = 'ipagjpoiesnkiqxexpqp';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ========================================================================
-// DATA MEKANISASI (DARI localStorage)
+// FUNGSI UTAMA
 // ========================================================================
-const rawData = loadCSV('mekanisasi');
-let mekanisasiData = [];
-let ratioData = [];
-
-if (rawData) {
-    // Cari baris pemisah "PERINGKAT"
-    let separatorIndex = -1;
-    for (let i = 0; i < rawData.length; i++) {
-        const row = rawData[i];
-        const firstValue = Object.values(row)[0] || '';
-        if (firstValue.trim().toUpperCase() === 'PERINGKAT') {
-            separatorIndex = i;
-            break;
-        }
-    }
-    
-    // Bahagian Jentera (sebelum separator)
-    for (let i = 0; i < (separatorIndex >= 0 ? separatorIndex : rawData.length); i++) {
-        const row = rawData[i];
-        const jenteraKey = Object.keys(row).find(k => k.trim().toUpperCase() === 'JENTERA');
-        const aplikasiKey = Object.keys(row).find(k => k.trim().toUpperCase() === 'APLIKASI');
-        const jumlahKey = Object.keys(row).find(k => k.trim().toUpperCase() === 'JUMLAH');
-        
-        const jenteraVal = jenteraKey ? row[jenteraKey] : '';
-        if (jenteraVal !== '') {
-            mekanisasiData.push({
-                kategori: aplikasiKey ? row[aplikasiKey] : '',
-                nama: jenteraVal,
-                bilangan: parseInt(jumlahKey ? row[jumlahKey] : 0) || 0,
-                unit: 'UNIT'
-            });
-        }
-    }
-    
-    // Bahagian Ratio (selepas separator + 1)
-    if (separatorIndex >= 0) {
-        for (let i = separatorIndex + 1; i < rawData.length; i++) {
-            const row = rawData[i];
-            const values = Object.values(row);
-            if (values.length < 4) continue;
-            
-            const peringkat = values[0] || '';
-            const luas = parseFloat(values[1]) || 0;
-            const jentera = parseInt(values[2]) || 0;
-            const ratio = parseFloat(values[3]) || 0;
-            
-            if (peringkat !== '' && peringkat.toUpperCase() !== 'JUMLAH') {
-                ratioData.push({
-                    peringkat: peringkat,
-                    luas: luas,
-                    jentera: jentera,
-                    ratio: ratio
-                });
-            }
-        }
-    }
-}
-
-// Kira jumlah mengikut kategori
-const kategoriSummary = {
-    "PENUAIAN": { total: 0, list: [] },
-    "OPERASI LADANG": { total: 0, list: [] },
-    "PEMBAJAAN": { total: 0, list: [] },
-    "MERUMPUT": { total: 0, list: [] },
-    "PENJAGAAN LORONG TUAI": { total: 0, list: [] }
-};
-
-mekanisasiData.forEach(item => {
-    if (kategoriSummary[item.kategori]) {
-        kategoriSummary[item.kategori].total += item.bilangan;
-        kategoriSummary[item.kategori].list.push(item);
-    }
-});
-
-// ========================================================================
-// RENDER FUNCTIONS
-// ========================================================================
-
-function renderDashboard() {
+async function loadData() {
     const container = document.getElementById('dashboardContent');
+    container.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#2d6a4f;"></i><p style="margin-top:12px; color:#64748b;">Memuatkan data...</p></div>';
 
-    if (!mekanisasiData.length || !ratioData.length) {
+    try {
+        // Ambil data dari Supabase
+        const { data, error } = await supabase.from('mekanisasi').select('*');
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div class="card">
+                    <div class="no-data">
+                        <i class="fas fa-database"></i>
+                        <h3>Tiada Data Mekanisasi</h3>
+                        <p>Sila muat naik fail <strong>laporan mekanisasi.csv</strong> melalui halaman Upload.</p>
+                        <p style="margin-top:12px;">
+                            <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
+                        </p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Bahagikan data kepada jentera dan ratio
+        const jenteraData = [];
+        const ratioData = [];
+        let isRatio = false;
+
+        data.forEach(row => {
+            if (row.jentera && row.jentera.toUpperCase() === 'PERINGKAT') {
+                isRatio = true;
+                return;
+            }
+            if (!isRatio) {
+                if (row.jentera && row.jentera !== '') {
+                    jenteraData.push({
+                        kategori: row.aplikasi || '',
+                        nama: row.jentera || '',
+                        bilangan: parseInt(row.jumlah) || 0,
+                        unit: 'UNIT'
+                    });
+                }
+            } else {
+                if (row.jentera && row.jentera !== '') {
+                    ratioData.push({
+                        peringkat: row.jentera || '',
+                        luas: parseFloat(row.aplikasi) || 0,
+                        jentera: parseInt(row.jumlah) || 0,
+                        ratio: 0 // akan dikira
+                    });
+                }
+            }
+        });
+
+        // Kira ratio untuk setiap peringkat
+        ratioData.forEach(item => {
+            if (item.jentera > 0) {
+                item.ratio = item.luas / item.jentera;
+            }
+        });
+
+        // Kira jumlah mengikut kategori
+        const kategoriSummary = {
+            "PENUAIAN": { total: 0 },
+            "OPERASI LADANG": { total: 0 },
+            "PEMBAJAAN": { total: 0 },
+            "MERUMPUT": { total: 0 },
+            "PENJAGAAN LORONG TUAI": { total: 0 }
+        };
+
+        jenteraData.forEach(item => {
+            if (kategoriSummary[item.kategori]) {
+                kategoriSummary[item.kategori].total += item.bilangan;
+            }
+        });
+
+        // Render dashboard
+        let summaryGridHtml = '';
+        for (const [kategori, data] of Object.entries(kategoriSummary)) {
+            let icon = '';
+            if (kategori === 'PENUAIAN') icon = 'fas fa-tractor';
+            else if (kategori === 'OPERASI LADANG') icon = 'fas fa-cut';
+            else if (kategori === 'PEMBAJAAN') icon = 'fas fa-seedling';
+            else if (kategori === 'MERUMPUT') icon = 'fas fa-spray-can';
+            else if (kategori === 'PENJAGAAN LORONG TUAI') icon = 'fas fa-cut';
+            summaryGridHtml += `
+                <div class="grid-card">
+                    <div class="grid-icon"><i class="${icon}"></i></div>
+                    <div class="grid-category">${kategori}</div>
+                    <div class="grid-value">${data.total}</div>
+                </div>
+            `;
+        }
+
+        let cardsHtml = '';
+        jenteraData.forEach(item => {
+            let iconClass = 'fas fa-tractor';
+            if (item.nama === 'KOMODO C700') iconClass = 'fas fa-tractor';
+            else if (item.nama === 'CARABAO G350') iconClass = 'fas fa-tractor';
+            else if (item.nama === '3-WHEELER') iconClass = 'fas fa-motorcycle';
+            else if (item.nama === 'TIGER G1500') iconClass = 'fas fa-tractor';
+            else if (item.nama === 'PALM CUTTER') iconClass = 'fas fa-cut';
+            else if (item.nama === 'TRACTOR MOUNTED SPREADER') iconClass = 'fas fa-seedling';
+            else if (item.nama === 'MISTBLOWER') iconClass = 'fas fa-spray-can';
+            else if (item.nama === 'TRACTOR MOUNTED GRASSCUTTER') iconClass = 'fas fa-cut';
+            cardsHtml += `
+                <div class="grid-card">
+                    <div class="grid-icon"><i class="${iconClass}"></i></div>
+                    <div class="grid-category">${item.kategori}</div>
+                    <div class="grid-name">${item.nama}</div>
+                    <div class="grid-value">${item.bilangan} <span class="grid-unit">${item.unit}</span></div>
+                </div>
+            `;
+        });
+
+        let tableHtml = '';
+        jenteraData.forEach(item => {
+            tableHtml += `<tr>
+                <td>${item.kategori}</td>
+                <td><strong>${item.nama}</strong></td>
+                <td>${item.bilangan}</td>
+                <td>${item.unit}</td>
+            </tr>`;
+        });
+
+        let ratioHtml = '';
+        let totalLuas = 0, totalJentera = 0;
+        ratioData.forEach(item => {
+            totalLuas += item.luas;
+            totalJentera += item.jentera;
+            ratioHtml += `<tr>
+                <td><strong>${item.peringkat}</strong></td>
+                <td>${item.luas.toFixed(2)}</td>
+                <td>${item.jentera}</td>
+                <td>${item.ratio.toFixed(2)}</td>
+            </tr>`;
+        });
+        const totalRatio = totalLuas / totalJentera;
+
+        container.innerHTML = `
+            <div class="card">
+                <h3><i class="fas fa-chart-pie"></i> Ringkasan Mengikut Kategori</h3>
+                <div class="grid-container">${summaryGridHtml}</div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-tractor"></i> Senarai Jentera & Peralatan</h3>
+                <div class="grid-container">${cardsHtml}</div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-table"></i> Ringkasan Mekanisasi</h3>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Kategori</th><th>Jenis Mekanisasi</th><th>Bilangan</th><th>Unit</th></tr>
+                        </thead>
+                        <tbody>${tableHtml}</tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-chart-bar"></i> Nisbah Jentera Penuaian Mengikut Peringkat</h3>
+                <div style="overflow-x:auto;">
+                    <table class="ratio-table">
+                        <thead>
+                            <tr><th>Peringkat</th><th>Luas (Ha)</th><th>Bilangan Jentera Penuaian</th><th>Ratio (Ha / Jentera)</th></tr>
+                        </thead>
+                        <tbody>${ratioHtml}</tbody>
+                        <tfoot>
+                            <tr style="background:#f1f5f9; font-weight:700;">
+                                <td><strong>JUMLAH</strong></td>
+                                <td>${totalLuas.toFixed(2)}</td>
+                                <td>${totalJentera}</td>
+                                <td>${totalRatio.toFixed(2)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        `;
+    } catch (err) {
         container.innerHTML = `
             <div class="card">
                 <div class="no-data">
-                    <i class="fas fa-database"></i>
-                    <h3>Tiada Data Mekanisasi</h3>
-                    <p>Sila muat naik fail <strong>laporan mekanisasi.csv</strong> terlebih dahulu.</p>
+                    <i class="fas fa-exclamation-triangle" style="color:#e76f51;"></i>
+                    <h3>Ralat Memuat Data</h3>
+                    <p>${err.message}</p>
                     <p style="margin-top:12px;">
                         <a href="upload.html"><i class="fas fa-upload"></i> Pergi ke Halaman Upload</a>
                     </p>
                 </div>
             </div>
         `;
-        return;
     }
-
-    container.innerHTML = `
-        <!-- Ringkasan Kategori -->
-        <div class="card">
-            <h3><i class="fas fa-chart-pie"></i> Ringkasan Mengikut Kategori</h3>
-            <div class="grid-container" id="summaryGrid"></div>
-        </div>
-
-        <!-- Senarai Jentera -->
-        <div class="card">
-            <h3><i class="fas fa-tractor"></i> Senarai Jentera & Peralatan</h3>
-            <div class="grid-container" id="mekanisasiGrid"></div>
-        </div>
-
-        <!-- Ringkasan Jadual -->
-        <div class="card">
-            <h3><i class="fas fa-table"></i> Ringkasan Mekanisasi</h3>
-            <div style="overflow-x:auto;">
-                <table class="data-table" id="mekanisasiTable">
-                    <thead>
-                        <tr><th>Kategori</th><th>Jenis Mekanisasi</th><th>Bilangan</th><th>Unit</th></tr>
-                    </thead>
-                    <tbody id="mekanisasiTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Nisbah Jentera Penuaian -->
-        <div class="card">
-            <h3><i class="fas fa-chart-bar"></i> Nisbah Jentera Penuaian Mengikut Peringkat</h3>
-            <div style="overflow-x:auto;">
-                <table class="ratio-table" id="ratioTable">
-                    <thead>
-                        <tr><th>Peringkat</th><th>Luas (Ha)</th><th>Bilangan Jentera Penuaian</th><th>Ratio (Ha / Jentera)</th></tr>
-                    </thead>
-                    <tbody id="ratioTableBody"></tbody>
-                    <tfoot id="ratioTableFooter"></tfoot>
-                </table>
-            </div>
-        </div>
-    `;
-
-    renderSummaryGrid();
-    renderMekanisasiCards();
-    renderMekanisasiTable();
-    renderRatioTable();
-}
-
-function renderSummaryGrid() {
-    const container = document.getElementById('summaryGrid');
-    if(!container) return;
-    container.innerHTML = '';
-
-    for (const [kategori, data] of Object.entries(kategoriSummary)) {
-        let icon = '';
-        if (kategori === 'PENUAIAN') icon = 'fas fa-tractor';
-        else if (kategori === 'OPERASI LADANG') icon = 'fas fa-cut';
-        else if (kategori === 'PEMBAJAAN') icon = 'fas fa-seedling';
-        else if (kategori === 'MERUMPUT') icon = 'fas fa-spray-can';
-        else if (kategori === 'PENJAGAAN LORONG TUAI') icon = 'fas fa-cut';
-
-        container.innerHTML += `
-            <div class="grid-card">
-                <div class="grid-icon"><i class="${icon}"></i></div>
-                <div class="grid-category">${kategori}</div>
-                <div class="grid-value">${data.total}</div>
-            </div>
-        `;
-    }
-}
-
-function renderMekanisasiCards() {
-    const container = document.getElementById('mekanisasiGrid');
-    if(!container) return;
-    container.innerHTML = '';
-
-    mekanisasiData.forEach(item => {
-        let iconClass = 'fas fa-tractor';
-        if (item.nama === 'KOMODO C700') iconClass = 'fas fa-tractor';
-        else if (item.nama === 'CARABAO G350') iconClass = 'fas fa-tractor';
-        else if (item.nama === '3-WHEELER') iconClass = 'fas fa-motorcycle';
-        else if (item.nama === 'TIGER G1500') iconClass = 'fas fa-tractor';
-        else if (item.nama === 'PALM CUTTER') iconClass = 'fas fa-cut';
-        else if (item.nama === 'TRACTOR MOUNTED SPREADER') iconClass = 'fas fa-seedling';
-        else if (item.nama === 'MISTBLOWER') iconClass = 'fas fa-spray-can';
-        else if (item.nama === 'TRACTOR MOUNTED GRASSCUTTER') iconClass = 'fas fa-cut';
-
-        container.innerHTML += `
-            <div class="grid-card">
-                <div class="grid-icon"><i class="${iconClass}"></i></div>
-                <div class="grid-category">${item.kategori}</div>
-                <div class="grid-name">${item.nama}</div>
-                <div class="grid-value">${item.bilangan} <span class="grid-unit">${item.unit}</span></div>
-            </div>
-        `;
-    });
-}
-
-function renderMekanisasiTable() {
-    const tbody = document.getElementById('mekanisasiTableBody');
-    if(!tbody) return;
-    tbody.innerHTML = '';
-
-    mekanisasiData.forEach(item => {
-        tbody.innerHTML += `<tr>
-            <td>${item.kategori}</td>
-            <td><strong>${item.nama}</strong></td>
-            <td>${item.bilangan}</td>
-            <td>${item.unit}</td>
-        </tr>`;
-    });
-}
-
-function renderRatioTable() {
-    const tbody = document.getElementById('ratioTableBody');
-    const tfoot = document.getElementById('ratioTableFooter');
-    if(!tbody || !tfoot) return;
-    
-    tbody.innerHTML = '';
-    let totalLuas = 0, totalJentera = 0;
-
-    ratioData.forEach(item => {
-        totalLuas += item.luas;
-        totalJentera += item.jentera;
-        tbody.innerHTML += `<tr>
-            <td><strong>${item.peringkat}</strong></td>
-            <td>${item.luas.toFixed(2)}</td>
-            <td>${item.jentera}</td>
-            <td>${item.ratio.toFixed(2)}</td>
-        </tr>`;
-    });
-
-    const totalRatio = totalLuas / totalJentera;
-    tfoot.innerHTML = `<tr style="background:#f1f5f9; font-weight:700;">
-        <td><strong>JUMLAH</strong></td>
-        <td>${totalLuas.toFixed(2)}</td>
-        <td>${totalJentera}</td>
-        <td>${totalRatio.toFixed(2)}</td>
-    </tr>`;
 }
 
 // ========================================================================
 // INIT
 // ========================================================================
-renderDashboard();
+loadData();
 </script>
 </body>
 </html>
