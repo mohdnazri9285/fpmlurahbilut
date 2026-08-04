@@ -48,7 +48,7 @@
 <div class="container">
     <div class="card">
         <h1><i class="fas fa-upload" style="color: #2d6a4f;"></i> Upload Data CSV ke Supabase</h1>
-        <p>Pilih fail CSV dan upload terus ke Supabase. <strong>Semua pengguna akan nampak data yang sama.</strong></p>
+        <p>Pilih fail CSV dan upload terus ke Supabase. <strong>Data lama akan diganti dengan data baru.</strong></p>
 
         <!-- MEKANISASI -->
         <div class="upload-group">
@@ -152,11 +152,16 @@
                             data.push(obj);
                         }
 
+                        // --- CLEANUP: PADAM DATA LAMA ---
+                        const { error: deleteError } = await sb.from(table).delete().neq('id', 0);
+                        if (deleteError) throw deleteError;
+                        // ----------------------------------
+
                         const { error } = await sb.from(table).insert(data);
                         if (error) throw error;
 
                         uploaded++;
-                        statusEl.textContent = `✅ ${file.name} berjaya diupload`;
+                        statusEl.textContent = `✅ ${file.name} berjaya diupload (data lama diganti)`;
                         statusEl.style.color = '#2d6a4f';
                     } catch (err) {
                         hasError = true;
@@ -169,7 +174,7 @@
                         } else if (total === 0) {
                             showStatus('⚠️ Tiada fail dipilih.', 'info');
                         } else {
-                            showStatus(`✅ Berjaya! ${uploaded} fail telah diupload ke Supabase.`, 'success');
+                            showStatus(`✅ Berjaya! ${uploaded} fail telah diupload (data lama diganti).`, 'success');
                         }
                     }
                 };
