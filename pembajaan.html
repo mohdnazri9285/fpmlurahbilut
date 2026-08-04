@@ -304,52 +304,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
             });
             // --------------------------------------------------------
 
-            // --- GRAF ---
-            const canvas = document.getElementById('summaryChart');
-            if (canvas) {
-                if (summaryChart) summaryChart.destroy();
-
-                const colors = percentData.map(p => p >= 75 ? '#2d6a4f' : (p >= 50 ? '#f4a261' : '#e76f51'));
-
-                summaryChart = new Chart(canvas, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: '% Siap Keseluruhan',
-                            data: percentData,
-                            backgroundColor: colors,
-                            borderRadius: 8,
-                            barPercentage: 0.5,
-                            categoryPercentage: 0.8,
-                            datalabels: {
-                                display: true,
-                                anchor: 'end',
-                                align: 'top',
-                                color: '#1b4d3e',
-                                font: { size: 11, weight: 'bold' },
-                                formatter: v => v.toFixed(1) + '%'
-                            }
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        layout: { padding: { top: 35 } },
-                        plugins: {
-                            legend: { position: 'top' },
-                            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(1)}%` } }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
-                            x: { ticks: { font: { size: 11 } } }
-                        }
-                    }
-                });
-            }
-            // ----------
-
-            // --- RIBBON TABLES ---
+            // --- RIBBON DATA ---
             const ribbonData = {};
             data.forEach(row => {
                 if (peringkatFilter === 'all' || row.peringkat === peringkatFilter) {
@@ -435,37 +390,82 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
                     </div>
                 `;
             });
+            // ------------
 
-            // Add ribbon container
-            const ribbonContainer = document.createElement('div');
-            ribbonContainer.innerHTML = `
+            // --- RENDER FULL DASHBOARD ---
+            const colors = percentData.map(p => p >= 75 ? '#2d6a4f' : (p >= 50 ? '#f4a261' : '#e76f51'));
+
+            container.innerHTML = `
+                <div class="card">
+                    <h3><i class="fas fa-chart-bar"></i> Rumusan Pembajaan Setiap Pusingan (%)</h3>
+                    <div class="chart-container"><canvas id="summaryChart" style="width:100%; height:320px;"></canvas></div>
+                    <div class="filter-buttons" id="filterButtons">
+                        <button class="filter-btn active" data-peringkat="all">Semua</button>
+                        ${['1G','1A','1C','1D','2G','3','1F','2F','3F'].map(p => 
+                            `<button class="filter-btn" data-peringkat="${p}">${p}</button>`
+                        ).join('')}
+                    </div>
+                </div>
                 <div class="card">
                     <h3><i class="fas fa-list"></i> Detail Pembajaan Mengikut Pusingan</h3>
                     <div id="ribbonContainer">${ribbonHtml}</div>
                 </div>
             `;
-            container.appendChild(ribbonContainer.children[0]);
-            // ---------------
+            // ------------------------
 
-            // --- FILTER BUTTONS ---
-            const filterContainer = document.querySelector('.filter-buttons');
-            if (filterContainer) {
-                filterContainer.innerHTML = `
-                    <button class="filter-btn active" data-peringkat="all">Semua</button>
-                    ${['1G','1A','1C','1D','2G','3','1F','2F','3F'].map(p => 
-                        `<button class="filter-btn" data-peringkat="${p}">${p}</button>`
-                    ).join('')}
-                `;
-                filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        filterContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        const peringkat = btn.getAttribute('data-peringkat');
-                        loadData(peringkat);
-                    });
+            // --- LUKIS GRAF ---
+            const canvas = document.getElementById('summaryChart');
+            if (canvas) {
+                if (summaryChart) summaryChart.destroy();
+
+                summaryChart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '% Siap Keseluruhan',
+                            data: percentData,
+                            backgroundColor: colors,
+                            borderRadius: 8,
+                            barPercentage: 0.5,
+                            categoryPercentage: 0.8,
+                            datalabels: {
+                                display: true,
+                                anchor: 'end',
+                                align: 'top',
+                                color: '#1b4d3e',
+                                font: { size: 11, weight: 'bold' },
+                                formatter: v => v.toFixed(1) + '%'
+                            }
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        layout: { padding: { top: 35 } },
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(1)}%` } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+                            x: { ticks: { font: { size: 11 } } }
+                        }
+                    }
                 });
             }
-            // ---------------
+            // ----------
+
+            // --- SETUP FILTER BUTTONS ---
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const peringkat = btn.getAttribute('data-peringkat');
+                    loadData(peringkat);
+                });
+            });
+            // -------------------------
 
             window.toggleRibbon = function(ribbonId) {
                 const currentRibbon = document.getElementById(ribbonId);
