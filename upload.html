@@ -140,8 +140,10 @@
                             if (firstValue === 'peringkat' || firstValue === 'jentera') continue;
                             // -------------------------------------
                             
+                            // --- GUNAKAN BILANGAN HEADER SEBAGAI RUJUKAN ---
                             const cleanValues = values.slice(0, headers.length);
                             if (cleanValues.length !== headers.length) continue;
+                            // ---------------------------------------------
 
                             const obj = {};
                             headers.forEach((h, idx) => {
