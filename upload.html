@@ -125,17 +125,16 @@
                         const lines = csvData.split('\n').filter(line => line.trim() !== '');
                         if (lines.length < 2) throw new Error('CSV tidak lengkap');
 
-                        // --- PERUBAHAN PENTING: BUANG KOLUM KOSONG ---
-                        const rawHeaders = lines[0].split(',').map(h => h.trim());
+                        // --- TUKAR HEADER KE HURUF KECIL ---
+                        const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase());
                         const headers = rawHeaders.filter(h => h !== '');
-                        // ---------------------------------------------
+                        // ------------------------------------
 
                         const data = [];
                         for (let i = 1; i < lines.length; i++) {
                             const values = lines[i].split(',');
                             if (values.every(v => v.trim() === '')) continue;
                             
-                            // Padankan bilangan nilai dengan header (buang nilai kosong di hujung)
                             const cleanValues = values.slice(0, headers.length);
                             if (cleanValues.length !== headers.length) continue;
 
