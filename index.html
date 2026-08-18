@@ -140,7 +140,7 @@
         .stat-number { font-size: 2rem; font-weight: 800; color: #2d6a4f; line-height: 1.2; }
         .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-top: 8px; }
         
-        /* -------------------- KEMASKINI KOTAK TENAGA KERJA -------------------- */
+        /* KEMASKINI KOTAK TENAGA KERJA */
         .total-card { 
             background: #e8f0e8; 
             border: 2px solid #2d6a4f; 
@@ -152,7 +152,6 @@
             margin-top: 10px;
             width: 100%;
         }
-        /* --------------------------------------------------------------------- */
         
         .info-cards-grid {
             display: grid;
@@ -284,7 +283,20 @@
                 <p style="color:#475569; line-height:1.6;">Lurah Bilut ialah sebuah kawasan penempatan FELDA yang terletak di Bentong, Pahang. Ia mula dibuka pada tahun 1958 dan merupakan rancangan pembangunan tanah secara berkelompok untuk pertanian yang pertama ditubuhkan seumpamanya di Malaysia dan dunia.</p>
             </div>
 
-            <!-- --- TAMBAHAN: TABURAN HUJAN --- -->
+            <!-- Graf Luas Kawasan dengan Filter -->
+            <div class="card">
+                <h3><i class="fas fa-chart-bar"></i> Luas Kawasan Mengikut Peringkat (Hektar)</h3>
+                <div class="filter-buttons" id="filterButtons">
+                    <button class="filter-btn active" data-filter="all">Semua Peringkat</button>
+                    <button class="filter-btn" data-filter="peneroka">Lot Peneroka</button>
+                    <button class="filter-btn" data-filter="felda">Lot FELDA</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="luasChart" style="width:100%; height:360px;"></canvas>
+                </div>
+            </div>
+
+            <!-- --- TABURAN HUJAN (KINI DI BAWAH GRAF LUAS) --- -->
             <div class="card">
                 <h3><i class="fas fa-cloud-rain"></i> Taburan Hujan (mm)</h3>
                 <div style="overflow-x:auto;">
@@ -313,20 +325,7 @@
                     </table>
                 </div>
             </div>
-            <!-- --------------------------------- -->
-
-            <!-- Graf Luas Kawasan dengan Filter -->
-            <div class="card">
-                <h3><i class="fas fa-chart-bar"></i> Luas Kawasan Mengikut Peringkat (Hektar)</h3>
-                <div class="filter-buttons" id="filterButtons">
-                    <button class="filter-btn active" data-filter="all">Semua Peringkat</button>
-                    <button class="filter-btn" data-filter="peneroka">Lot Peneroka</button>
-                    <button class="filter-btn" data-filter="felda">Lot FELDA</button>
-                </div>
-                <div class="chart-container">
-                    <canvas id="luasChart" style="width:100%; height:360px;"></canvas>
-                </div>
-            </div>
+            <!-- ------------------------------------------------- -->
 
             <!-- Maklumat Tanaman -->
             <div class="card">
@@ -498,7 +497,7 @@
             });
         }
 
-        // --- KEMASKINI DATA TANAMAN: VARIETY & SPH ---
+        // --- DATA TANAMAN: VARIETY & SPH ---
         const tanamanData = [
             { peringkat: "01G", tanaman: "Sawit", variety: "ML161", tahun: "2014", sph: 130 },
             { peringkat: "01A", tanaman: "Sawit", variety: "ML161", tahun: "2016", sph: 116 },
@@ -564,7 +563,7 @@
             `;
             container.appendChild(totalDiv);
         }
-
+        
         // ========== LOGIN / LOGOUT FUNCTIONS ==========
         function checkAuth() {
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
