@@ -163,12 +163,12 @@
 <div class="main">
     <div class="page-title">
         <h1>📈 Laporan Hasil Ladang</h1>
-        <p>Pencapaian 2026 (Jan- Sept[28/09/2026]) vs Target Tahunan · Analisa Blok</p>
+        <p>Pencapaian 2026 (Jan-Sep) vs Target Tahunan · Analisa Blok</p>
     </div>
 
     <!-- GRAF UTAMA 1: PERINGKAT -->
     <div class="card">
-        <h3><i class="fas fa-chart-bar"></i> Prestasi Hasil per Peringkat (T/Ha) - Jan hingga  Sept[28/09/2026]</h3>
+        <h3><i class="fas fa-chart-bar"></i> Prestasi Hasil per Peringkat (T/Ha) - Jan hingga Sep</h3>
         <div class="chart-container"><canvas id="peringkatChart" style="width:100%; height:380px;"></canvas></div>
         <p style="font-size:0.7rem; color:#64748b; margin-top:10px; text-align:center;">*Klik pada bar untuk detail peringkat (Popup 1)</p>
     </div>
@@ -192,7 +192,7 @@
 
     <!-- JADUAL RINGKASAN BLOK -->
     <div class="card">
-        <h3><i class="fas fa-table"></i> Ringkasan Hasil Mengikut Blok - <span id="selectedPeringkatTable">1G</span> (Jan -  Sept[28/09/2026] 2026)</h3>
+        <h3><i class="fas fa-table"></i> Ringkasan Hasil Mengikut Blok - <span id="selectedPeringkatTable">1G</span> (Jan - Sep 2026)</h3>
         <div style="overflow-x:auto;">
             <table class="data-table" id="summaryTable">
                 <thead><tr><th>Blok</th><th>Luas (Ha)</th><th>M.TAN (MT)</th><th>TAN/HA</th><th>Jumlah Tandan</th><th>ABW (kg)</th><th>Tandan/Pkk</th><th>BTB Muda</th><th>% BTB</th></tr></thead>
@@ -233,7 +233,7 @@ const targetTahunan = {
 };
 
 // ========================================================================
-// DATA BULANAN PERINGKAT (HASIL 2026) - JAN- Sept[28/09/2026]
+// DATA BULANAN PERINGKAT (HASIL 2026) - JAN-SEP
 // ========================================================================
 const bulanan2026 = {
     "1G": [1.51, 1.19, 0.94, 1.12, 0.95, 1.00, 0.94, 1.28, 1.71],
@@ -249,7 +249,7 @@ const bulanan2026 = {
 };
 
 // ========================================================================
-// DATA BULANAN PERINGKAT (HASIL 2025) - JAN- Sept[28/09/2026] (DIKIRA DARI CSV)
+// DATA BULANAN PERINGKAT (HASIL 2025) - JAN-SEP
 // ========================================================================
 const bulanan2025 = {
     "1G": [0.83, 0.58, 0.85, 1.20, 1.32, 1.50, 1.42, 1.58, 1.92],
@@ -265,7 +265,7 @@ const bulanan2025 = {
 };
 
 // ========================================================================
-// DATA BLOK 2026 (JAN- Sept[28/09/2026])
+// DATA BLOK 2026 (JAN-OGOS) - KEKAL
 // ========================================================================
 const blokData2026 = {
     "1G": {
@@ -348,7 +348,7 @@ const blokData2026 = {
 };
 
 // ========================================================================
-// DATA TANDAN BULANAN (UNTUK POPUP 2) - JAN- Sept[28/09/2026]
+// DATA TANDAN BULANAN (UNTUK POPUP 2) - JAN-OGOS (KEKAL)
 // ========================================================================
 const tandanBulanan = {
     "1G": {
@@ -409,8 +409,7 @@ function renderPeringkatChart() {
     const peringkatList = ["1G","1A","1C","1D","2G","3","4","1F","2F","3F"];
     const labels = peringkatList;
 
-    // Kira jumlah T/Ha (Jan- Sept[28/09/2026]) dari data bulanan 2026
-    const capai Sept[28/09/2026] = peringkatList.map(p => {
+    const capaiSep = peringkatList.map(p => {
         const data = bulanan2026[p];
         if(!data) return 0;
         return data.reduce((a,b) => a + b, 0);
@@ -442,8 +441,8 @@ function renderPeringkatChart() {
                     } 
                 },
                 { 
-                    label: 'Pencapaian Jan- Sept[28/09/2026] (T/Ha)', 
-                    data: capai Sept[28/09/2026], 
+                    label: 'Pencapaian Jan-Sep (T/Ha)', 
+                    data: capaiSep, 
                     backgroundColor: '#2d6a4f', 
                     borderRadius: 8, 
                     barPercentage: 0.65, 
@@ -508,7 +507,7 @@ function renderBlokChart(peringkatId) {
 
     const labels = data.blok;
     const tanHaData = data.tanHa;
-    const targetJan Sept[28/09/2026] = data.targetJan Sept[28/09/2026];
+    const targetJanSep = data.targetJanSep;
 
     blokChart = new Chart(canvas, {
         type: 'bar',
@@ -516,8 +515,8 @@ function renderBlokChart(peringkatId) {
             labels: labels,
             datasets: [
                 { 
-                    label: `Target Jan- Sept[28/09/2026] (${targetJan Sept[28/09/2026].toFixed(2)} T/Ha)`, 
-                    data: labels.map(() => targetJan Sept[28/09/2026]), 
+                    label: `Target Jan-Sep (${targetJanSep.toFixed(2)} T/Ha)`, 
+                    data: labels.map(() => targetJanSep), 
                     backgroundColor: '#e2e8f0', 
                     borderColor: '#94a3b8', 
                     borderWidth: 2, 
@@ -535,7 +534,7 @@ function renderBlokChart(peringkatId) {
                     } 
                 },
                 { 
-                    label: 'Pencapaian Jan- Sept[28/09/2026] (T/Ha)', 
+                    label: 'Pencapaian Jan-Sep (T/Ha)', 
                     data: tanHaData, 
                     backgroundColor: '#2d6a4f', 
                     borderRadius: 8, 
@@ -569,7 +568,7 @@ function renderBlokChart(peringkatId) {
                 y: { 
                     beginAtZero: true, 
                     title: { display: true, text: 'Tan/Ha' }, 
-                    max: Math.max(...tanHaData, targetJan Sept[28/09/2026]) * 1.2 
+                    max: Math.max(...tanHaData, targetJanSep) * 1.2 
                 }, 
                 x: { 
                     ticks: { font: { size: 10 } } 
@@ -691,7 +690,7 @@ function showPopup1(peringkatId) {
 
         <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
             <p>📌 Pencapaian 2025: <strong>${total2025.toFixed(2)} T/Ha</strong> | 2026: <strong>${total2026.toFixed(2)} T/Ha</strong></p>
-            <p style="font-size:0.7rem; margin-top:8px;">*Data September-Disember 2026 akan dikemaskini selepas bulan berjalan.</p>
+            <p style="font-size:0.7rem; margin-top:8px;">*Data Oktober-Disember 2026 akan dikemaskini selepas bulan berjalan.</p>
         </div>`;
 
     document.getElementById('detailPeringkatModal').style.display = 'flex';
@@ -751,15 +750,15 @@ function showPopup1(peringkatId) {
         }
 
         // Dapatkan data tandan bulanan untuk peringkat ini (purata semua blok)
-        let abwBulan = [0,0,0,0,0,0,0,0,0];
-        let tppBulan = [0,0,0,0,0,0,0,0,0];
-        let btbBulan = [0,0,0,0,0,0,0,0,0];
+        let abwBulan = [0,0,0,0,0,0,0,0];
+        let tppBulan = [0,0,0,0,0,0,0,0];
+        let btbBulan = [0,0,0,0,0,0,0,0];
         
         if(tandanBulanan[peringkatId]) {
             const bloks = tandanBulanan[peringkatId];
             const blokNames = Object.keys(bloks);
             if(blokNames.length > 0) {
-                for(let i=0; i<9; i++) {
+                for(let i=0; i<8; i++) {
                     let sumAbw = 0, sumTpp = 0, sumBtb = 0, count = 0;
                     blokNames.forEach(name => {
                         const d = bloks[name];
@@ -907,9 +906,9 @@ function showPopup2(peringkatId, blokName) {
     const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo'];
     
     // Dapatkan data tandan bulanan untuk blok ini
-    let abwBulan = [0,0,0,0,0,0,0,0,0];
-    let btbBulan = [0,0,0,0,0,0,0,0,0];
-    let tppBulan = [0,0,0,0,0,0,0,0,0];
+    let abwBulan = [0,0,0,0,0,0,0,0];
+    let btbBulan = [0,0,0,0,0,0,0,0];
+    let tppBulan = [0,0,0,0,0,0,0,0];
 
     if(tandanBulanan[peringkatId] && tandanBulanan[peringkatId][blokName]) {
         const d = tandanBulanan[peringkatId][blokName];
@@ -919,7 +918,7 @@ function showPopup2(peringkatId, blokName) {
     }
 
     // Dapatkan hasil bulanan untuk blok ini (dari data peringkat 2026)
-    const hasilBulanan = bulanan2026[peringkatId] || [0,0,0,0,0,0,0,0];
+    const hasilBulanan = (bulanan2026[peringkatId] || [0,0,0,0,0,0,0,0]).slice(0, 8);
 
     document.getElementById('blokModalTitle').innerHTML = `${peringkatId} - ${blokName}`;
     document.getElementById('blokModalBody').innerHTML = `
@@ -950,7 +949,7 @@ function showPopup2(peringkatId, blokName) {
         </div>
 
         <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
-            <p>📌 Pencapaian 2026 (Jan- Sept[28/09/2026]): <strong>${blok.tanHa.toFixed(2)} T/Ha</strong> (${blok.mTan.toFixed(2)} MT)</p>
+            <p>📌 Pencapaian 2026 (Jan-Ogos): <strong>${blok.tanHa.toFixed(2)} T/Ha</strong> (${blok.mTan.toFixed(2)} MT)</p>
             <p style="font-size:0.7rem; margin-top:8px;">*Data September-Disember 2026 akan dikemaskini selepas bulan berjalan.</p>
         </div>`;
 
