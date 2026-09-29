@@ -163,12 +163,12 @@
 <div class="main">
     <div class="page-title">
         <h1>📈 Laporan Hasil Ladang</h1>
-        <p>Pencapaian 2026 (Jan-Ogos) vs Target Tahunan · Analisa Blok</p>
+        <p>Pencapaian 2026 (Jan- Sept[28/09/2026]) vs Target Tahunan · Analisa Blok</p>
     </div>
 
     <!-- GRAF UTAMA 1: PERINGKAT -->
     <div class="card">
-        <h3><i class="fas fa-chart-bar"></i> Prestasi Hasil per Peringkat (T/Ha) - Jan hingga Ogos</h3>
+        <h3><i class="fas fa-chart-bar"></i> Prestasi Hasil per Peringkat (T/Ha) - Jan hingga  Sept[28/09/2026]</h3>
         <div class="chart-container"><canvas id="peringkatChart" style="width:100%; height:380px;"></canvas></div>
         <p style="font-size:0.7rem; color:#64748b; margin-top:10px; text-align:center;">*Klik pada bar untuk detail peringkat (Popup 1)</p>
     </div>
@@ -192,7 +192,7 @@
 
     <!-- JADUAL RINGKASAN BLOK -->
     <div class="card">
-        <h3><i class="fas fa-table"></i> Ringkasan Hasil Mengikut Blok - <span id="selectedPeringkatTable">1G</span> (Jan - Ogos 2026)</h3>
+        <h3><i class="fas fa-table"></i> Ringkasan Hasil Mengikut Blok - <span id="selectedPeringkatTable">1G</span> (Jan -  Sept[28/09/2026] 2026)</h3>
         <div style="overflow-x:auto;">
             <table class="data-table" id="summaryTable">
                 <thead><tr><th>Blok</th><th>Luas (Ha)</th><th>M.TAN (MT)</th><th>TAN/HA</th><th>Jumlah Tandan</th><th>ABW (kg)</th><th>Tandan/Pkk</th><th>BTB Muda</th><th>% BTB</th></tr></thead>
@@ -233,39 +233,39 @@ const targetTahunan = {
 };
 
 // ========================================================================
-// DATA BULANAN PERINGKAT (HASIL 2026) - JAN-OGOS
+// DATA BULANAN PERINGKAT (HASIL 2026) - JAN- Sept[28/09/2026]
 // ========================================================================
 const bulanan2026 = {
-    "1G": [1.54, 1.21, 0.94, 1.12, 0.95, 1.00, 0.95, 1.28],
-    "1A": [0.91, 0.86, 0.69, 0.74, 0.73, 1.18, 1.29, 1.69],
-    "1C": [0.63, 0.66, 0.77, 0.55, 1.08, 1.00, 0.67, 1.57],
-    "1D": [0.87, 0.70, 0.60, 0.85, 0.88, 1.17, 1.12, 1.52],
-    "2G": [1.05, 0.81, 0.63, 0.66, 0.75, 0.93, 1.06, 1.56],
-    "3":  [0.97, 0.80, 0.69, 0.61, 0.82, 1.33, 1.45, 1.74],
-    "4":  [1.12, 0.98, 0.87, 1.21, 1.07, 1.24, 1.35, 1.14],
-    "1F": [0.76, 1.32, 1.33, 0.66, 0.54, 0.85, 0.49, 1.24],
-    "2F": [0.84, 0.84, 1.21, 1.34, 1.26, 1.97, 1.40, 1.98],
-    "3F": [0.80, 0.88, 0.62, 0.55, 0.81, 1.10, 1.01, 1.28]
+    "1G": [1.51, 1.19, 0.94, 1.12, 0.95, 1.00, 0.94, 1.28, 1.71],
+    "1A": [0.91, 0.86, 0.69, 0.74, 0.73, 1.18, 1.29, 1.69, 1.82],
+    "1C": [0.64, 0.66, 0.76, 0.55, 1.08, 1.00, 0.67, 1.57, 1.15],
+    "1D": [0.87, 0.70, 0.60, 0.85, 0.88, 1.17, 1.12, 1.52, 1.48],
+    "2G": [1.04, 0.81, 0.62, 0.66, 0.75, 0.93, 1.06, 1.56, 1.55],
+    "3":  [0.96, 0.78, 0.69, 0.61, 0.84, 1.33, 1.45, 1.74, 2.33],
+    "4":  [1.11, 0.96, 0.86, 1.21, 1.07, 1.28, 1.35, 1.14, 1.02],
+    "1F": [0.76, 1.32, 1.33, 0.66, 0.54, 0.85, 0.49, 1.24, 1.49],
+    "2F": [0.84, 0.84, 1.21, 1.34, 1.26, 1.97, 1.40, 1.98, 2.33],
+    "3F": [0.80, 0.88, 0.62, 0.55, 0.81, 1.10, 1.01, 1.28, 2.07]
 };
 
 // ========================================================================
-// DATA BULANAN PERINGKAT (HASIL 2025) - JAN-OGOS (DIKIRA DARI CSV)
+// DATA BULANAN PERINGKAT (HASIL 2025) - JAN- Sept[28/09/2026] (DIKIRA DARI CSV)
 // ========================================================================
 const bulanan2025 = {
-    "1G": [0.83, 0.58, 0.85, 1.20, 1.32, 1.50, 1.42, 1.58],
-    "1A": [0.80, 0.59, 0.58, 1.24, 1.39, 1.29, 1.32, 1.44],
-    "1C": [0.50, 0.74, 0.97, 1.58, 0.84, 1.02, 0.92, 0.98],
-    "1D": [0.63, 0.47, 0.55, 1.23, 1.45, 0.99, 1.17, 1.17],
-    "2G": [0.55, 0.43, 0.64, 0.95, 1.27, 1.22, 1.18, 1.25],
-    "3": [0.70, 0.52, 0.50, 0.94, 1.33, 1.29, 1.29, 1.42],
-    "4": [0.48, 0.60, 0.59, 0.77, 0.77, 0.90, 1.31, 1.14],
-    "1F": [1.83, 0.88, 1.87, 3.13, 2.45, 1.88, 2.97, 2.82],
-    "2F": [1.27, 1.12, 1.14, 2.15, 1.79, 2.36, 1.46, 1.33],
-    "3F": [0.96, 0.39, 0.54, 0.81, 1.08, 1.17, 1.50, 1.41]
+    "1G": [0.83, 0.58, 0.85, 1.20, 1.32, 1.50, 1.42, 1.58, 1.92],
+    "1A": [0.80, 0.59, 0.58, 1.24, 1.39, 1.29, 1.32, 1.44, 1.79],
+    "1C": [0.50, 0.74, 0.97, 1.58, 0.84, 1.02, 0.92, 0.98, 1.33],
+    "1D": [0.63, 0.47, 0.55, 1.23, 1.45, 0.99, 1.17, 1.17, 1.57],
+    "2G": [0.55, 0.43, 0.64, 0.95, 1.27, 1.22, 1.18, 1.25, 1.35],
+    "3":  [0.70, 0.52, 0.50, 0.94, 1.33, 1.29, 1.29, 1.42, 1.92],
+    "4":  [0.48, 0.60, 0.59, 0.77, 0.77, 0.90, 1.31, 1.14, 1.39],
+    "1F": [1.83, 0.88, 1.87, 3.13, 2.45, 1.88, 2.97, 2.82, 1.54],
+    "2F": [1.27, 1.12, 1.14, 2.15, 1.79, 2.36, 1.46, 1.33, 1.51],
+    "3F": [0.96, 0.39, 0.54, 0.81, 1.08, 1.17, 1.50, 1.41, 1.52]
 };
 
 // ========================================================================
-// DATA BLOK 2026 (JAN-OGOS)
+// DATA BLOK 2026 (JAN- Sept[28/09/2026])
 // ========================================================================
 const blokData2026 = {
     "1G": {
@@ -277,7 +277,7 @@ const blokData2026 = {
         abw: [16.23,16.63,16.37,16.90,17.04,16.72,16.69],
         tpp: [3.72,3.59,4.79,4.46,4.25,4.28,3.98],
         btbMuda: [230,197,256,284,231,175,286],
-        targetJanOgos: 12.02
+        targetJanSep: 13.52
     },
     "1A": {
         blok: ["Blok 8","Blok 9","Blok 12","Blok 13"],
@@ -288,7 +288,7 @@ const blokData2026 = {
         abw: [17.13,17.80,15.76,16.02],
         tpp: [4.34,4.83,3.80,3.47],
         btbMuda: [55,70,64,107],
-        targetJanOgos: 9.36
+        targetJanSep: 10.53
     },
     "1C": {
         blok: ["Blok 21"],
@@ -299,7 +299,7 @@ const blokData2026 = {
         abw: [14.40],
         tpp: [4.36],
         btbMuda: [32],
-        targetJanOgos: 9.10
+        targetJanSep: 10.24
     },
     "1D": {
         blok: ["Blok 10","Blok 11"],
@@ -310,7 +310,7 @@ const blokData2026 = {
         abw: [14.96,12.36],
         tpp: [5.47,4.83],
         btbMuda: [401,317],
-        targetJanOgos: 10.91
+        targetJanSep: 12.28
     },
     "2G": {
         blok: ["Blok 14","Blok 15","Blok 16"],
@@ -321,7 +321,7 @@ const blokData2026 = {
         abw: [16.35,12.47,13.47],
         tpp: [3.67,5.71,4.01],
         btbMuda: [122,163,165],
-        targetJanOgos: 9.39
+        targetJanSep: 10.57
     },
     "3": {
         blok: ["Blok 17","Blok 18","Blok 19","Blok 20"],
@@ -332,7 +332,7 @@ const blokData2026 = {
         abw: [13.69,14.78,13.84,16.09],
         tpp: [5.83,5.09,5.28,3.83],
         btbMuda: [147,133,110,109],
-        targetJanOgos: 10.33
+        targetJanSep: 11.62
     },
     "4": {
         blok: ["Chekroll 1"],
@@ -343,12 +343,12 @@ const blokData2026 = {
         abw: [27.34],
         tpp: [2.70],
         btbMuda: [3274],
-        targetJanOgos: 10.45
+        targetJanSep: 11.75
     }
 };
 
 // ========================================================================
-// DATA TANDAN BULANAN (UNTUK POPUP 2) - JAN-OGOS
+// DATA TANDAN BULANAN (UNTUK POPUP 2) - JAN- Sept[28/09/2026]
 // ========================================================================
 const tandanBulanan = {
     "1G": {
@@ -409,8 +409,8 @@ function renderPeringkatChart() {
     const peringkatList = ["1G","1A","1C","1D","2G","3","4","1F","2F","3F"];
     const labels = peringkatList;
 
-    // Kira jumlah T/Ha (Jan-Ogos) dari data bulanan 2026
-    const capaiOgos = peringkatList.map(p => {
+    // Kira jumlah T/Ha (Jan- Sept[28/09/2026]) dari data bulanan 2026
+    const capai Sept[28/09/2026] = peringkatList.map(p => {
         const data = bulanan2026[p];
         if(!data) return 0;
         return data.reduce((a,b) => a + b, 0);
@@ -442,8 +442,8 @@ function renderPeringkatChart() {
                     } 
                 },
                 { 
-                    label: 'Pencapaian Jan-Ogos (T/Ha)', 
-                    data: capaiOgos, 
+                    label: 'Pencapaian Jan- Sept[28/09/2026] (T/Ha)', 
+                    data: capai Sept[28/09/2026], 
                     backgroundColor: '#2d6a4f', 
                     borderRadius: 8, 
                     barPercentage: 0.65, 
@@ -508,7 +508,7 @@ function renderBlokChart(peringkatId) {
 
     const labels = data.blok;
     const tanHaData = data.tanHa;
-    const targetJanOgos = data.targetJanOgos;
+    const targetJan Sept[28/09/2026] = data.targetJan Sept[28/09/2026];
 
     blokChart = new Chart(canvas, {
         type: 'bar',
@@ -516,8 +516,8 @@ function renderBlokChart(peringkatId) {
             labels: labels,
             datasets: [
                 { 
-                    label: `Target Jan-Ogos (${targetJanOgos.toFixed(2)} T/Ha)`, 
-                    data: labels.map(() => targetJanOgos), 
+                    label: `Target Jan- Sept[28/09/2026] (${targetJan Sept[28/09/2026].toFixed(2)} T/Ha)`, 
+                    data: labels.map(() => targetJan Sept[28/09/2026]), 
                     backgroundColor: '#e2e8f0', 
                     borderColor: '#94a3b8', 
                     borderWidth: 2, 
@@ -535,7 +535,7 @@ function renderBlokChart(peringkatId) {
                     } 
                 },
                 { 
-                    label: 'Pencapaian Jan-Ogos (T/Ha)', 
+                    label: 'Pencapaian Jan- Sept[28/09/2026] (T/Ha)', 
                     data: tanHaData, 
                     backgroundColor: '#2d6a4f', 
                     borderRadius: 8, 
@@ -569,7 +569,7 @@ function renderBlokChart(peringkatId) {
                 y: { 
                     beginAtZero: true, 
                     title: { display: true, text: 'Tan/Ha' }, 
-                    max: Math.max(...tanHaData, targetJanOgos) * 1.2 
+                    max: Math.max(...tanHaData, targetJan Sept[28/09/2026]) * 1.2 
                 }, 
                 x: { 
                     ticks: { font: { size: 10 } } 
@@ -636,7 +636,7 @@ function showPopup1(peringkatId) {
     const data2025 = bulanan2025[peringkatId];
     if(!data2026 || !data2025) return;
 
-    const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo'];
+    const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo', 'Sep'];
     const hasil2025 = data2025;
     const hasil2026 = data2026;
     const total2025 = hasil2025.reduce((a,b) => a + b, 0);
@@ -751,15 +751,15 @@ function showPopup1(peringkatId) {
         }
 
         // Dapatkan data tandan bulanan untuk peringkat ini (purata semua blok)
-        let abwBulan = [0,0,0,0,0,0,0,0];
-        let tppBulan = [0,0,0,0,0,0,0,0];
-        let btbBulan = [0,0,0,0,0,0,0,0];
+        let abwBulan = [0,0,0,0,0,0,0,0,0];
+        let tppBulan = [0,0,0,0,0,0,0,0,0];
+        let btbBulan = [0,0,0,0,0,0,0,0,0];
         
         if(tandanBulanan[peringkatId]) {
             const bloks = tandanBulanan[peringkatId];
             const blokNames = Object.keys(bloks);
             if(blokNames.length > 0) {
-                for(let i=0; i<8; i++) {
+                for(let i=0; i<9; i++) {
                     let sumAbw = 0, sumTpp = 0, sumBtb = 0, count = 0;
                     blokNames.forEach(name => {
                         const d = bloks[name];
@@ -907,9 +907,9 @@ function showPopup2(peringkatId, blokName) {
     const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogo'];
     
     // Dapatkan data tandan bulanan untuk blok ini
-    let abwBulan = [0,0,0,0,0,0,0,0];
-    let btbBulan = [0,0,0,0,0,0,0,0];
-    let tppBulan = [0,0,0,0,0,0,0,0];
+    let abwBulan = [0,0,0,0,0,0,0,0,0];
+    let btbBulan = [0,0,0,0,0,0,0,0,0];
+    let tppBulan = [0,0,0,0,0,0,0,0,0];
 
     if(tandanBulanan[peringkatId] && tandanBulanan[peringkatId][blokName]) {
         const d = tandanBulanan[peringkatId][blokName];
@@ -950,7 +950,7 @@ function showPopup2(peringkatId, blokName) {
         </div>
 
         <div style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:16px;">
-            <p>📌 Pencapaian 2026 (Jan-Ogos): <strong>${blok.tanHa.toFixed(2)} T/Ha</strong> (${blok.mTan.toFixed(2)} MT)</p>
+            <p>📌 Pencapaian 2026 (Jan- Sept[28/09/2026]): <strong>${blok.tanHa.toFixed(2)} T/Ha</strong> (${blok.mTan.toFixed(2)} MT)</p>
             <p style="font-size:0.7rem; margin-top:8px;">*Data September-Disember 2026 akan dikemaskini selepas bulan berjalan.</p>
         </div>`;
 
